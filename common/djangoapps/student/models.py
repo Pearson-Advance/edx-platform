@@ -1350,6 +1350,7 @@ class CourseEnrollment(models.Model):
                 course_key=self.course_id,
                 mode=self.mode,
                 countdown=SCORE_RECALCULATION_DELAY_ON_ENROLLMENT_UPDATE,
+                course_enrollment=self,
             )
 
     def send_signal(self, event, cost=None, currency=None):
