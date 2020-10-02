@@ -533,6 +533,11 @@ SYSTEM_WIDE_ROLE_CLASSES = ENV_TOKENS.get('SYSTEM_WIDE_ROLE_CLASSES') or SYSTEM_
 
 ####################### Plugin Settings ##########################
 
+############# SCORMXBLOCK #########################
+SCORMXBLOCK_ASYNC_THRESHOLD = ENV_TOKENS.get('SCORMXBLOCK_ASYNC_THRESHOLD', 250)
+
+####################### Plugin Settings ##########################
+
 # This is at the bottom because it is going to load more settings after base settings are loaded
 
 plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.CMS, plugin_constants.SettingsType.PRODUCTION)
