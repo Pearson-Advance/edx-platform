@@ -41,6 +41,7 @@ from lms.djangoapps.ccx.utils import (
     assign_staff_role_to_ccx,
     ccx_course,
     ccx_students_enrolling_center,
+    exclude_master_course_staff_users,
     get_ccx_by_ccx_id,
     get_ccx_creation_dict,
     get_ccx_for_coach,
@@ -54,6 +55,7 @@ from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params
 from lms.djangoapps.instructor.views.gradebook_api import get_grade_book_page
 from openedx.core.djangoapps.django_comment_common.models import FORUM_ROLE_ADMINISTRATOR, assign_role
 from openedx.core.djangoapps.django_comment_common.utils import seed_permissions_roles
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.models import CourseEnrollment
 from student.roles import CourseCcxCoachRole
 from xmodule.modulestore.django import SignalHandler
@@ -527,6 +529,13 @@ def ccx_grades_csv(request, course, ccx=None):
             courseenrollment__course_id=ccx_key,
             courseenrollment__is_active=1
         ).order_by('username').select_related("profile")
+
+        if configuration_helpers.get_value('HIDE_MASTER_COURSE_STAFF_FROM_GRADEBOOK', False):
+            enrolled_students = exclude_master_course_staff_users(
+                users=enrolled_students,
+                course_key=ccx_key,
+            )
+
         grades = CourseGradeFactory().iter(enrolled_students, course)
 
         header = None
