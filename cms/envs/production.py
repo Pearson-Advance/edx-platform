@@ -545,3 +545,14 @@ plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.CMS, plugin_c
 ########################## Derive Any Derived Settings  #######################
 
 derive_settings(__name__)
+
+############## Settings for assets upload ##############
+
+### Size of chunks into which asset uploads will be divided
+UPLOAD_CHUNK_SIZE_IN_MB = ENV_TOKENS.get('UPLOAD_CHUNK_SIZE_IN_MB', UPLOAD_CHUNK_SIZE_IN_MB)
+
+### Max size of asset uploads to GridFS
+MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB = ENV_TOKENS.get(
+    'MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB',
+    MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB
+)
