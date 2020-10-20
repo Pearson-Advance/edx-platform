@@ -712,16 +712,18 @@ def login_analytics(strategy, auth_entry, current_partial=None, *args, **kwargs)
 
 
 @partial.partial
-def associate_by_email_if_login_api(auth_entry, backend, details, user, current_partial=None, *args, **kwargs):
+def associate_by_email_and_active_user(auth_entry, backend, details, user, current_partial=None, *args, **kwargs):
     """
     This pipeline step associates the current social auth with the user with the
     same email address in the database.  It defers to the social library's associate_by_email
     implementation, which verifies that only a single database user is associated with the email.
 
-    This association is done ONLY if the user entered the pipeline through a LOGIN API.
+    This association is done if the user entered the pipeline through a LOGIN API, or if trying to login
+    we found a valid association for the current provider.
     """
+    association_response = associate_by_email(backend, details, user, *args, **kwargs)
+
     if auth_entry == AUTH_ENTRY_LOGIN_API:
-        association_response = associate_by_email(backend, details, user, *args, **kwargs)
         if (
             association_response and
             association_response.get('user') and
@@ -732,6 +734,34 @@ def associate_by_email_if_login_api(auth_entry, backend, details, user, current_
             # email address and the legitimate user would now login to the illegitimate
             # account.
             return association_response
+    elif auth_entry == AUTH_ENTRY_LOGIN and association_response:
+        strategy = kwargs.get('strategy')
+        current_provider = provider.Registry.get_from_pipeline({
+            'backend': strategy.request.backend.name,
+            'kwargs': kwargs,
+        })
+        social_users_matched = social_django.models.DjangoStorage.user.get_social_auth_for_user(
+            association_response.get('user'),
+        )
+
+        if not social_users_matched:
+            return None
+
+        for social_user in social_users_matched:
+            sso_providers = provider.Registry.get_enabled_by_backend_name(social_user.provider)
+
+            for sso in sso_providers:
+                if getattr(sso, 'entity_id', False) and sso.entity_id == current_provider.entity_id:
+                    # Only return the user matched by email if the user has already an SSO association
+                    # with the same SAML entity_id.
+                    return association_response
+                elif (
+                        getattr(sso, 'provider_id', False) and
+                        sso.provider_id == current_provider.provider_id
+                ):
+                    # Only return the user matched by email if the user has already an SSO association
+                    # with the same oAuth provider_id.
+                    return association_response
 
 
 def user_details_force_sync(auth_entry, strategy, details, user=None, *args, **kwargs):
