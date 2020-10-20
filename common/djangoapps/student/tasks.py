@@ -7,6 +7,7 @@ import logging
 
 from celery.exceptions import MaxRetriesExceededError
 from celery.task import task
+from crum import get_current_request
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -37,7 +38,15 @@ def send_activation_email(self, msg_string, from_address=None):
 
     dest_addr = msg.recipient.email_address
 
-    site = Site.objects.get_current()
+    # This approach only works with the Pearson-Core's asynchronous site context feature.
+    try:
+        site = get_current_request().site
+
+        if not site:
+            site = Site.objects.get_current()
+    except AttributeError:
+        site = Site.objects.get_current()
+
     user = User.objects.get(username=msg.recipient.username)
 
     try:
