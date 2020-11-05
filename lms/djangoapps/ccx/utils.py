@@ -28,6 +28,7 @@ from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params,
 from lms.djangoapps.instructor.views.api import _split_input_list
 from lms.djangoapps.instructor.views.tools import get_student_from_identifier
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.models import CourseEnrollment, CourseEnrollmentException
 from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
@@ -487,3 +488,24 @@ def exclude_master_course_staff_users(users, course_key, model='User'):
         )
 
     return users
+
+
+def multiple_ccx_per_coach(course):
+    """
+    Return if the feature to allows coaches to have multiple CCX
+    courses for the same main course is enabled for the site and the course.
+
+    This feature must be enabled at site-level and course-level.
+
+    Args:
+        Course: Course object.
+    Returns:
+        True or False.
+    """
+    return (
+        course.other_course_settings.get('allow_multiple_ccx_per_coach', False)
+        and configuration_helpers.get_value(
+            'ALLOW_MULTIPLE_CCX_PER_COACH',
+            False,
+        )
+    )
