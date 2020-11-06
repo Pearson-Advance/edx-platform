@@ -503,7 +503,7 @@ def multiple_ccx_per_coach(course):
         True or False.
     """
     return (
-        course.other_course_settings.get('allow_multiple_ccx_per_coach', False)
+        course.enable_ccx
         and configuration_helpers.get_value(
             'ALLOW_MULTIPLE_CCX_PER_COACH',
             False,
