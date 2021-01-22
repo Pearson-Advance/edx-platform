@@ -596,6 +596,7 @@ such that the value can be defined later than this assignment (file load order).
             this.$role = this.$container.find("select[name='role']");
             this.$enrollment_button = this.$container.find('.enrollment-button');
             this.$reason_field = this.$container.find("textarea[name='reason-field']");
+            this.$checkbox_verified = this.$container.find("input[name='verified']");
             this.$checkbox_autoenroll = this.$container.find("input[name='auto-enroll']");
             this.$checkbox_emailstudents = this.$container.find("input[name='email-students']");
             this.checkbox_emailstudents_initialstate = this.$checkbox_emailstudents.is(':checked');
@@ -615,6 +616,7 @@ such that the value can be defined later than this assignment (file load order).
                 emailStudents = batchEnroll.$checkbox_emailstudents.is(':checked');
                 sendData = {
                     action: $(event.target).data('action'),
+                    verified: batchEnroll.$checkbox_verified.is(':checked'),
                     identifiers: batchEnroll.$identifier_input.val(),
                     role: batchEnroll.$role.val(),
                     auto_enroll: batchEnroll.$checkbox_autoenroll.is(':checked'),

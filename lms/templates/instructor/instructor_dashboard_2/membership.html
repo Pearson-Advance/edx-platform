@@ -32,6 +32,23 @@ from openedx.core.djangolib.markup import HTML, Text
             <textarea rows="2" id="reason-field-id" name="reason-field" placeholder="${_('Reason')}" spellcheck="false"></textarea>
         </label>
     %endif
+
+    <div class="enroll-option">
+        <label class="has-hint">
+            <input type="checkbox" name="verified" id="verified" aria-describedby="heading-batch-enrollment">
+            <span class="label-text">${_("Verified")}</span>
+            <div class="hint auto-enroll-hint">
+                <span class="hint-caret"></span>
+                <p id="verified-tip">
+                    ${Text(_("If this option is {em_start}checked{em_end}, users who have not yet registered for {platform_name} will be automatically enrolled.")).format(em_start=HTML('<em>'), em_end=HTML('</em>'), platform_name=settings.PLATFORM_NAME)}
+                    ${Text(_("If this option is left {em_start}unchecked{em_end}, users who have not yet registered for {platform_name} will not be enrolled, but will be allowed to enroll once they make an account.")).format(em_start=HTML('<em>'), em_end=HTML('</em>'), platform_name=settings.PLATFORM_NAME)}
+                    <br /><br />
+                    ${_("Checking this box has no effect if 'Unenroll' is selected.")}
+                </p>
+            </div>
+        </label>
+    </div>
+
     <div class="enroll-option">
         <label class="has-hint">
             <input type="checkbox" name="auto-enroll" id="auto-enroll" value="Auto-Enroll" checked="yes" aria-describedby="heading-batch-enrollment">
