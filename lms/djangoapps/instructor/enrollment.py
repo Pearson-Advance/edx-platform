@@ -120,7 +120,8 @@ def get_user_email_language(user):
     return UserPreference.get_value(user, LANGUAGE_KEY)
 
 
-def enroll_email(course_id, student_email, auto_enroll=False, email_students=False, email_params=None, language=None):
+def enroll_email(course_id, student_email, auto_enroll=False, email_students=False, verified=None, email_params=None,
+                 language=None):
     """
     Enroll a student by email.
 
@@ -128,6 +129,8 @@ def enroll_email(course_id, student_email, auto_enroll=False, email_students=Fal
     `auto_enroll` determines what is put in CourseEnrollmentAllowed.auto_enroll
         if auto_enroll is set, then when the email registers, they will be
         enrolled in the course automatically.
+    `verified` determines if the enrollment is in verified mode only if its value
+        is provided.
     `email_students` determines if student should be notified of action by email.
     `email_params` parameters used while parsing email templates (a `dict`).
     `language` is the language used to render the email.
@@ -152,6 +155,9 @@ def enroll_email(course_id, student_email, auto_enroll=False, email_students=Fal
 
         if previous_state.enrollment:
             course_mode = previous_state.mode
+
+        if verified:
+            course_mode = 'verified'
 
         enrollment_obj = CourseEnrollment.enroll_by_email(student_email, course_id, course_mode)
         if email_students:

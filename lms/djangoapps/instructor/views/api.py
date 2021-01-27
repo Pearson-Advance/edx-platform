@@ -632,6 +632,9 @@ def students_update_enrollment(request, course_id):
     - auto_enroll is a boolean (defaults to false)
         If auto_enroll is false, students will be allowed to enroll.
         If auto_enroll is true, students will be enrolled as soon as they register.
+    - verified is a boolean (defaults to false)
+        If verified is false, student(s) will be enrolled in audit mode
+        If verified is true, student(s) will be enrolled in verified mode
     - email_students is a boolean (defaults to false)
         If email_students is true, students will be sent email notification
         If email_students is false, students will not be sent email notification
@@ -663,6 +666,7 @@ def students_update_enrollment(request, course_id):
     identifiers_raw = request.POST.get('identifiers')
     identifiers = _split_input_list(identifiers_raw)
     auto_enroll = _get_boolean_param(request, 'auto_enroll')
+    verified = _get_boolean_param(request, 'verified')
     email_students = _get_boolean_param(request, 'email_students')
     reason = request.POST.get('reason')
     role = request.POST.get('role')
@@ -706,7 +710,7 @@ def students_update_enrollment(request, course_id):
             validate_email(email)  # Raises ValidationError if invalid
             if action == 'enroll':
                 before, after, enrollment_obj = enroll_email(
-                    course_id, email, auto_enroll, email_students, email_params, language=language
+                    course_id, email, auto_enroll, email_students, verified, email_params, language=language
                 )
                 before_enrollment = before.to_dict()['enrollment']
                 before_user_registered = before.to_dict()['user']
