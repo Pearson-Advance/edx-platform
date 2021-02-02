@@ -174,6 +174,26 @@ class AuthEntryError(AuthException):
     """
 
 
+class MultipleObjectsException(ValueError):
+    """
+    MultipleObjectsAuthException is raised if multiple objects are returned.
+    """
+
+    def __init__(self, backend, *args, **kwargs):
+        self.backend = backend
+        super(MultipleObjectsAuthException, self).__init__(*args, **kwargs)
+
+
+class UserStaffOrSuperUserException(ValueError):
+    """
+    UserStaffOrSuperUserException is raised if the user is staff or superadmin.
+    """
+
+    def __init__(self, backend, *args, **kwargs):
+        self.backend = backend
+        super(UserStaffOrSuperUserException, self).__init__(*args, **kwargs)
+
+
 class ProviderUserState(object):
     """Object representing the provider state (attached or not) for a user.
 
@@ -709,6 +729,46 @@ def login_analytics(strategy, auth_entry, current_partial=None, *args, **kwargs)
             'label': None,
             'provider': kwargs['backend'].name
         })
+
+
+@partial.partial
+def safer_associate_by_email(backend, details, user=None, *args, **kwargs):
+    """
+    Associate current auth with a user with the same email address in the DB.
+    This pipeline entry is not 100% secure. It is better suited however for the
+    multi-tenant case so we allow it for certain tenants.
+    It replaces:
+    https://github.com/python-social-auth/social-core/blob/master/social_core/pipeline/social_auth.py
+
+    We added this function here because we can't make an override of SOCIAL_AUTH_PIPELINE from
+    edx-platform envs or plugin settings. We can do it only if we are using tenant configs.
+
+    NOTE: move this function to a plugin if you are using tenant configs.
+    """
+    if user:
+        return None
+
+    email = details.get('email')
+    if email:
+        # Try to associate accounts registered with the same email address,
+        # only if it's a single object. AuthException is raised if multiple
+        # objects are returned or if the user is staff or superuser.
+        users = list(backend.strategy.storage.user.get_users_by_email(email))
+        if not users:
+            return None
+        elif len(users) > 1:
+            raise MultipleObjectsException(
+                backend,
+                'The given email address is associated with another account'
+            )
+        else:
+            if users[0].is_staff or users[0].is_superuser:
+                raise UserStaffOrSuperUserException(
+                    backend,
+                    'It is not allowed to auto associate staff or superuser users'
+                )
+            return {'user': users[0],
+                    'is_new': False}
 
 
 @partial.partial
