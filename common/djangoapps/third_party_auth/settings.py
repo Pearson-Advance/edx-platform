@@ -47,6 +47,11 @@ def apply_settings(django_settings):
 
     # Inject our customized auth pipeline. All auth backends must work with
     # this pipeline.
+
+    # We defined safer_associate_by_email step here, because we can't make an override of
+    # SOCIAL_AUTH_PIPELINE from edx-platform envs or plugin settings.
+    # We can do it only if we are using tenant configs.
+    # NOTE: move this to tenant configs if you are using tenants.
     django_settings.SOCIAL_AUTH_PIPELINE = [
         'third_party_auth.pipeline.parse_query_params',
         'social_core.pipeline.social_auth.social_details',
@@ -54,6 +59,7 @@ def apply_settings(django_settings):
         'social_core.pipeline.social_auth.auth_allowed',
         'social_core.pipeline.social_auth.social_user',
         'third_party_auth.pipeline.associate_by_email_and_active_user',
+        'third_party_auth.pipeline.safer_associate_by_email',
         'third_party_auth.pipeline.get_username',
         'third_party_auth.pipeline.set_pipeline_timeout',
         'third_party_auth.pipeline.ensure_user_information',
