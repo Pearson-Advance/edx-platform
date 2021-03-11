@@ -63,6 +63,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from openedx.core.djangoapps.credit.api import get_credit_requirements, is_credit_course
 from openedx.core.djangoapps.credit.tasks import update_credit_course_requirements
 from openedx.core.djangoapps.models.course_details import CourseDetails
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.waffle_utils import WaffleSwitchNamespace
 from openedx.core.djangolib.js_utils import dump_js_escaped_json
@@ -1358,6 +1359,15 @@ def advanced_settings_handler(request, course_key_string):
 
                         # now update mongo
                         modulestore().update_item(course_module, request.user.id)
+
+                        # Send other course settings update to OEE plugin only on valid POST.
+                        other_course_settings = updated_data.get('other_course_settings')
+
+                        run_extension_point(
+                            'OEE_UPDATE_COURSE_SETTINGS',
+                            course_key=course_key,
+                            other_course_settings=other_course_settings.get('value') if other_course_settings else {},
+                        )
 
                         return JsonResponse(updated_data)
                     else:
