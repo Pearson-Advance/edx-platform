@@ -8,7 +8,7 @@ pipeline {
                     properties([
                         parameters([
                             booleanParam(
-                                defaultValue: true,
+                                defaultValue: false,
                                 description: 'Is a test',
                                 name: 'PRINTENVS'
                             )
