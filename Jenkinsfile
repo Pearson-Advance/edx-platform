@@ -3,14 +3,16 @@ pipeline {
     
     stages {
         stage('Setup parameters') {
-            script {
-                properties([
-                    booleanParam(
-                        defaultValue: true,
-                        description: 'Is a test',
-                        name: 'PRINTENVS'
-                    )
-                ])
+            steps {
+                script {
+                    properties([
+                        booleanParam(
+                            defaultValue: true,
+                            description: 'Is a test',
+                            name: 'PRINTENVS'
+                        )
+                    ])
+                }
             }
         }
         
