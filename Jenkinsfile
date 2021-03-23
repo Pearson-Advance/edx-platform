@@ -6,11 +6,13 @@ pipeline {
             steps {
                 script {
                     properties([
-                        booleanParam(
-                            defaultValue: true,
-                            description: 'Is a test',
-                            name: 'PRINTENVS'
-                        )
+                        parameters([
+                            booleanParam(
+                                defaultValue: true,
+                                description: 'Is a test',
+                                name: 'PRINTENVS'
+                            )
+                        ])
                     ])
                 }
             }
