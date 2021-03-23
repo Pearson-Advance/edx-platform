@@ -20,7 +20,9 @@ pipeline {
         
         stage('Build') {
             when {
-                expression { "${params.PRINTENVS}" == 'true' }
+                expression { 
+                    return params.PRINTENVS == 'true'
+                }
             }
             steps {
                 echo env.BRANCH_NAME
