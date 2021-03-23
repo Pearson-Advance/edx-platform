@@ -21,7 +21,7 @@ pipeline {
         stage('Build') {
             when {
                 expression { 
-                    return params.PRINTENVS == 'true'
+                    return params.PRINTENVS
                 }
             }
             steps {
