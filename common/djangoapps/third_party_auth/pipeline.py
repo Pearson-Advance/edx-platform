@@ -881,7 +881,7 @@ def user_details_force_sync(auth_entry, strategy, details, user=None, *args, **k
             'https://iam.pearson.com:443/auth/saml-idp-uid',
         ]
 
-        if (not details.get('fullname') and details.get('first_name') and details.get('last_name') and
+        if (details.get('first_name') and details.get('last_name') and
             current_provider.entity_id in ies_entity_ids):
             fullname_value = '{} {}'.format(details.get('first_name'), details.get('last_name'))
             changed['fullname'] = fullname_value
