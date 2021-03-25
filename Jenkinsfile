@@ -1,142 +1,66 @@
 pipeline {
-    agent {
-        node {
-            label 'Development'
-        }
-    }
+    agent any
 
     stages {
-        stage('Setup params') {
+        stage('Define environment') {
             steps {
                 script {
-                    properties([
-                        parameters([
-                            string(
-                                defaultValue: '', 
-                                name: 'EDX_PLATFORM_VERSION',
-                                description: 'edx platform version to ',
-                                trim: false
-                            ),
-                            string(
-                                defaultValue: 'pearson-release/juniper.master', 
-                                name: 'BRANCH_CONFIGURATION',
-                                description: 'edx configuration branch',
-                                trim: false
-                            ),
-                            string(
-                                defaultValue: 'stage', 
-                                name: 'BRANCH_CUSTOMER_DATA',
-                                description: 'pearson customer data branch',
-                                trim: false
-                            ),                           
-                            booleanParam(
-                                defaultValue: false,
-                                description: 'If you made changes in some theme of if your change requires to recompile the theme.',
-                                name: 'COMPILE_THEMES'
-                            ),
-                            booleanParam(
-                                defaultValue: true,
-                                description: 'If you made changes in edx-platform project or in customer-data project.',
-                                name: 'DEPLOY_EDXAPP'
-                            ),
-                            booleanParam(
-                                defaultValue: true,
-                                description: 'If you made changes in celery tasks o async tasks and you need update the workers.',
-                                name: 'DEPLOY_WORKERS'
-                            ),
-                            string(
-                                defaultValue: '', 
-                                name: 'EXTRA_PARAMS',
-                                description: 'Set extra params to run the ansible playbook.',
-                                trim: false
-                            ),                 
-                        ])
-                    ])
-                }
-            }
-        }
-
-        stage('Notify') {
-            steps {
-                wrap([$class: 'BuildUser']) {
-                    slackSend color: '#4d94ff', message: "BUILD STARTED - ${env.JOB_NAME} - BUILD NUMBER: ${env.BUILD_NUMBER} by ${BUILD_USER} (<${env.BUILD_URL}|View in Jenkins>)"
-                }
-            }
-        }
-
-        stage('SET EDX PLATFORM VERSION') {
-            when {
-                expression {
-                    return params.EDX_PLATFORM_VERSION == ''
-                }
-            }
-            steps {
-                script{
                     EDX_PLATFORM_VERSION = env.GIT_BRANCH.split("origin/")[1]
+                    
+                    if(EDX_PLATFORM_VERSION ==~ /(.*).master$/){
+                        ENVIRONMENT = "production"
+                    }
+                    
+                    if(EDX_PLATFORM_VERSION ==~ /(.*).stage/){
+                        ENVIRONMENT = "stage"
+                    }                      
                 }
             }
         }
         
-        stage('PREPARE PARAMS TO SKIP ASSETS') {
+        stage('Run Development Deployment') {
             when {
                 expression {
-                    return params.COMPILE_THEMES == false
+                    return ENVIRONMENT == "stage"
                 }
             }
             steps {
-                script{
-                    EXTRA_PARAMS = "${params.EXTRA_PARAMS} --skip-tags assets"
-                }
-            }
-        }
-        
-        stage('RUN EDXAPP DEPLOYMENT') {
-            when {
-                expression { 
-                    return params.DEPLOY_EDXAPP
-                }
-            }
-            steps {
-                build job: '(STEP) DEV-Juniper-edxapp',
+                build job: '(DEPLOY) DEV-Juniper-edxapp',
                 parameters: [
                     string(name: 'EDX_PLATFORM_VERSION', value: "${EDX_PLATFORM_VERSION}"),
-                    string(name: 'BRANCH_SECURE_DATA', value: "${BRANCH_CUSTOMER_DATA}"),
-                    string(name: 'BRANCH_CONFIGURATION', value: "${BRANCH_CONFIGURATION}"),
-                    string(name: 'EXTRA_PARAMS', value: "${EXTRA_PARAMS}"),
+                    string(name: 'BRANCH_CUSTOMER_DATA', value: "${ENVIRONMENT}"),
+                    string(name: 'BRANCH_CONFIGURATION', value: "pearson-release/juniper.master"),
+                    booleanParam(name: 'COMPILE_THEMES', value: false),
+                    booleanParam(name: 'DEPLOY_EDXAPP', value: true),
+                    booleanParam(name: 'DEPLOY_WORKERS', value: true),
+                    string(name: 'EXTRA_PARAMS', value: ""),
                 ]
             }
         }
         
-        stage('RUN WORKERS DEPLOYMENT') {
+        stage('Run Production Deployment') {
             when {
-                expression { 
-                    return params.DEPLOY_WORKERS
+                expression {
+                    return ENVIRONMENT == "production"
                 }
             }
             steps {
-                build job: '(STEP) DEV-Juniper-workers',
+                build job: '(DEPLOY) PROD-Juniper-edxapp',
                 parameters: [
-                    string(name: 'EDX_PLATFORM_VERSION', value: "${EDX_PLATFORM_VERSION}"),
-                    string(name: 'BRANCH_SECURE_DATA', value: "${BRANCH_CUSTOMER_DATA}"),
-                    string(name: 'BRANCH_CONFIGURATION', value: "${BRANCH_CONFIGURATION}"),
-                    string(name: 'EXTRA_PARAMS', value: "${EXTRA_PARAMS}"),
+                    booleanParam(name: 'PREPARE_DEPLOYMENT_ENVIRONMENT', value: true),
+                    booleanParam(name: 'SET_GLOBAL_PARAMETERS', value: true),
+                    booleanParam(name: 'LAUNCH_DEPLOYMENT_INSTANCE', value: true),
+                    booleanParam(name: 'DEPLOY_EDX_PLATFORM_ON_SINGLE_INSTANCE', value: true),
+                    booleanParam(name: 'CREATE_UPDATED_ASG', value: true),
+                    booleanParam(name: 'ATTACH_ASG_TO_ELB', value: true),
+                    string(name: 'BRANCH_PLAYBOOKS', value: "pearson/prod/juniper"),
+                    string(name: 'BRANCH_CONFIGURATION', value: "pearson-release/juniper.master"),
+                    string(name: 'BRANCH_CUSTOMER_DATA', value: "${ENVIRONMENT}"),
+                    string(name: 'AMI_ID', value: ""),
+                    booleanParam(name: 'ASYNC_SERVERS_DEPLOY', value: true),
+                    booleanParam(name: 'ENABLE_PAUSE_CHECKS', value: false),
+                    string(name: 'DEPLOYMENT_WORKDIR', value: "ags_juniper_edxapp_sync"),
                 ]
-            }
-        }
-    }
-    
-    post {
-        success {
-            wrap([$class: 'BuildUser']) {
-                slackSend color: '#00ff99', message: "SUCCESSFUL - ${env.JOB_NAME} - BUILD NUMBER: ${env.BUILD_NUMBER} by ${BUILD_USER} (<${env.BUILD_URL}|View in Jenkins>)"
-            }
-        }
-        aborted {
-            slackSend color: '#ffa64d', message: "ABORTED!! - ${env.JOB_NAME} - BUILD NUMBER: ${env.BUILD_NUMBER} by ${BUILD_USER} (<${env.BUILD_URL}|View in Jenkins>)"
-        }
-        failure {
-            wrap([$class: 'BuildUser']) {
-                slackSend color: '#ff5050', message: "FAILED!! - ${env.JOB_NAME} - BUILD-NUMBER: ${env.BUILD_NUMBER} by ${BUILD_USER} (<${env.BUILD_URL}|View in Jenkins>)"
             }
         }
     }
