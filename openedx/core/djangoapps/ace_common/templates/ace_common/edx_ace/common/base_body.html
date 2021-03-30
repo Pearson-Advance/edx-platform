@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load ace %}
+{% load static %}
 
 {% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
@@ -62,7 +63,7 @@
                     <tr>
                         <td width="70">
                             <a href="{% with_link_tracking homepage_url %}"><img
-                                    src="https://mylearningx.pearson.com/static/pearson-pols-theme/images/logo.png" width="40"
+                                    src="{% static 'pearson-pols-theme/images/logo.png' %}" width="40"
                                     height="40" alt="{% filter force_escape %}{% blocktrans %}Go to {{ platform_name }} Home Page{% endblocktrans %}{% endfilter %}"/></a>
                         </td>
                         <td align="right" style="text-align: {{ LANGUAGE_BIDI|yesno:"left,right" }};">
