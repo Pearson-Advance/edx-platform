@@ -1,0 +1,21 @@
+name: production deployment
+
+on:
+  push:
+    branches:
+      - 'pearson-release/*.master'
+
+jobs:
+  build-production:
+    environment: production
+    name: Build Production deployment
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build jenkins jobs
+      uses: Mondtic/build-jenkins-job@v0.0.2
+      with:
+        jenkins-url: ${{ secrets.JENKINS_URL }}
+        jenkins-token: ${{ secrets.JENKINS_TOKEN }}
+        jenkins-user: ${{ secrets.JENKINS_USER }}
+        jenkins-job: ${{ secrets.JENKINS_JOB }}
+        jenkins-job-params: '{}'
