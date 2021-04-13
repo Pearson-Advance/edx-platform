@@ -18,4 +18,4 @@ jobs:
         jenkins-token: ${{ secrets.JENKINS_TOKEN }}
         jenkins-user: ${{ secrets.JENKINS_USER }}
         jenkins-job: ${{ secrets.JENKINS_JOB }}
-        jenkins-job-params: '{}'
+        jenkins-job-params: '{"default_parameters": true}'
