@@ -1,0 +1,22 @@
+name: dev deployment
+
+on:
+  push:
+    branches:
+      - 'pearson-release/*.stage'
+
+jobs:
+  build-production:
+    environment: dev
+    name: Build Dev deployment
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build jenkins jobs
+      uses: Mondtic/build-jenkins-job@v1.0.0
+      with:
+        jenkins-url: ${{ secrets.JENKINS_URL }}
+        jenkins-token: ${{ secrets.JENKINS_TOKEN }}
+        jenkins-user: ${{ secrets.JENKINS_USER }}
+        jenkins-job: ${{ secrets.JENKINS_JOB }}
+        jenkins-job-params: '{"default_parameters": true}'
+        jenkins-wait-job: 'wait'
