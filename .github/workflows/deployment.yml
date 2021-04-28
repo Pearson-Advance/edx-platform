@@ -9,7 +9,7 @@ on:
 jobs:
   build-dev:
     name: Build Dev deployment
-    if: endsWith(github.events.ref, '.dev')
+    if: endsWith(github.ref, '.dev')
     environment: dev
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
 
   build-prod:
     name: Build Stage deployment
-    if: endsWith(github.events.ref, '.master')
+    if: endsWith(github.ref, '.master')
     environment: production
     runs-on: ubuntu-latest
     steps:
