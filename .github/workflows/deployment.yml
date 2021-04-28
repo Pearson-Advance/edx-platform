@@ -20,7 +20,7 @@ jobs:
         jenkins-token: ${{ secrets.JENKINS_TOKEN }}
         jenkins-user: ${{ secrets.JENKINS_USER }}
         jenkins-job: ${{ secrets.JENKINS_JOB }}
-        jenkins-job-params: '{"NODE": "dev", "ENVIRONMENT": "dev"}'
+        jenkins-job-params: '{"NODE": "dev", "ENVIRONMENT": "dev", "BRANCH_CUSTOMER_DATA": "development"}'
         jenkins-wait-job: 'no-wait'
 
   build-prod:
@@ -36,5 +36,5 @@ jobs:
         jenkins-token: ${{ secrets.JENKINS_TOKEN }}
         jenkins-user: ${{ secrets.JENKINS_USER }}
         jenkins-job: ${{ secrets.JENKINS_JOB }}
-        jenkins-job-params: '{"NODE": "master", "ENVIRONMENT": "prod"}'
+        jenkins-job-params: '{"NODE": "master", "ENVIRONMENT": "prod", "BRANCH_CUSTOMER_DATA": "production"}'
         jenkins-wait-job: 'no-wait'
