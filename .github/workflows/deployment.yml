@@ -24,7 +24,7 @@ jobs:
         jenkins-wait-job: 'no-wait'
 
   build-prod:
-    name: Build Stage deployment
+    name: Build Prod deployment
     if: endsWith(github.ref, '.master')
     environment: production
     runs-on: ubuntu-latest
