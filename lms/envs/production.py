@@ -934,6 +934,9 @@ MAINTENANCE_BANNER_TEXT = ENV_TOKENS.get('MAINTENANCE_BANNER_TEXT', None)
 ########################## limiting dashboard courses ######################
 DASHBOARD_COURSE_LIMIT = ENV_TOKENS.get('DASHBOARD_COURSE_LIMIT', None)
 
+########################## signal track all course enrollment ######################
+TRACK_ALL_ENROLLMENT = ENV_TOKENS.get('TRACK_ALL_ENROLLMENT', False)
+
 ############################### Plugin Settings ###############################
 
 # This is at the bottom because it is going to load more settings after base settings are loaded
