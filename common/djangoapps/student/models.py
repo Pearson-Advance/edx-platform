@@ -1337,9 +1337,10 @@ class CourseEnrollment(models.Model):
                 self.emit_event(EVENT_NAME_ENROLLMENT_DEACTIVATED)
                 self.send_signal(EnrollStatusChange.unenroll)
 
-        if mode_changed:
+        if mode_changed or configuration_helpers.get_value('MIT_TRACK_ALL_ENROLLMENT', False):
             # Only emit mode change events when the user's enrollment
             # mode has changed from its previous setting
+            # or MIT_TRACK_ALL_ENROLLMENT is enabled
             self.emit_event(EVENT_NAME_ENROLLMENT_MODE_CHANGED)
             # this signal is meant to trigger a score recalculation celery task,
             # `countdown` is added to celery task as delay so that cohort is duly updated
@@ -1471,7 +1472,8 @@ class CourseEnrollment(models.Model):
                     user.username,
                 )
                 raise CourseFullError
-        if cls.is_enrolled(user, course_key):
+
+        if cls.is_enrolled(user, course_key) and not configuration_helpers.get_value('MIT_TRACK_ALL_ENROLLMENT', False):
             log.warning(
                 u"User %s attempted to enroll in %s, but they were already enrolled",
                 user.username,
