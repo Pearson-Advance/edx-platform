@@ -155,12 +155,26 @@ def _update_context_with_basic_info(context, course_id, platform_name, configura
     Updates context dictionary with basic info required before rendering simplest
     certificate templates.
     """
+    log.info(
+        u"platform_name.........: %s",
+        platform_name
+    )
+    log.info(
+        u"CONTEXT BEFORE 1: %s",
+        context
+    )
     context['platform_name'] = platform_name
     context['course_id'] = course_id
-
+    log.info(
+        u"CONTEXT BEFORE 2: %s",
+        context
+    )
     # Update the view context with the default ConfigurationModel settings
     context.update(configuration.get('default', {}))
-
+    log.info(
+        u"CONTEXT BEFORE 3: %s",
+        context
+    )
     # Translators:  'All rights reserved' is a legal term used in copyrighting to protect published content
     reserved = _("All rights reserved")
     context['copyright_text'] = u'&copy; {year} {platform_name}. {reserved}.'.format(
@@ -226,6 +240,10 @@ def _update_context_with_basic_info(context, course_id, platform_name, configura
     # Translators:  This text appears near the top of the certficate and describes the guarantee provided by edX
     context['document_banner'] = _(u"{platform_name} acknowledges the following student accomplishment").format(
         platform_name=platform_name
+    )
+    log.info(
+        u"CONTEXT BEFORE 4: %s",
+        context
     )
 
 
@@ -488,6 +506,16 @@ def render_html_view(request, course_id, certificate=None):
     This public view generates an HTML representation of the specified user and course
     If a certificate is not available, we display a "Sorry!" screen instead
     """
+    # Import is placed here to avoid circular import
+    from openedx.core.djangoapps.theming.helpers import get_current_site
+    site = get_current_site()
+
+    log.info(
+        u"SITEEEEE: %s. User id: %s",
+        site,
+        site.__dict__,
+    )
+
     user = certificate.user if certificate else request.user
     user_id = user.id
     preview_mode = request.GET.get('preview', None)
@@ -574,7 +602,10 @@ def render_html_view(request, course_id, certificate=None):
         context = {'user_language': user_language}
 
         _update_context_with_basic_info(context, course_id, platform_name, configuration)
-
+        log.info(
+            u"CONTEXT AFTER 1: %s",
+            context
+        )
         context['certificate_data'] = active_configuration
 
         # Append/Override the existing view context values with any mode-specific ConfigurationModel values
