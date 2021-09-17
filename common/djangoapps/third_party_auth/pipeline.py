@@ -908,6 +908,21 @@ def user_details_force_sync(auth_entry, strategy, details, user=None, *args, **k
                 changed[provider_field] = current_value
                 setattr(model, field, provider_value)
 
+        # Generate fullname only for IES IDP.
+        ies_entity_ids = getattr(settings, 'SAML_IES_ENTITIES_IDS', [])
+        first_name = details.get('first_name')
+        last_name = details.get('last_name')
+
+        if (
+            first_name and
+            last_name and
+            current_provider.entity_id in ies_entity_ids
+        ):
+            fullname_value = f'{first_name} {last_name}'
+            changed['fullname'] = fullname_value
+
+            setattr(user.profile, 'name', fullname_value)  # pylint: disable=literal-used-as-attribute
+
         if changed:
             logger.info(
                 '[THIRD_PARTY_AUTH] User performed SSO and data was synchronized. '
