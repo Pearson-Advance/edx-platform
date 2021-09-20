@@ -86,7 +86,7 @@ from util.milestones_helpers import (
     remove_prerequisite_course,
     set_prerequisite_courses
 )
-from util.organizations_helpers import add_organization_course, get_organization_by_short_name, organizations_enabled
+from util.organizations_helpers import add_organization_course, get_organizations, get_organization_by_short_name, organizations_enabled
 from util.string_utils import _has_non_ascii_characters
 from xblock_django.api import deprecated_xblocks
 from xmodule.contentstore.content import StaticContent
@@ -505,7 +505,13 @@ def course_listing(request):
     optimization_enabled = GlobalStaff().has_user(request.user) and \
         WaffleSwitchNamespace(name=WAFFLE_NAMESPACE).is_enabled(u'enable_global_staff_optimization')
 
-    org = request.GET.get('org', '') if optimization_enabled else None
+    org = None
+    org_names_list = []
+
+    if optimization_enabled:
+        org = request.GET.get('org', '')
+        org_names_list = [(org['short_name']) for org in get_organizations() if 'short_name' in org]
+
     courses_iter, in_process_course_actions = get_courses_accessible_to_user(request, org)
     user = request.user
     libraries = _accessible_libraries_iter(request.user, org) if LIBRARIES_ENABLED else []
@@ -562,7 +568,8 @@ def course_listing(request):
         u'rerun_creator_status': GlobalStaff().has_user(user),
         u'allow_unicode_course_id': settings.FEATURES.get(u'ALLOW_UNICODE_COURSE_ID', False),
         u'allow_course_reruns': settings.FEATURES.get(u'ALLOW_COURSE_RERUNS', True),
-        u'optimization_enabled': optimization_enabled
+        u'optimization_enabled': optimization_enabled,
+        'org_names_list': org_names_list,
     })
 
 
