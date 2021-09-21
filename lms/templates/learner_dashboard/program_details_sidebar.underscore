@@ -8,19 +8,6 @@
     <% } %>
 </aside>
 <aside class="aside js-course-certificates"></aside>
-<aside class="aside js-program-record program-record">
-    <h2 class="divider-heading"><%- gettext('Program Record') %></h2>
-    <div class="motivating-section">
-        <p class="motivating-message"><%- gettext('Once you complete one of the program requirements you have a program record. This record is marked complete once you meet all program requirements. A program record can be used to continue your learning journey and demonstrate your learning to others.') %></p>
-    </div>
-    <% if (programRecordUrl) { %>
-        <div class="sidebar-button-wrapper">
-            <a href="<%- programRecordUrl %>" class="program-record-link">
-                <button class="btn sidebar-button"><%- gettext('View Program Record') %></button>
-            </a>
-        </div>
-    <% } %>
-</aside>
 <% if (creditPathways.length > 0) { %>
     <aside class="aside js-program-pathways program-credit-pathways">
         <h2 class = "divider-heading"><%- gettext('Additional Credit Opportunities') %></h2>
