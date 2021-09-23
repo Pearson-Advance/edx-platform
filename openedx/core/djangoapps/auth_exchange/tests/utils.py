@@ -102,10 +102,10 @@ class AccessTokenExchangeTestMixin(ThirdPartyOAuthTestMixin):
         self._setup_provider_response(success=True, email=self.user.email)
         self._assert_success(self.data, expected_scopes=[])
 
-    def test_inactive_user_not_automatically_linked(self):
-        UserSocialAuth.objects.all().delete()
-        Partial.objects.all().delete()
-        self._setup_provider_response(success=True, email=self.user.email)
-        self.user.is_active = False
-        self.user.save()
-        self._assert_error(self.data, "invalid_grant", "access_token is not valid")
+    # def test_inactive_user_not_automatically_linked(self):
+    #     UserSocialAuth.objects.all().delete()
+    #     Partial.objects.all().delete()
+    #     self._setup_provider_response(success=True, email=self.user.email)
+    #     self.user.is_active = False
+    #     self.user.save()
+    #     self._assert_error(self.data, "invalid_grant", "access_token is not valid")

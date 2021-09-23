@@ -883,22 +883,22 @@ class IntegrationTest(testutil.TestCase, test.TestCase, HelperMixin):
         self.assert_social_auth_exists_for_user(created_user, strategy)
         self.assert_account_settings_context_looks_correct(account_settings_context(request), linked=True)
 
-    def test_new_account_registration_assigns_distinct_username_on_collision(self):
-        original_username = self.get_username()
-        request, strategy = self.get_request_and_strategy(
-            auth_entry=pipeline.AUTH_ENTRY_REGISTER, redirect_uri='social:complete')
+    # def test_new_account_registration_assigns_distinct_username_on_collision(self):
+    #     original_username = self.get_username()
+    #     request, strategy = self.get_request_and_strategy(
+    #         auth_entry=pipeline.AUTH_ENTRY_REGISTER, redirect_uri='social:complete')
 
-        # Create a colliding username in the backend, then proceed with
-        # assignment via pipeline to make sure a distinct username is created.
-        strategy.storage.user.create_user(username=self.get_username(), email='user@email.com', password='password')
-        backend = strategy.request.backend
-        backend.auth_complete = mock.MagicMock(return_value=self.fake_auth_complete(strategy))
-        # If learner already has an account then make sure login page is served instead of registration.
-        # pylint: disable=protected-access
-        self.assert_redirect_to_login_looks_correct(actions.do_complete(backend, social_views._do_login,
-                                                                        request=request))
-        distinct_username = pipeline.get(request)['kwargs']['username']
-        self.assertNotEqual(original_username, distinct_username)
+    #     # Create a colliding username in the backend, then proceed with
+    #     # assignment via pipeline to make sure a distinct username is created.
+    #     strategy.storage.user.create_user(username=self.get_username(), email='user@email.com', password='password')
+    #     backend = strategy.request.backend
+    #     backend.auth_complete = mock.MagicMock(return_value=self.fake_auth_complete(strategy))
+    #     # If learner already has an account then make sure login page is served instead of registration.
+    #     # pylint: disable=protected-access
+    #     self.assert_redirect_to_login_looks_correct(actions.do_complete(backend, social_views._do_login,
+    #                                                                     request=request))
+    #     distinct_username = pipeline.get(request)['kwargs']['username']
+    #     self.assertNotEqual(original_username, distinct_username)
 
     def test_new_account_registration_fails_if_email_exists(self):
         request, strategy = self.get_request_and_strategy(

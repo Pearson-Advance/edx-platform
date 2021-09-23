@@ -63,6 +63,7 @@ conf/locale/fake*/LC_MESSAGES/*.mo
 conf/locale/messages.mo
 
 ### Testing artifacts
+sandbox/
 .testids/
 .noseids
 nosetests.xml

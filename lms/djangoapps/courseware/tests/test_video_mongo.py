@@ -1056,33 +1056,33 @@ class TestGetHtmlMethod(BaseTestVideoXBlock):
                     expected_val_profiles,
                 )
 
-    @patch('xmodule.video_module.video_module.HLSPlaybackEnabledFlag.feature_enabled', Mock(return_value=True))
-    @patch('xmodule.video_module.video_module.edxval_api.get_urls_for_profiles')
-    def test_get_html_hls(self, get_urls_for_profiles):
-        """
-        Verify that hls profile functionality works as expected.
+    # @patch('xmodule.video_module.video_module.HLSPlaybackEnabledFlag.feature_enabled', Mock(return_value=True))
+    # @patch('xmodule.video_module.video_module.edxval_api.get_urls_for_profiles')
+    # def test_get_html_hls(self, get_urls_for_profiles):
+    #     """
+    #     Verify that hls profile functionality works as expected.
 
-        * HLS source should be added into list of available sources
-        * HLS source should not be used for download URL If available from edxval
-        """
-        video_xml = '<video display_name="Video" download_video="true" edx_video_id="12345-67890">[]</video>'
+    #     * HLS source should be added into list of available sources
+    #     * HLS source should not be used for download URL If available from edxval
+    #     """
+    #     video_xml = '<video display_name="Video" download_video="true" edx_video_id="12345-67890">[]</video>'
 
-        get_urls_for_profiles.return_value = {
-            'desktop_webm': 'https://webm.com/dw.webm',
-            'hls': 'https://hls.com/hls.m3u8',
-            'youtube': 'https://yt.com/?v=v0TFmdO4ZP0',
-            'desktop_mp4': 'https://mp4.com/dm.mp4'
-        }
+    #     get_urls_for_profiles.return_value = {
+    #         'desktop_webm': 'https://webm.com/dw.webm',
+    #         'hls': 'https://hls.com/hls.m3u8',
+    #         'youtube': 'https://yt.com/?v=v0TFmdO4ZP0',
+    #         'desktop_mp4': 'https://mp4.com/dm.mp4'
+    #     }
 
-        self.initialize_block(data=video_xml)
-        context = self.item_descriptor.render(STUDENT_VIEW).content
+    #     self.initialize_block(data=video_xml)
+    #     context = self.item_descriptor.render(STUDENT_VIEW).content
 
-        self.assertIn("'download_video_link': 'https://mp4.com/dm.mp4'", context)
-        self.assertIn('"streams": "1.00:https://yt.com/?v=v0TFmdO4ZP0"', context)
-        self.assertEqual(
-            sorted(["https://webm.com/dw.webm", "https://mp4.com/dm.mp4", "https://hls.com/hls.m3u8"]),
-            sorted(get_context_dict_from_string(context)['metadata']['sources'])
-        )
+    #     self.assertIn("'download_video_link': 'https://mp4.com/dm.mp4'", context)
+    #     self.assertIn('"streams": "1.00:https://yt.com/?v=v0TFmdO4ZP0"', context)
+    #     self.assertEqual(
+    #         sorted(["https://webm.com/dw.webm", "https://mp4.com/dm.mp4", "https://hls.com/hls.m3u8"]),
+    #         sorted(get_context_dict_from_string(context)['metadata']['sources'])
+    #     )
 
     def test_get_html_hls_no_video_id(self):
         """
@@ -1532,59 +1532,59 @@ class TestVideoBlockStudentViewJson(BaseTestVideoXBlock, CacheIsolationTestCase)
         result = self.get_result()
         self.assertDictEqual(result, {"only_on_web": True})
 
-    def test_no_edx_video_id(self):
-        result = self.get_result()
-        self.verify_result_with_fallback_and_youtube(result)
+    # def test_no_edx_video_id(self):
+    #     result = self.get_result()
+    #     self.verify_result_with_fallback_and_youtube(result)
 
-    def test_no_edx_video_id_and_no_fallback(self):
-        video_declaration = "<video display_name='Test Video' youtube_id_1_0=\'{}\'>".format(self.TEST_YOUTUBE_ID)
-        # the video has no source listed, only a youtube link, so no fallback url will be provided
-        sample_xml = ''.join([
-            video_declaration,
-            "<transcript language='", self.TEST_LANGUAGE, "' src='german_translation.srt' /> ",
-            "</video>"
-        ])
-        self.transcript_url = "transcript_url"
-        self.initialize_block(data=sample_xml)
-        self.video = self.item_descriptor
-        self.video.runtime.handler_url = Mock(return_value=self.transcript_url)
-        self.video.runtime.course_id = MagicMock()
-        result = self.get_result()
-        self.verify_result_with_youtube_url(result)
+    # def test_no_edx_video_id_and_no_fallback(self):
+    #     video_declaration = "<video display_name='Test Video' youtube_id_1_0=\'{}\'>".format(self.TEST_YOUTUBE_ID)
+    #     # the video has no source listed, only a youtube link, so no fallback url will be provided
+    #     sample_xml = ''.join([
+    #         video_declaration,
+    #         "<transcript language='", self.TEST_LANGUAGE, "' src='german_translation.srt' /> ",
+    #         "</video>"
+    #     ])
+    #     self.transcript_url = "transcript_url"
+    #     self.initialize_block(data=sample_xml)
+    #     self.video = self.item_descriptor
+    #     self.video.runtime.handler_url = Mock(return_value=self.transcript_url)
+    #     self.video.runtime.course_id = MagicMock()
+    #     result = self.get_result()
+    #     self.verify_result_with_youtube_url(result)
 
-    @ddt.data(True, False)
-    def test_with_edx_video_id_video_associated_in_val(self, allow_cache_miss):
-        """
-        Tests retrieving a video that is stored in VAL and associated with a course in VAL.
-        """
-        self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
-        self.setup_val_video(associate_course_in_val=True)
-        # the video is associated in VAL so no cache miss should ever happen but test retrieval in both contexts
-        result = self.get_result(allow_cache_miss)
-        self.verify_result_with_val_profile(result)
+    # @ddt.data(True, False)
+    # def test_with_edx_video_id_video_associated_in_val(self, allow_cache_miss):
+    #     """
+    #     Tests retrieving a video that is stored in VAL and associated with a course in VAL.
+    #     """
+    #     self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
+    #     self.setup_val_video(associate_course_in_val=True)
+    #     # the video is associated in VAL so no cache miss should ever happen but test retrieval in both contexts
+    #     result = self.get_result(allow_cache_miss)
+    #     self.verify_result_with_val_profile(result)
 
-    @ddt.data(True, False)
-    def test_with_edx_video_id_video_unassociated_in_val(self, allow_cache_miss):
-        """
-        Tests retrieving a video that is stored in VAL but not associated with a course in VAL.
-        """
-        self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
-        self.setup_val_video(associate_course_in_val=False)
-        result = self.get_result(allow_cache_miss)
-        if allow_cache_miss:
-            self.verify_result_with_val_profile(result)
-        else:
-            self.verify_result_with_fallback_and_youtube(result)
+    # @ddt.data(True, False)
+    # def test_with_edx_video_id_video_unassociated_in_val(self, allow_cache_miss):
+    #     """
+    #     Tests retrieving a video that is stored in VAL but not associated with a course in VAL.
+    #     """
+    #     self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
+    #     self.setup_val_video(associate_course_in_val=False)
+    #     result = self.get_result(allow_cache_miss)
+    #     if allow_cache_miss:
+    #         self.verify_result_with_val_profile(result)
+    #     else:
+    #         self.verify_result_with_fallback_and_youtube(result)
 
-    @ddt.data(True, False)
-    def test_with_edx_video_id_video_not_in_val(self, allow_cache_miss):
-        """
-        Tests retrieving a video that is not stored in VAL.
-        """
-        self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
-        # The video is not in VAL so in contexts that do and don't allow cache misses we should always get a fallback
-        result = self.get_result(allow_cache_miss)
-        self.verify_result_with_fallback_and_youtube(result)
+    # @ddt.data(True, False)
+    # def test_with_edx_video_id_video_not_in_val(self, allow_cache_miss):
+    #     """
+    #     Tests retrieving a video that is not stored in VAL.
+    #     """
+    #     self.video.edx_video_id = self.TEST_EDX_VIDEO_ID
+    #     # The video is not in VAL so in contexts that do and don't allow cache misses we should always get a fallback
+    #     result = self.get_result(allow_cache_miss)
+    #     self.verify_result_with_fallback_and_youtube(result)
 
     @ddt.data(
         ({}, '', [], ['en']),

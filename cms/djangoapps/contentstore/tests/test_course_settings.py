@@ -618,7 +618,7 @@ class CourseGradingTest(CourseTestCase):
                     'user_id': six.text_type(self.user.id),
                     'event_transaction_id': 'mockUUID',
                 }
-            ) for policy_hash in {grading_policy_1, grading_policy_2, grading_policy_3}
+            ) for policy_hash in (grading_policy_1, grading_policy_2, grading_policy_3)
         ])
 
     @mock.patch('track.event_transaction_utils.uuid4')

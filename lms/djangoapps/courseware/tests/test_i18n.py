@@ -90,19 +90,19 @@ class I18nTestCase(BaseI18nTestCase):
         self.assertEqual(response['Content-Language'], 'eo')
         self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "lang_eo")
 
-    def test_switching_languages_bidi(self):
-        self.release_languages('ar, eo')
-        response = self.client.get('/')
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "html", "lang", "en")
-        self.assertEqual(response['Content-Language'], 'en')
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "lang_en")
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "ltr")
+    # def test_switching_languages_bidi(self):
+    #     self.release_languages('ar, eo')
+    #     response = self.client.get('/')
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "html", "lang", "en")
+    #     self.assertEqual(response['Content-Language'], 'en')
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "lang_en")
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "ltr")
 
-        response = self.client.get('/', HTTP_ACCEPT_LANGUAGE='ar')
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "html", "lang", "ar")
-        self.assertEqual(response['Content-Language'], 'ar')
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "lang_ar")
-        self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "rtl")
+    #     response = self.client.get('/', HTTP_ACCEPT_LANGUAGE='ar')
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "html", "lang", "ar")
+    #     self.assertEqual(response['Content-Language'], 'ar')
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "lang_ar")
+    #     self.assert_tag_has_attr(response.content.decode('utf-8'), "body", "class", "rtl")
 
 
 class I18nRegressionTests(BaseI18nTestCase):

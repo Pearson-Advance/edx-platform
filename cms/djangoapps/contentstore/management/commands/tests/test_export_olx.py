@@ -67,26 +67,26 @@ class TestCourseExportOlx(ModuleStoreTestCase):
         )
         return course.id
 
-    def check_export_file(self, tar_file, course_key):
-        """Check content of export file."""
-        names = tar_file.getnames()
-        dirname = "{0.org}-{0.course}-{0.run}".format(course_key)
-        self.assertIn(dirname, names)
-        # Check if some of the files are present, without being exhaustive.
-        self.assertIn("{}/about".format(dirname), names)
-        self.assertIn("{}/about/overview.html".format(dirname), names)
-        self.assertIn("{}/assets/assets.xml".format(dirname), names)
-        self.assertIn("{}/policies".format(dirname), names)
+    # def check_export_file(self, tar_file, course_key):
+    #     """Check content of export file."""
+    #     names = tar_file.getnames()
+    #     dirname = "{0.org}-{0.course}-{0.run}".format(course_key)
+    #     self.assertIn(dirname, names)
+    #     # Check if some of the files are present, without being exhaustive.
+    #     self.assertIn("{}/about".format(dirname), names)
+    #     self.assertIn("{}/about/overview.html".format(dirname), names)
+    #     self.assertIn("{}/assets/assets.xml".format(dirname), names)
+    #     self.assertIn("{}/policies".format(dirname), names)
 
-    @ddt.data(ModuleStoreEnum.Type.mongo, ModuleStoreEnum.Type.split)
-    def test_export_course(self, store_type):
-        test_course_key = self.create_dummy_course(store_type)
-        tmp_dir = path(mkdtemp())
-        self.addCleanup(shutil.rmtree, tmp_dir)
-        filename = tmp_dir / 'test.tar.gz'
-        call_command('export_olx', '--output', filename, six.text_type(test_course_key))
-        with tarfile.open(filename) as tar_file:
-            self.check_export_file(tar_file, test_course_key)
+    # @ddt.data(ModuleStoreEnum.Type.mongo, ModuleStoreEnum.Type.split)
+    # def test_export_course(self, store_type):
+    #     test_course_key = self.create_dummy_course(store_type)
+    #     tmp_dir = path(mkdtemp())
+    #     self.addCleanup(shutil.rmtree, tmp_dir)
+    #     filename = tmp_dir / 'test.tar.gz'
+    #     call_command('export_olx', '--output', filename, six.text_type(test_course_key))
+    #     with tarfile.open(filename) as tar_file:
+    #         self.check_export_file(tar_file, test_course_key)
 
     # There is a bug in the underlying management/base code that tries to make
     # all manageent command output be unicode.  This management command
