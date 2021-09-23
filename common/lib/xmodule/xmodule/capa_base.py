@@ -1196,7 +1196,7 @@ class CapaMixin(ScorableXBlockMixin, CapaFields):
     def student_item_key(self):
         """ Get the student_item_dict required for the submissions API """
         try:
-            user =  self.runtime.get_real_user(self.runtime.anonymous_student_id)
+            user = self.runtime.get_real_user(self.runtime.anonymous_student_id)
             location = self.location.replace(branch=None, version=None)  # Standardize the key in case it isn't already
             student_item = dict(
                 student_id=user.id,
