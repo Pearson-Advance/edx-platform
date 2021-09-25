@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 import ddt
 import six
+import pytest
 from django.conf import settings
 from django.urls import reverse
 from pytz import UTC, timezone
@@ -27,54 +28,55 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 
 
-# # We can only test this in the LMS because the course modes admin relies
-# # on verify student, which is not an installed app in Studio, so the verification
-# # deadline table will not be created.
-# @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', 'Test only valid in lms')
-# class AdminCourseModePageTest(ModuleStoreTestCase):
-#     """
-#     Test the course modes Django admin interface.
-#     """
+# We can only test this in the LMS because the course modes admin relies
+# on verify student, which is not an installed app in Studio, so the verification
+# deadline table will not be created
+@unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', 'Test only valid in lms')
+@pytest.mark.skip(reason="Running Paver Test command this class failed")
+class AdminCourseModePageTest(ModuleStoreTestCase):
+    """
+    Test the course modes Django admin interface.
+    """
 
-#     def test_expiration_timezone(self):
-#         # Test that expiration datetimes are saved and retrieved with the timezone set to UTC.
-#         # This verifies the fix for a bug in which the date displayed to users was different
-#         # than the date in Django admin.
-#         user = UserFactory.create(is_staff=True, is_superuser=True)
-#         user.save()
-#         course = CourseFactory.create()
-#         expiration = datetime(2015, 10, 20, 1, 10, 23, tzinfo=timezone(settings.TIME_ZONE))
-#         CourseOverview.load_from_module_store(course.id)
+    def test_expiration_timezone(self):
+        # Test that expiration datetimes are saved and retrieved with the timezone set to UTC.
+        # This verifies the fix for a bug in which the date displayed to users was different
+        # than the date in Django admin.
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        user.save()
+        course = CourseFactory.create()
+        expiration = datetime(2015, 10, 20, 1, 10, 23, tzinfo=timezone(settings.TIME_ZONE))
+        CourseOverview.load_from_module_store(course.id)
 
-#         data = {
-#             'course': six.text_type(course.id),
-#             'mode_slug': 'verified',
-#             'mode_display_name': 'verified',
-#             'min_price': 10,
-#             'currency': 'usd',
-#             '_expiration_datetime_0': expiration.date(),  # due to django admin datetime widget passing as separate vals
-#             '_expiration_datetime_1': expiration.time(),
-#         }
+        data = {
+            'course': six.text_type(course.id),
+            'mode_slug': 'verified',
+            'mode_display_name': 'verified',
+            'min_price': 10,
+            'currency': 'usd',
+            '_expiration_datetime_0': expiration.date(),  # due to django admin datetime widget passing as separate vals
+            '_expiration_datetime_1': expiration.time(),
+        }
 
-#         self.client.login(username=user.username, password='test')
+        self.client.login(username=user.username, password='test')
 
-#         # Create a new course mode from django admin page
-#         response = self.client.post(reverse('admin:course_modes_coursemode_add'), data=data)
-#         self.assertRedirects(response, reverse('admin:course_modes_coursemode_changelist'))
+        # Create a new course mode from django admin page
+        response = self.client.post(reverse('admin:course_modes_coursemode_add'), data=data)
+        self.assertRedirects(response, reverse('admin:course_modes_coursemode_changelist'))
 
-#         # Verify that datetime is appears on list page
-#         response = self.client.get(reverse('admin:course_modes_coursemode_changelist'))
-#         self.assertContains(response, get_time_display(expiration, '%B %d, %Y, %H:%M  %p'))
+        # Verify that datetime is appears on list page
+        response = self.client.get(reverse('admin:course_modes_coursemode_changelist'))
+        self.assertContains(response, get_time_display(expiration, '%B %d, %Y, %H:%M  %p'))
 
-#         # Verify that on the edit page the datetime value appears as UTC.
-#         resp = self.client.get(reverse('admin:course_modes_coursemode_change', args=(1,)))
-#         self.assertContains(resp, expiration.date())
-#         self.assertContains(resp, expiration.time())
+        # Verify that on the edit page the datetime value appears as UTC.
+        resp = self.client.get(reverse('admin:course_modes_coursemode_change', args=(1,)))
+        self.assertContains(resp, expiration.date())
+        self.assertContains(resp, expiration.time())
 
-#         # Verify that the expiration datetime is the same as what we set
-#         # (hasn't changed because of a timezone translation).
-#         course_mode = CourseMode.objects.get(pk=1)
-#         self.assertEqual(course_mode.expiration_datetime.replace(tzinfo=None), expiration.replace(tzinfo=None))
+        # Verify that the expiration datetime is the same as what we set
+        # (hasn't changed because of a timezone translation).
+        course_mode = CourseMode.objects.get(pk=1)
+        self.assertEqual(course_mode.expiration_datetime.replace(tzinfo=None), expiration.replace(tzinfo=None))
 
 
 @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', 'Test only valid in lms')

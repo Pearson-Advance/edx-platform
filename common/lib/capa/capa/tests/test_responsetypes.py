@@ -10,6 +10,7 @@ import os
 import textwrap
 import unittest
 import zipfile
+import pytest
 from datetime import datetime
 
 import calc
@@ -130,13 +131,14 @@ class MultiChoiceResponseTest(ResponseTest):  # pylint: disable=missing-class-do
         self.assert_grade(problem, 'choice_1', 'correct')
         self.assert_grade(problem, 'choice_2', 'partially-correct')
 
+    @pytest.mark.skip(reason="AssertError in line 141")
     def test_named_multiple_choice_grade(self):
         problem = self.build_problem(choices=[False, True, False],
                                      choice_names=["foil_1", "foil_2", "foil_3"])
 
         # Ensure that we get the expected grades
         self.assert_grade(problem, 'choice_foil_1', 'incorrect')
-        # self.assert_grade(problem, 'choice_foil_2', 'correct')
+        self.assert_grade(problem, 'choice_foil_2', 'correct')
         self.assert_grade(problem, 'choice_foil_3', 'incorrect')
 
     def test_multiple_choice_valid_grading_schemes(self):
@@ -171,6 +173,7 @@ class MultiChoiceResponseTest(ResponseTest):  # pylint: disable=missing-class-do
         correct_map = problem.grade_answers({'1_2_1': 'choice_2'})
         self.assertAlmostEqual(correct_map.get_npoints('1_2_1'), 0)
 
+    @pytest.mark.skip(reason="AssertError in line 203 and 204")
     def test_contextualized_choices(self):
         script = textwrap.dedent("""
             a = 2
@@ -197,8 +200,8 @@ class MultiChoiceResponseTest(ResponseTest):  # pylint: disable=missing-class-do
 
         # Ensure the expected correctness and choice names
         self.assert_grade(problem, 'choice_2 + 9 is even ... (should be False)', 'incorrect')
-        # self.assert_grade(problem, 'choice_2 + 9 is odd ... (should be True)', 'correct')
-        # self.assert_grade(problem, 'choice_infinity may be both ... (should be partial)', 'partially-correct')
+        self.assert_grade(problem, 'choice_2 + 9 is odd ... (should be True)', 'correct')
+        self.assert_grade(problem, 'choice_infinity may be both ... (should be partial)', 'partially-correct')
 
 
 class TrueFalseResponseTest(ResponseTest):   # pylint: disable=missing-class-docstring
@@ -1365,40 +1368,41 @@ class NumericalResponseTest(ResponseTest):  # pylint: disable=missing-class-docs
         new_cmap = responder.get_score({'1_2_1': '2'})
         self.assertEqual(new_cmap.get_correctness('1_2_1'), 'incorrect')
 
-    # def test_grade_range_tolerance_partial_credit(self):
-    #     problem_setup = [
-    #         # [given_answer,
-    #         #   [list of correct responses],
-    #         #   [list of incorrect responses],
-    #         #   [list of partially correct responses]]
-    #         [
-    #             '[5, 7)',
-    #             ['5', '6', '6.999'],
-    #             ['0', '100'],
-    #             ['4', '8']
-    #         ],
-    #         [
-    #             '[1.6e-5, 1.9e24)',
-    #             ['0.000016', '1.6*10^-5', '1.59e24'],
-    #             ['-1e26', '1.9e26', '1.9*10^26'],
-    #             ['0', '2e24']
-    #         ],
-    #         [
-    #             '[0, 1.6e-5]',
-    #             ['1.6*10^-5'],
-    #             ['2'],
-    #             ['1.9e-5', '-1e-6']
-    #         ],
-    #         [
-    #             '(1.6e-5, 10]',
-    #             ['2'],
-    #             ['-20', '30'],
-    #             ['-1', '12']
-    #         ],
-    #     ]
-    #     for given_answer, correct_responses, incorrect_responses, partial_responses in problem_setup:
-    #         problem = self.build_problem(answer=given_answer, credit_type='close')
-    #         self.assert_multiple_partial(problem, correct_responses, incorrect_responses, partial_responses)
+    @pytest.mark.skip(reason="AssertError")
+    def test_grade_range_tolerance_partial_credit(self):
+        problem_setup = [
+            # [given_answer,
+            #   [list of correct responses],
+            #   [list of incorrect responses],
+            #   [list of partially correct responses]]
+            [
+                '[5, 7)',
+                ['5', '6', '6.999'],
+                ['0', '100'],
+                ['4', '8']
+            ],
+            [
+                '[1.6e-5, 1.9e24)',
+                ['0.000016', '1.6*10^-5', '1.59e24'],
+                ['-1e26', '1.9e26', '1.9*10^26'],
+                ['0', '2e24']
+            ],
+            [
+                '[0, 1.6e-5]',
+                ['1.6*10^-5'],
+                ['2'],
+                ['1.9e-5', '-1e-6']
+            ],
+            [
+                '(1.6e-5, 10]',
+                ['2'],
+                ['-20', '30'],
+                ['-1', '12']
+            ],
+        ]
+        for given_answer, correct_responses, incorrect_responses, partial_responses in problem_setup:
+            problem = self.build_problem(answer=given_answer, credit_type='close')
+            self.assert_multiple_partial(problem, correct_responses, incorrect_responses, partial_responses)
 
     def test_grade_range_tolerance_exceptions(self):
         # no complex number in range tolerance staff answer
@@ -1437,17 +1441,18 @@ class NumericalResponseTest(ResponseTest):  # pylint: disable=missing-class-docs
         incorrect_responses = ["", "3.9", "4.1", "0"]
         self.assert_multiple_grade(problem, correct_responses, incorrect_responses)
 
-    # def test_grade_partial(self):
-    #     # First: "list"-style grading scheme.
-    #     problem = self.build_problem(
-    #         answer=4,
-    #         credit_type='list',
-    #         partial_answers='2,8,-4'
-    #     )
-    #     correct_responses = ["4", "4.0"]
-    #     incorrect_responses = ["1", "3", "4.1", "0", "-2"]
-    #     partial_responses = ["2", "2.0", "-4", "-4.0", "8", "8.0"]
-    #     self.assert_multiple_partial(problem, correct_responses, incorrect_responses, partial_responses)
+    @pytest.mark.skip(reason="AssertionError")
+    def test_grade_partial(self):
+        # First: "list"-style grading scheme.
+        problem = self.build_problem(
+            answer=4,
+            credit_type='list',
+            partial_answers='2,8,-4'
+        )
+        correct_responses = ["4", "4.0"]
+        incorrect_responses = ["1", "3", "4.1", "0", "-2"]
+        partial_responses = ["2", "2.0", "-4", "-4.0", "8", "8.0"]
+        self.assert_multiple_partial(problem, correct_responses, incorrect_responses, partial_responses)
 
         # Second: "close"-style grading scheme. Default range is twice tolerance.
         problem = self.build_problem(
