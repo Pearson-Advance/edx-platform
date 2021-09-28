@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: ['3.8']
+        python-version: ['3.5']
         include:
           - os: ubuntu-20.04
             path: ~/.cache/pip
@@ -26,7 +26,7 @@ jobs:
     - name: Install Required Packages
       run: |
         sudo apt-get update && sudo apt-get install libxmlsec1-dev
-        sudo syini" -exec dirname {} \;); do pytest --collect-only $dir; donestemctl start mongod
+        sudo systemctl start mongod
     - name: Get pip cache dir
       id: pip-cache-dir
       run: |
@@ -39,14 +39,13 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/edx/testing.txt') }}
         restore-keys: ${{ runner.os }}-pip-
 
-
+    - name: Install Django
+      run: pip install -r requirements/edx/django.txt
     - name: Install Python Dependencies
       if: steps.cache-dependencies.output.cache-hit != 'true'
       run: |
         pip install setuptools wheel
         pip install -r requirements/edx/testing.txt
-    - name: Install Django
-      run: pip install -r requirements/edx/django.txt
 
     - name: Collect Tests
       env:
