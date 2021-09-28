@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
     branches:
-      - pearson/PAE-614
+      - 'pearson-release/*.stage'
 
 jobs:
   run_tests:
@@ -51,4 +51,4 @@ jobs:
     - name: Collect Tests
       env:
         STUDIO_CFG: lms/envs/bok_choy.yml
-      run: for dir in $(find . -name "pytest.
+      run: for dir in $(find . -name "pytest.ini" -exec dirname {} \;); do pytest --collect-only $dir; done
