@@ -47,11 +47,14 @@ log = logging.getLogger(__name__)
 def get_program_marketing_url(programs_config, mobile_only=False):
     """Build a URL used to link to programs on the marketing site."""
     if mobile_only:
-        marketing_url = 'edxapp://course?programs'
-    else:
-        marketing_url = urljoin(settings.MKTG_URLS.get('ROOT'), programs_config.marketing_path).rstrip('/')
+        return 'edxapp://course?programs'
 
-    return marketing_url
+    marketing_url = configuration_helpers.get_value('PROGRAMS_MARKETING_URL', None)
+
+    return marketing_url if marketing_url else urljoin(
+        settings.MKTG_URLS.get('ROOT'),
+        programs_config.marketing_path,
+    ).rstrip('/')
 
 
 def attach_program_detail_url(programs, mobile_only=False):
