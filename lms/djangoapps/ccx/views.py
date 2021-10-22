@@ -56,6 +56,7 @@ from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params
 from lms.djangoapps.instructor.views.gradebook_api import get_grade_book_page
 from openedx.core.djangoapps.django_comment_common.models import FORUM_ROLE_ADMINISTRATOR, assign_role
 from openedx.core.djangoapps.django_comment_common.utils import seed_permissions_roles
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.models import CourseEnrollment
 from student.roles import CourseCcxCoachRole
@@ -255,6 +256,14 @@ def create_ccx(request, course, ccx=None):
     )
     for rec, response in responses:
         log.info(u'Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
+
+    # Adding an extension point to create the institution_ccx for PearsonVUE.
+    if configuration_helpers.get_value('PCO_ENFORCE_LICENSE_LIMITS', False):
+        run_extension_point(
+            'PCO_CREATE_INSTITUTION_CCX_INSTANCE',
+            ccx_id=ccx_id,
+            user=request.user,
+        )
 
     return redirect(url)
 
