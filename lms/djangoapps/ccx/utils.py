@@ -28,7 +28,9 @@ from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params,
 from lms.djangoapps.instructor.views.api import _split_input_list
 from lms.djangoapps.instructor.views.tools import get_student_from_identifier
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+from student.auth import is_ccx_course
 from student.models import CourseEnrollment, CourseEnrollmentException
 from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
@@ -266,12 +268,29 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
                 errors.append(u"{0}".format(exp))
                 continue
 
+            # Check the License limit in the pearson course operation plugin.
+            if (
+                    configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False)
+                    and is_ccx_course(course_key)
+                    and not must_enroll
+               ):
+                allow_enrollment, message = run_extension_point(
+                    'PCO_ENFORCE_LICENSE_LIMITS',
+                    course_key=course_key,
+                )
+
+                if not allow_enrollment:
+                    log.info(message)
+                    errors.append(message)
+                    break
+
             if CourseEnrollment.objects.is_course_full(ccx_course_overview) and not must_enroll:
                 error = _(u'The course is full: the limit is {max_student_enrollments_allowed}').format(
                     max_student_enrollments_allowed=ccx_course_overview.max_student_enrollments_allowed)
                 log.info(u"%s", error)
                 errors.append(error)
                 break
+
             enroll_email(course_key, email, auto_enroll=True, email_students=email_students, email_params=email_params)
     elif action == 'Unenroll' or action == 'revoke':
         for identifier in identifiers:
