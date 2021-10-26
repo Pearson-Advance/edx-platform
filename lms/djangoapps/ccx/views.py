@@ -258,7 +258,7 @@ def create_ccx(request, course, ccx=None):
         log.info(u'Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
 
     # Adding an extension point to create the institution_ccx for PearsonVUE.
-    if configuration_helpers.get_value('PCO_ENFORCE_LICENSE_LIMITS', False):
+    if configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False):
         run_extension_point(
             'PCO_CREATE_INSTITUTION_CCX_INSTANCE',
             ccx_id=ccx_id,
