@@ -48,6 +48,7 @@ from lms.djangoapps.discussion.django_comment_client.utils import available_divi
 from lms.djangoapps.grades.api import is_writable_gradebook_enabled
 from openedx.core.djangoapps.course_groups.cohorts import DEFAULT_COHORT_NAME, get_course_cohorts, is_course_cohorted
 from openedx.core.djangoapps.django_comment_common.models import FORUM_ROLE_ADMINISTRATOR, CourseDiscussionSettings
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.verified_track_content.models import VerifiedTrackCohortedCourse
 from openedx.core.djangolib.markup import HTML, Text
@@ -720,6 +721,18 @@ def _section_data_download(course, access):
         ),
         'export_ora2_data_url': reverse('export_ora2_data', kwargs={'course_id': six.text_type(course_key)}),
     }
+
+    if configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False):
+        get_license_usage_url, is_master_course = run_extension_point(
+            'PCO_GET_LICENSE_USAGE_URL',
+            course_id=course_key,
+        )
+
+        section_data.update({
+            'get_license_usage_url': get_license_usage_url,
+            'is_master_course': is_master_course,
+        })
+
     if not access.get('data_researcher'):
         section_data['is_hidden'] = True
     return section_data

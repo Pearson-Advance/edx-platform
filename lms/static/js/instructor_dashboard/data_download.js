@@ -97,6 +97,7 @@
             this.ddc = new DataDownloadCertificate(this.$section.find('.issued_certificates'));
             this.$list_studs_btn = this.$section.find("input[name='list-profiles']");
             this.$list_studs_csv_btn = this.$section.find("input[name='list-profiles-csv']");
+            this.$license_usage_csv_btn = this.$section.find("input[name='license-usage-csv']");
             this.$proctored_exam_csv_btn = this.$section.find("input[name='proctored-exam-results-report']");
             this.$survey_results_csv_btn = this.$section.find("input[name='survey-results-report']");
             this.$list_may_enroll_csv_btn = this.$section.find("input[name='list-may-enroll-csv']");
@@ -195,6 +196,28 @@
                             display: 'block'
                         });
                     }
+                });
+            });
+            this.$license_usage_csv_btn.click(function() {
+                var errorMessage = gettext('Error generating license usage report. Please try again.');
+                dataDownloadObj.clear_display();
+                return $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: dataDownloadObj.$license_usage_csv_btn.data('endpoint'),
+                    error: function(error) {
+                        errorMessage = error.responseText ? JSON.parse(error.responseText) : errorMessage;
+                        dataDownloadObj.$reports_request_response_error.text(errorMessage);
+                        return dataDownloadObj.$reports_request_response_error.css({
+                            display: 'block',
+                        });
+                    },
+                    success: function(data) {
+                        dataDownloadObj.$reports_request_response.text(data.status);
+                        return $('.msg-confirm').css({
+                            display: 'block',
+                        });
+                    },
                 });
             });
             this.$list_studs_btn.click(function() {
