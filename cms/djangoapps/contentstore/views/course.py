@@ -1161,6 +1161,11 @@ def settings_handler(request, course_key_string):
                         if not all(is_valid_course_key(course_key) for course_key in prerequisite_course_keys):
                             return JsonResponseBadRequest({"error": _("Invalid prerequisite course key")})
                         set_prerequisite_courses(course_key, prerequisite_course_keys)
+                        run_extension_point(
+                            'PEARSON_CORE_MILESTONE_PREREQUISITES_MODULE',
+                            course_key = course_key,
+                            prerequisite_course_keys = prerequisite_course_keys,
+                        )
                     else:
                         # None is chosen, so remove the course prerequisites
                         course_milestones = milestones_api.get_course_milestones(course_key=course_key, relationship="requires")
