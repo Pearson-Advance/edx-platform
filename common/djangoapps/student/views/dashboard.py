@@ -45,6 +45,7 @@ from openedx.core.djangoapps.util.maintenance_banner import add_maintenance_bann
 from openedx.core.djangoapps.waffle_utils import WaffleFlag, WaffleFlagNamespace
 from openedx.core.djangolib.markup import HTML, Text
 from openedx.features.enterprise_support.api import get_dashboard_consent_notification
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from shoppingcart.models import CourseRegistrationCode, DonationConfiguration
 from student.api import COURSE_DASHBOARD_PLUGIN_VIEW_NAME
 from student.helpers import cert_info, check_verify_status_by_course, get_resume_urls_for_enrollments
@@ -803,7 +804,11 @@ def student_dashboard(request):
         if enrollment.course_overview.pre_requisite_courses
     )
     courses_requirements_not_met = get_pre_requisite_courses_not_completed(user, courses_having_prerequisites)
-
+    run_extension_point(
+        'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
+        user = user,
+        courses_requirements_not_met = courses_requirements_not_met,
+    )
     if 'notlive' in request.GET:
         redirect_message = _("The course you are looking for does not start until {date}.").format(
             date=request.GET['notlive']
