@@ -804,10 +804,16 @@ def student_dashboard(request):
         if enrollment.course_overview.pre_requisite_courses
     )
     courses_requirements_not_met = get_pre_requisite_courses_not_completed(user, courses_having_prerequisites)
+    sku_not_enrollment_in_requirement = None
     run_extension_point(
         'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
+        user=user,
+        courses_requirements_not_met=courses_requirements_not_met,
+    )
+    sku_not_enrollment_in_requirement = run_extension_point(
+        'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
         user = user,
-        courses_requirements_not_met = courses_requirements_not_met,
+        courses_requirements_not_met=courses_requirements_not_met,
     )
     if 'notlive' in request.GET:
         redirect_message = _("The course you are looking for does not start until {date}.").format(
@@ -870,6 +876,7 @@ def student_dashboard(request):
         'enrolled_courses_either_paid': enrolled_courses_either_paid,
         'provider_states': [],
         'courses_requirements_not_met': courses_requirements_not_met,
+        'sku_not_enrollment_in_requirement': sku_not_enrollment_in_requirement,
         'nav_hidden': True,
         'inverted_programs': inverted_programs,
         'show_program_listing': ProgramsApiConfig.is_enabled(),
