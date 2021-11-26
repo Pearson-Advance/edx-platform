@@ -262,6 +262,7 @@ def create_ccx(request, course, ccx=None):
         run_extension_point(
             'PCO_CREATE_INSTITUTION_CCX_INSTANCE',
             ccx_id=ccx_id,
+            custom_course=ccx,
             user=request.user,
         )
 
