@@ -125,7 +125,7 @@ from student.models import CourseEnrollment, UserTestGroup
 from track import segment
 from util.cache import cache, cache_if_anonymous
 from util.db import outer_atomic
-from util.milestones_helpers import get_prerequisite_courses_display
+from util.milestones_helpers import get_prerequisite_courses_display, get_pre_requisite_courses_not_completed
 from util.views import ensure_valid_course_key, ensure_valid_usage_key
 from xmodule.course_module import COURSE_VISIBILITY_PUBLIC, COURSE_VISIBILITY_PUBLIC_OUTLINE
 from xmodule.modulestore.django import modulestore
@@ -956,6 +956,28 @@ def course_about(request, course_id):
         # get prerequisite courses display names
         pre_requisite_courses = get_prerequisite_courses_display(course)
 
+        courses_having_prerequisites = frozenset({course.id})
+        courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, courses_having_prerequisites)
+        ecommerce_service = EcommerceService()
+        sku_not_enrollment_in_requirement = None
+        course_requirements = None
+        run_extension_point(
+            'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
+            user=request.user,
+            courses_requirements_not_met=courses_requirements_not_met,
+        )
+
+        course_requirements = run_extension_point(
+            'PEARSON_CORE_STUDENT_COURSE_REQUIREMENTS_FOR_COURSEWARE',
+            courses_requirements_not_met=courses_requirements_not_met,
+        )
+
+        sku_not_enrollment_in_requirement = run_extension_point(
+            'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
+            user=request.user,
+            courses_requirements_not_met=courses_requirements_not_met,
+        )
+
         # Overview
         overview = CourseOverview.get_from_id(course.id)
 
@@ -994,6 +1016,9 @@ def course_about(request, course_id):
             # context. This value is therefor explicitly set to render the appropriate header.
             'disable_courseware_header': True,
             'pre_requisite_courses': pre_requisite_courses,
+            'course_requirements': course_requirements,
+            'student_not_enrollment_in_requirement': sku_not_enrollment_in_requirement,
+            "ecommerce_payment_page": ecommerce_service.payment_page_url(),
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
             'sidebar_html_enabled': sidebar_html_enabled,
