@@ -978,6 +978,9 @@ def course_about(request, course_id):
             courses_requirements_not_met=courses_requirements_not_met,
         )
 
+        sku_not_enrollment_in_requirement = \
+            sku_not_enrollment_in_requirement[course.id] if sku_not_enrollment_in_requirement else None
+
         # Overview
         overview = CourseOverview.get_from_id(course.id)
 
