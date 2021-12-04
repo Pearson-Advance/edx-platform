@@ -959,8 +959,7 @@ def course_about(request, course_id):
         courses_having_prerequisites = frozenset({course.id})
         courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, courses_having_prerequisites)
         ecommerce_service = EcommerceService()
-        sku_not_enrollment_in_requirement = None
-        course_requirements = None
+
         run_extension_point(
             'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
             user=request.user,
@@ -972,14 +971,11 @@ def course_about(request, course_id):
             courses_requirements_not_met=courses_requirements_not_met,
         )
 
-        sku_not_enrollment_in_requirement = run_extension_point(
+        skus_not_enrollment_in_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
             user=request.user,
             courses_requirements_not_met=courses_requirements_not_met,
         )
-
-        sku_not_enrollment_in_requirement = \
-            sku_not_enrollment_in_requirement[course.id] if sku_not_enrollment_in_requirement else None
 
         # Overview
         overview = CourseOverview.get_from_id(course.id)
@@ -1019,8 +1015,9 @@ def course_about(request, course_id):
             # context. This value is therefor explicitly set to render the appropriate header.
             'disable_courseware_header': True,
             'pre_requisite_courses': pre_requisite_courses,
-            'course_requirements': course_requirements,
-            'student_not_enrollment_in_requirement': sku_not_enrollment_in_requirement,
+            'course_requirements': course_requirements if course_requirements else None,
+            'student_not_enrollment_in_requirement': \
+                skus_not_enrollment_in_requirements[course.id] if skus_not_enrollment_in_requirements else None,
             "ecommerce_payment_page": ecommerce_service.payment_page_url(),
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
