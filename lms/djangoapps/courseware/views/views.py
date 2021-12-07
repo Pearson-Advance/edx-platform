@@ -956,9 +956,7 @@ def course_about(request, course_id):
         # get prerequisite courses display names
         pre_requisite_courses = get_prerequisite_courses_display(course)
 
-        courses_having_prerequisites = frozenset({course.id})
-        courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, courses_having_prerequisites)
-        ecommerce_service = EcommerceService()
+        courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, frozenset({course.id}))
 
         run_extension_point(
             'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
@@ -1018,7 +1016,7 @@ def course_about(request, course_id):
             'course_requirements': course_requirements if course_requirements else None,
             'student_not_enrollment_in_requirement': \
                 skus_not_enrollment_in_requirements[course.id] if skus_not_enrollment_in_requirements else None,
-            "ecommerce_payment_page": ecommerce_service.payment_page_url(),
+            "ecommerce_payment_page": EcommerceService().payment_page_url(),
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
             'sidebar_html_enabled': sidebar_html_enabled,
