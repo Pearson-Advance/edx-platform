@@ -804,7 +804,7 @@ def student_dashboard(request):
         if enrollment.course_overview.pre_requisite_courses
     )
     courses_requirements_not_met = get_pre_requisite_courses_not_completed(user, courses_having_prerequisites)
-    run_extension_point(
+    courses_requirements_not_met = run_extension_point(
         'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
         user=user,
         courses_requirements_not_met=courses_requirements_not_met,

@@ -958,7 +958,7 @@ def course_about(request, course_id):
 
         courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, frozenset({course.id}))
 
-        run_extension_point(
+        courses_requirements_not_met = run_extension_point(
             'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
             user=request.user,
             courses_requirements_not_met=courses_requirements_not_met,
