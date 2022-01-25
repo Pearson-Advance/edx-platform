@@ -95,7 +95,7 @@ git+https://github.com/edx/crowdsourcehinter.git@2178ac72891392106ffef389651aef3
 
 # LTI-consumer-xblock Dynamic custom parameters support.
 # Temporary package pointed to Pearson-Advanced, we don't need to consider this change for version upper Maple.
--e git+https://github.com/Pearson-Advance/xblock-lti-consumer.git@35a6f4f035748a23dc7a95ed8d839077b87ee871#egg=lti_consumer-xblock
+-e git+https://github.com/Pearson-Advance/xblock-lti-consumer.git@75a21d42626c6a72dc3435ed0602a1403a918b75#egg=lti_consumer-xblock
 
 
 # Third Party XBlocks
