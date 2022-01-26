@@ -1164,7 +1164,7 @@ def settings_handler(request, course_key_string):
                         run_extension_point(
                             'PEARSON_CORE_MILESTONE_PREREQUISITES_MODULE',
                             course_key=course_key,
-                            prerequisite_course_keys=prerequisite_course_keys,
+                            prerequisite_course_key=CourseKey.from_string(prerequisite_course_keys[0])
                         )
                     else:
                         # None is chosen, so remove the course prerequisites
