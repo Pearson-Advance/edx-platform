@@ -171,7 +171,7 @@ lazy==1.4                 # via -r requirements/edx/base.txt, acid-xblock, bok-c
 lepl==5.1.3               # via -r requirements/edx/base.txt, rfc6266-parser
 libsass==0.10.0           # via -r requirements/edx/base.txt, ora2
 loremipsum==1.0.5         # via -r requirements/edx/base.txt, ora2
--e git+https://github.com/Pearson-Advance/xblock-lti-consumer.git@35a6f4f035748a23dc7a95ed8d839077b87ee871#egg=lti_consumer-xblock  # via -r requirements/edx/base.txt
+-e git+https://github.com/Pearson-Advance/xblock-lti-consumer.git@75a21d42626c6a72dc3435ed0602a1403a918b75#egg=lti_consumer-xblock  # via -r requirements/edx/base.txt
 lxml==4.5.0               # via -r requirements/edx/base.txt, capa, edxval, lti-consumer-xblock, ora2, pyquery, safe-lxml, xblock, xmlsec
 mailsnake==1.6.4          # via -r requirements/edx/base.txt
 mako==1.0.2               # via -r requirements/edx/base.txt, acid-xblock, lti-consumer-xblock, xblock-google-drive, xblock-utils
