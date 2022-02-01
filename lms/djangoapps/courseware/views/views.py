@@ -965,6 +965,7 @@ def course_about(request, course_id):
         course_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_COURSE_REQUIREMENTS_FOR_COURSEWARE',
             courses_requirements_not_met=courses_requirements_not_met,
+            course_locator=course.id,
         )
 
         # Overview
