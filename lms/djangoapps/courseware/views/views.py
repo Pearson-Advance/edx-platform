@@ -957,11 +957,13 @@ def course_about(request, course_id):
         pre_requisite_courses = get_prerequisite_courses_display(course)
 
         courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, frozenset({course.id}))
+        # sort requirements for each course in course_requirements_not_met.
         skus_not_enrollment_in_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
             user=request.user,
             courses_requirements_not_met=courses_requirements_not_met,
         )
+        # the first prerequisite from courses_requirements_not_met is taken.
         course_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_COURSE_REQUIREMENTS_FOR_COURSEWARE',
             courses_requirements_not_met=courses_requirements_not_met,
