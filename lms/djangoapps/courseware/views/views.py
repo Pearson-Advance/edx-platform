@@ -1010,7 +1010,7 @@ def course_about(request, course_id):
             'pre_requisite_courses': pre_requisite_courses,
             'course_requirements': course_requirements if course_requirements else None,
             'student_not_enrollment_in_requirement': \
-                skus_not_enrollment_in_requirements[course.id] if skus_not_enrollment_in_requirements else None,
+                skus_not_enrollment_in_requirements.get(course.id) if skus_not_enrollment_in_requirements else None,
             "ecommerce_payment_page": EcommerceService().payment_page_url(),
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
