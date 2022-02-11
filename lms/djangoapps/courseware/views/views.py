@@ -953,17 +953,17 @@ def course_about(request, course_id):
 
         is_shib_course = uses_shib(course)
 
-        # get prerequisite courses display names
+        # Get prerequisite courses display names
         pre_requisite_courses = get_prerequisite_courses_display(course)
 
         courses_requirements_not_met = get_pre_requisite_courses_not_completed(request.user, frozenset({course.id}))
-        # sort requirements for each course in course_requirements_not_met.
+        # Sort requirements for each course in course_requirements_not_met
         skus_not_enrollment_in_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
             user=request.user,
             courses_requirements_not_met=courses_requirements_not_met,
         )
-        # the first prerequisite from courses_requirements_not_met is taken.
+        # Dictionary with the first requirement in course_requirements_not_met
         course_requirements = run_extension_point(
             'PEARSON_CORE_STUDENT_COURSE_REQUIREMENTS_FOR_COURSEWARE',
             courses_requirements_not_met=courses_requirements_not_met,
@@ -1008,9 +1008,9 @@ def course_about(request, course_id):
             # context. This value is therefor explicitly set to render the appropriate header.
             'disable_courseware_header': True,
             'pre_requisite_courses': pre_requisite_courses,
-            'course_requirements': course_requirements if course_requirements else None,
+            'course_requirements': course_requirements,
             'student_not_enrollment_in_requirement': \
-                skus_not_enrollment_in_requirements.get(course.id) if skus_not_enrollment_in_requirements else None,
+                skus_not_enrollment_in_requirements.get(course.id),
             "ecommerce_payment_page": EcommerceService().payment_page_url(),
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
