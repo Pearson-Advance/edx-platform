@@ -75,6 +75,7 @@ class SessionCookieDomainSiteConfigurationOverrideTests(TestCase):
             site=self.site,
             site_values={
                 "SESSION_COOKIE_DOMAIN": self.site.domain,
+                "LANGUAGE_COOKIE_DOMAIN": "fake.domain",
             }
         )
         self.client = Client()
@@ -86,3 +87,4 @@ class SessionCookieDomainSiteConfigurationOverrideTests(TestCase):
         """
         response = self.client.get('/', HTTP_HOST=self.site.domain)
         self.assertIn(self.site.domain, str(response.cookies['sessionid']))
+        self.assertIn("fake.domain", str(response.cookies['openedx-language-preference']))

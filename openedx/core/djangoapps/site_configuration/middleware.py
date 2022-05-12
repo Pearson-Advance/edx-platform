@@ -32,11 +32,15 @@ class SessionCookieDomainOverrideMiddleware(MiddlewareMixin):
                 """
                 Wrapper function for set_cookie() which applies SESSION_COOKIE_DOMAIN override
                 """
-
+                language_cookie_domain = configuration_helpers.get_value('LANGUAGE_COOKIE_DOMAIN')
                 # only override if we are setting the cookie name to be the one the Django Session Middleware uses
                 # as defined in settings.SESSION_COOKIE_NAME
                 if key == configuration_helpers.get_value('SESSION_COOKIE_NAME', settings.SESSION_COOKIE_NAME):
                     domain = session_cookie_domain
+
+                # Override the domain when the cookie is the LANGUAGE_COOKIE.
+                elif key == settings.LANGUAGE_COOKIE and language_cookie_domain:
+                    domain = language_cookie_domain
 
                 kwargs = {
                     'max_age': max_age,
