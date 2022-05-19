@@ -15855,6 +15855,10 @@ msgid "This content is graded"
 msgstr "Este conteúdo é classificado"
 
 #: lms/templates/courseware/course_about.html
+msgid "Enroll Now"
+msgstr "Matricular-se agora"
+
+#: lms/templates/courseware/course_about.html
 msgid "An error occurred. Please try again later."
 msgstr "Ocorreu um erro. Por favor, tente novamente mais tarde."
 

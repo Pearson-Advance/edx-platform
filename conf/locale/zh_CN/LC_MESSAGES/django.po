@@ -15386,7 +15386,7 @@ msgstr "添加 {course_name} 到购物车 {start_span}({price} USD){end_span}"
 
 #: lms/templates/courseware/course_about.html
 msgid "Enroll Now"
-msgstr ""
+msgstr "现在注册"
 
 #: lms/templates/courseware/course_about.html
 msgid "View About Page in studio"
