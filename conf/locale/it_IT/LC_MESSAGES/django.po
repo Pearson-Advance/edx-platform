@@ -15124,7 +15124,7 @@ msgstr ""
 
 #: lms/templates/courseware/course_about.html
 msgid "Enroll Now"
-msgstr ""
+msgstr "Iscriviti ora"
 
 #: lms/templates/courseware/course_about.html
 msgid "View About Page in studio"

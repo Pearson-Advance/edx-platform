@@ -17324,7 +17324,7 @@ msgstr "Les inscriptions sont fermées"
 
 #: lms/templates/courseware/course_about.html
 msgid "Enroll Now"
-msgstr "Inscrivez-vous maintenant"
+msgstr "S'inscrire maintenant"
 
 #: lms/templates/courseware/course_about.html
 msgid "View About Page in studio"

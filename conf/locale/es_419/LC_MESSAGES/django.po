@@ -16969,7 +16969,7 @@ msgstr "Añadir {course_name} al carrito {start_span}({price} USD){end_span}"
 
 #: lms/templates/courseware/course_about.html
 msgid "Enroll Now"
-msgstr ""
+msgstr "Inscribirse ahora"
 
 #: lms/templates/courseware/course_about.html
 msgid "View About Page in studio"

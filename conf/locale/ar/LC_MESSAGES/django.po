@@ -16843,7 +16843,7 @@ msgstr "أُغلِق باب التسجيل"
 
 #: lms/templates/courseware/course_about.html
 msgid "Enroll Now"
-msgstr "سجل الآن"
+msgstr "سجّل الآن"
 
 #: lms/templates/courseware/course_about.html
 msgid "View About Page in studio"
