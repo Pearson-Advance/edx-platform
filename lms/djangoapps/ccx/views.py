@@ -47,6 +47,7 @@ from lms.djangoapps.ccx.utils import (
     get_ccx_for_coach,
     get_date,
     get_enrollment_action_and_identifiers,
+    is_staff_allowed_to_access_ccx_coach_tab,
     multiple_ccx_per_coach,
     parse_date,
 )
@@ -98,6 +99,10 @@ def coach_dashboard(view):
                 # if user is staff or instructor then he can view ccx coach dashboard.
                 return view(request, course, ccx)
             else:
+                # If user has the staff role at CCX level, then he/she can view ccx coach dashboard for licensed ccxs.
+                ccx_id = CCXLocator.from_course_locator(course.id, six.text_type(ccx.id))
+                if is_staff_allowed_to_access_ccx_coach_tab(request.user, ccx_id):
+                    return view(request, course, ccx)
                 # if there is a ccx, we must validate that it is the ccx for this coach
                 role = CourseCcxCoachRole(course_key)
                 if not role.has_user(request.user):

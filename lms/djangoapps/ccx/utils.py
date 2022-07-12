@@ -31,7 +31,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.auth import is_ccx_course
-from student.models import CourseEnrollment, CourseEnrollmentException
+from student.models import CourseAccessRole, CourseEnrollment, CourseEnrollmentException
 from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
 log = logging.getLogger("edx.ccx")
@@ -528,3 +528,23 @@ def multiple_ccx_per_coach(course):
             False,
         )
     )
+
+
+def is_staff_allowed_to_access_ccx_coach_tab(user, ccx_id):
+    """
+    Determine when an user who has the staff role over a ccx can see the ccx coach tab.
+
+    This should only work for licensed ccxs.
+
+    Params:
+    user: User.
+    ccx_id: CCXLocator instance.
+    """
+    if not run_extension_point('PCO_IS_LICENSED_CCX', course_id=ccx_id):
+        return False
+
+    return CourseAccessRole.objects.filter(
+        user=user,
+        course_id=ccx_id,
+        role='staff',
+    ).exists()
