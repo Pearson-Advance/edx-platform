@@ -98,6 +98,13 @@ def coach_dashboard(view):
                 # if user is staff or instructor then he can view ccx coach dashboard.
                 return view(request, course, ccx)
             else:
+                # If user has the staff role at CCX level, then he/she can view ccx coach dashboard for licensed ccxs.
+                if ccx and run_extension_point(
+                    'PCO_IS_USER_ALLOWED_TO_ACCESS_CCX_COACH_TAB',
+                    ccx_id=CCXLocator.from_course_locator(course.id, six.text_type(ccx.id)),
+                    user=request.user,
+                    ):
+                    return view(request, course, ccx)
                 # if there is a ccx, we must validate that it is the ccx for this coach
                 role = CourseCcxCoachRole(course_key)
                 if not role.has_user(request.user):
