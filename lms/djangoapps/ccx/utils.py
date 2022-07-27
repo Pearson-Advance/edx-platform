@@ -31,7 +31,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.auth import is_ccx_course
-from student.models import CourseAccessRole, CourseEnrollment, CourseEnrollmentException
+from student.models import CourseEnrollment, CourseEnrollmentException
 from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
 log = logging.getLogger("edx.ccx")
