@@ -528,23 +528,3 @@ def multiple_ccx_per_coach(course):
             False,
         )
     )
-
-
-def is_staff_allowed_to_access_ccx_coach_tab(user, ccx_id):
-    """
-    Determine when an user who has the staff role over a ccx can see the ccx coach tab.
-
-    This should only work for licensed ccxs.
-
-    Params:
-    user: User.
-    ccx_id: CCXLocator instance.
-    """
-    if not run_extension_point('PCO_IS_LICENSED_CCX', course_id=ccx_id):
-        return False
-
-    return CourseAccessRole.objects.filter(
-        user=user,
-        course_id=ccx_id,
-        role='staff',
-    ).exists()
