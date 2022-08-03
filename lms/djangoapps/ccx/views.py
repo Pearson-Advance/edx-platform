@@ -254,7 +254,10 @@ def create_ccx(request, course, ccx=None):
     )
 
     assign_staff_role_to_ccx(ccx_id, request.user, course.id)
-    add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
+    is_course_licensing_enable = configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False)
+
+    if not is_course_licensing_enable:
+        add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
     # using CCX object as sender here.
     responses = SignalHandler.course_published.send(
@@ -265,7 +268,7 @@ def create_ccx(request, course, ccx=None):
         log.info(u'Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
 
     # Adding an extension point to create the institution_ccx for PearsonVUE.
-    if configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False):
+    if is_course_licensing_enable:
         run_extension_point(
             'PCO_CREATE_INSTITUTION_CCX_INSTANCE',
             ccx_id=ccx_id,
