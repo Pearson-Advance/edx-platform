@@ -93,6 +93,18 @@ def coach_dashboard(view):
 
         if not course.enable_ccx:
             raise Http404
+        # Disable ccx view for master courses if user is not allowed to create ccx.
+        elif (
+            not ccx and
+            # site configuration PCO_ENABLE_LICENSE_ENFORCEMENT is to control platform default.
+            configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False) and
+            not run_extension_point(
+                'PCO_IS_USER_ALLOWED_TO_CREATE_CCX',
+                user=request.user,
+                master_course=course.id,
+            )
+        ):
+            raise Http404
         else:
             if bool(request.user.has_perm(VIEW_CCX_COACH_DASHBOARD, course)):
                 # if user is staff or instructor then he can view ccx coach dashboard.
