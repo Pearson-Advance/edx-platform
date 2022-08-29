@@ -237,14 +237,16 @@ def create_ccx(request, course, ccx=None):
     # Save display name explicitly
     override_field_for_ccx(ccx, course, 'display_name', name)
 
-    # Hide anything that can show up in the schedule
-    hidden = 'visible_to_staff_only'
-    for chapter in course.get_children():
-        override_field_for_ccx(ccx, chapter, hidden, True)
-        for sequential in chapter.get_children():
-            override_field_for_ccx(ccx, sequential, hidden, True)
-            for vertical in sequential.get_children():
-                override_field_for_ccx(ccx, vertical, hidden, True)
+    # if course licensing is enabled, then all units will be shown in schedule.
+    if not run_extension_point('PCO_ENABLE_COURSE_LICENSING'):
+        # Hide anything that can show up in the schedule
+        hidden = 'visible_to_staff_only'
+        for chapter in course.get_children():
+            override_field_for_ccx(ccx, chapter, hidden, True)
+            for sequential in chapter.get_children():
+                override_field_for_ccx(ccx, sequential, hidden, True)
+                for vertical in sequential.get_children():
+                    override_field_for_ccx(ccx, vertical, hidden, True)
 
     ccx_id = CCXLocator.from_course_locator(course.id, six.text_type(ccx.id))
 
