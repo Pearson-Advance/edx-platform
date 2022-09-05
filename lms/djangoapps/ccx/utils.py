@@ -269,11 +269,9 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
                 continue
 
             # Check the License limit in the pearson course operation plugin.
-            if (
-                    configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False)
-                    and is_ccx_course(course_key)
-                    and not must_enroll
-               ):
+            is_course_licensing_enable = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+            if is_course_licensing_enable and not must_enroll:
+
                 allow_enrollment, message = run_extension_point(
                     'PCO_ENFORCE_LICENSE_LIMITS',
                     course_key=course_key,
