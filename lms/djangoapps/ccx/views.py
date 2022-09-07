@@ -179,6 +179,11 @@ def dashboard(request, course, ccx=None):
                 model='CourseEnrollment',
             )
         )
+        # if course licensing is enabled, pending enrollments will be in the context.
+        context['pending_ccx_members'] = run_extension_point(
+            'PCO_GET_PENDING_ENROLLMENTS_FOR_CCX',
+            ccx_id=ccx_locator,
+        ) if run_extension_point('PCO_ENABLE_COURSE_LICENSING') else []
         context['gradebook_url'] = reverse(
             'ccx_gradebook', kwargs={'course_id': ccx_locator})
         context['grades_csv_url'] = reverse(
