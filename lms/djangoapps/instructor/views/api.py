@@ -93,6 +93,7 @@ from openedx.core.djangoapps.django_comment_common.models import (
 )
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preference, set_user_preference
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangolib.markup import HTML, Text
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
 from openedx.core.lib.api.view_utils import DeveloperErrorViewMixin
@@ -946,6 +947,16 @@ def modify_access(request, course_id):
         'action': action,
         'success': 'yes',
     }
+    # manage student and admin transitions for license enforcement.
+    if run_extension_point('PCO_IS_LICENSED_CCX',course_id=course_id):
+        run_extension_point(
+            'PCO_STUDENT_ADMIN_TRANSITION',
+            user=user,
+            course_id=course_id,
+            rolename=rolename,
+            action=action,
+        )
+
     return JsonResponse(response_payload)
 
 
