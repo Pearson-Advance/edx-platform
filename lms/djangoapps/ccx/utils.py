@@ -12,17 +12,21 @@ from smtplib import SMTPException
 
 import pytz
 from ccx_keys.locator import CCXLocator
+from crum import get_current_request
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from six.moves import map
+from student.models import CourseEnrollment, CourseEnrollmentException
+from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
-from lms.djangoapps.courseware.courses import get_course_by_id
 from lms.djangoapps.ccx.custom_exception import CCXUserValidationException
 from lms.djangoapps.ccx.models import CustomCourseForEdX
 from lms.djangoapps.ccx.overrides import get_override_for_ccx
+from lms.djangoapps.courseware.courses import get_course_by_id
 from lms.djangoapps.instructor.access import allow_access, list_with_level, revoke_access
 from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params, unenroll_email
 from lms.djangoapps.instructor.views.api import _split_input_list
@@ -30,9 +34,6 @@ from lms.djangoapps.instructor.views.tools import get_student_from_identifier
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
-from student.auth import is_ccx_course
-from student.models import CourseEnrollment, CourseEnrollmentException
-from student.roles import CourseCcxCoachRole, CourseInstructorRole, CourseStaffRole
 
 log = logging.getLogger("edx.ccx")
 
@@ -256,6 +257,10 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
         course_locator = course_key.to_course_locator()
         staff = CourseStaffRole(course_locator).users_with_role()
         admins = CourseInstructorRole(course_locator).users_with_role()
+        is_course_licensing_enable = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
+        if is_course_licensing_enable:
+            current_request = get_current_request()
 
         for identifier in identifiers:
             must_enroll = False
@@ -268,21 +273,19 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
                 errors.append(u"{0}".format(exp))
                 continue
 
-            # Check the License limit in the pearson course operation plugin.
             if (
-                    configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False)
-                    and is_ccx_course(course_key)
-                    and not must_enroll
-               ):
-                allow_enrollment, message = run_extension_point(
+                is_course_licensing_enable and
+                not must_enroll and
+                not run_extension_point(
                     'PCO_ENFORCE_LICENSE_LIMITS',
                     course_key=course_key,
+                    email=email,
+                    student=student,
+                    request=current_request,
                 )
-
-                if not allow_enrollment:
-                    log.info(message)
-                    errors.append(message)
-                    break
+            ):
+                # If License limit is reached, block enrollment.
+                break
 
             if CourseEnrollment.objects.is_course_full(ccx_course_overview) and not must_enroll:
                 error = _(u'The course is full: the limit is {max_student_enrollments_allowed}').format(
