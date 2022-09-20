@@ -948,7 +948,7 @@ def modify_access(request, course_id):
         'success': 'yes',
     }
     # manage student and admin transitions for license enforcement.
-    if run_extension_point('PCO_IS_LICENSED_CCX',course_id=course_id):
+    if run_extension_point('PCO_ENABLE_COURSE_LICENSING'):
         run_extension_point(
             'PCO_STUDENT_ADMIN_TRANSITION',
             user=user,
