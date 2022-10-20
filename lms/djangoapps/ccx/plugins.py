@@ -6,7 +6,6 @@ Registers the CCX feature for the edX platform.
 from django.conf import settings
 from django.utils.translation import ugettext_noop
 from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from common.djangoapps.student.auth import is_ccx_course
 
 from student.roles import CourseCcxCoachRole
@@ -34,11 +33,12 @@ class CcxCourseTab(CourseTab):
             # If ccx is not enable do not show ccx coach tab.
             return False
 
-        # Disable ccx coach tab for master courses if user is not allowed to create ccx.
+        # If Course Licensing is enable, disable CCXCoach tab for master courses if user is not allowed to create ccx.
+        is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
         if (
             not is_ccx_course(course.id) and
-            # site configuration PCO_ENABLE_LICENSE_ENFORCEMENT is to control platform default.
-            configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False) and
+            is_course_licensing_enabled and
             not run_extension_point(
                 'PCO_IS_USER_ALLOWED_TO_CREATE_CCX',
                 user=user,

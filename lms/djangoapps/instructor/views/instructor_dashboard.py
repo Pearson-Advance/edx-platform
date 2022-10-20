@@ -535,11 +535,14 @@ def _section_membership(course, access):
     ccx_enabled = settings.FEATURES.get('CUSTOM_COURSES_EDX', False) and course.enable_ccx
     enrollment_role_choices = configuration_helpers.get_value('MANUAL_ENROLLMENT_ROLE_CHOICES',
                                                               settings.MANUAL_ENROLLMENT_ROLE_CHOICES)
-    # Hide the membership tab for licensed CCXs from their staff users.
+
+    # if Course Licensing is enabled, hide the membership tab for licensed CCXs from their staff users.
+    is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
     is_licensed_ccx = run_extension_point(
         'PCO_IS_LICENSED_CCX',
         course_id=course.id,
-    )
+    ) if is_course_licensing_enabled else False
 
     section_data = {
         'is_hidden': True if is_licensed_ccx and not access.get('admin', False) else False,
@@ -728,7 +731,10 @@ def _section_data_download(course, access):
         'export_ora2_data_url': reverse('export_ora2_data', kwargs={'course_id': six.text_type(course_key)}),
     }
 
-    if configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False):
+    # If Course Licensing is enabled get_license_usage_url and is_master_course are obtained.
+    is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
+    if is_course_licensing_enabled:
         get_license_usage_url, is_master_course = run_extension_point(
             'PCO_GET_LICENSE_USAGE_URL',
             course_id=course_key,
