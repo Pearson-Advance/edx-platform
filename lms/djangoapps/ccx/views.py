@@ -80,6 +80,8 @@ def coach_dashboard(view):
         """
         course_key = CourseKey.from_string(course_id)
         ccx = None
+        is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
         if isinstance(course_key, CCXLocator):
             ccx_id = course_key.ccx
             try:
@@ -93,11 +95,10 @@ def coach_dashboard(view):
 
         if not course.enable_ccx:
             raise Http404
-        # Disable ccx view for master courses if user is not allowed to create ccx.
         elif (
             not ccx and
-            # site configuration PCO_ENABLE_LICENSE_ENFORCEMENT is to control platform default.
-            configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False) and
+            # If Course Licensing is enabled, Disable ccx view for master courses if user is not allowed to create ccx.
+            is_course_licensing_enabled and
             not run_extension_point(
                 'PCO_IS_USER_ALLOWED_TO_CREATE_CCX',
                 user=request.user,
@@ -111,11 +112,15 @@ def coach_dashboard(view):
                 return view(request, course, ccx)
             else:
                 # If user has the staff role at CCX level, then he/she can view ccx coach dashboard for licensed ccxs.
-                if ccx and run_extension_point(
-                    'PCO_IS_USER_ALLOWED_TO_ACCESS_CCX_COACH_TAB',
-                    ccx_id=CCXLocator.from_course_locator(course.id, six.text_type(ccx.id)),
-                    user=request.user,
-                    ):
+                if (
+                    ccx and
+                    is_course_licensing_enabled and
+                    run_extension_point(
+                        'PCO_IS_USER_ALLOWED_TO_ACCESS_CCX_COACH_TAB',
+                        ccx_id=CCXLocator.from_course_locator(course.id, six.text_type(ccx.id)),
+                        user=request.user,
+                    )
+                ):
                     return view(request, course, ccx)
                 # if there is a ccx, we must validate that it is the ccx for this coach
                 role = CourseCcxCoachRole(course_key)
@@ -180,10 +185,11 @@ def dashboard(request, course, ccx=None):
             )
         )
         # if course licensing is enabled, pending enrollments will be in the context.
+        is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
         context['pending_ccx_members'] = run_extension_point(
             'PCO_GET_PENDING_ENROLLMENTS_FOR_CCX',
             ccx_id=ccx_locator,
-        ) if run_extension_point('PCO_ENABLE_COURSE_LICENSING') else []
+        ) if is_course_licensing_enabled else []
         context['gradebook_url'] = reverse(
             'ccx_gradebook', kwargs={'course_id': ccx_locator})
         context['grades_csv_url'] = reverse(
@@ -242,8 +248,10 @@ def create_ccx(request, course, ccx=None):
     # Save display name explicitly
     override_field_for_ccx(ccx, course, 'display_name', name)
 
+    is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+
     # if course licensing is enabled, then all units will be shown in schedule.
-    if not run_extension_point('PCO_ENABLE_COURSE_LICENSING'):
+    if not is_course_licensing_enabled:
         # Hide anything that can show up in the schedule
         hidden = 'visible_to_staff_only'
         for chapter in course.get_children():
@@ -273,9 +281,8 @@ def create_ccx(request, course, ccx=None):
     )
 
     assign_staff_role_to_ccx(ccx_id, request.user, course.id)
-    is_course_licensing_enable = configuration_helpers.get_value('PCO_ENABLE_LICENSE_ENFORCEMENT', False)
 
-    if not is_course_licensing_enable:
+    if not is_course_licensing_enabled:
         add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
     # using CCX object as sender here.
@@ -287,7 +294,7 @@ def create_ccx(request, course, ccx=None):
         log.info(u'Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
 
     # Adding an extension point to create the institution_ccx for PearsonVUE.
-    if is_course_licensing_enable:
+    if is_course_licensing_enabled:
         run_extension_point(
             'PCO_CREATE_INSTITUTION_CCX_INSTANCE',
             ccx_id=ccx_id,

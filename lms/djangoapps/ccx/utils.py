@@ -257,9 +257,10 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
         course_locator = course_key.to_course_locator()
         staff = CourseStaffRole(course_locator).users_with_role()
         admins = CourseInstructorRole(course_locator).users_with_role()
-        is_course_licensing_enable = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
+        is_course_licensing_enabled = run_extension_point('PCO_ENABLE_COURSE_LICENSING')
 
-        if is_course_licensing_enable:
+        # If Course Licensing is enabled, current request is obtained.
+        if is_course_licensing_enabled:
             current_request = get_current_request()
 
         for identifier in identifiers:
@@ -274,7 +275,7 @@ def ccx_students_enrolling_center(action, identifiers, email_students, course_ke
                 continue
 
             if (
-                is_course_licensing_enable and
+                is_course_licensing_enabled and
                 not must_enroll and
                 not run_extension_point(
                     'PCO_ENFORCE_LICENSE_LIMITS',
