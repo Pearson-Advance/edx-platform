@@ -99,11 +99,6 @@ LTI Provider Models
    content by the same user from the same LTI consumer will not add new
    rows to the table.
 
-.. figure:: ./lti_provider_models.png
-   :alt: lti_provider App Models
-
-   lti_provider App Models
-
 LTI Provider Launch
 ~~~~~~~~~~~~~~~~~~~
 
@@ -201,11 +196,6 @@ Content Libraries Models
    identification of the link through its blockstore usage key string
    and LtiProfile. This model includes a method to send messages back
    with updated scores, it uses the pylti1.3 grade module for this.
-
-.. figure:: ./content_libraries_models.png
-   :alt: content_libraries App Models
-
-   content_libraries App Models
 
 Relationship with LMS’s ``lti_provider`` models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
