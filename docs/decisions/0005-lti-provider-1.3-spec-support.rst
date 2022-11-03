@@ -359,14 +359,23 @@ LTI 1.3 Support Roadmap
 
 -  Add new settings to enable LTI 1.3 platform tool. (Ex:
    https://github.com/openedx/edx-platform/blob/bfe6494e9d71f42513885b83afae2664cc52a4cc/lms/envs/production.py#L799)
--  Add view for LTI 1.3 login. (Ex:
+-  Add model to relate LTI 1.3 subjects to platform users. (Ex:
+   https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR314).
+-  Add model to store LTI 1.3 graded resources. (Ex:
+   https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR434).
+-  Add ModelBackend to authenticate LTI launches using iss, aud, sub, claims. (Ex: https://github.com/openedx/edx-platform/pull/27411/files/#diff-de507716bf580a04015b1aacdd87eba1792cda2be79773bd7bdf63ab753cb9adR19).
+-  Add view for LTI 1.3 third-party Initiated OpenID login. (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R849).
 -  Add view for LTI 1.3 launch. (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R883).
--  Add model to store LTI 1.3 users. (Ex:
-   https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR314)
--  Add model to store LTI 1.3 graded resources. (Ex:
-   https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR434).
+      - Parse data from launch message.
+      - Parse requested resource (Example: usage_id, course_id, etc).
+      - Get or create subject related model instance from iss, aud, sub claims.
+      - Authenticate user using subject related model.
+      - Verify permissions to render resource.(We could add a signal here to verify extra permissions from other apps, Example: Licensing).
+      - Verify message contains AGS service.
+      - Validate AGS lineitem and score. (Example: https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1030).
+      - Upsert graded resource from launch (Example: https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1053).
 -  Add logic to get or automatically create LTI users for LTI launches.
    (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR374,
@@ -374,6 +383,8 @@ LTI 1.3 Support Roadmap
 -  Add or modify PROBLEM_WEIGHTED_SCORE_CHANGED receiver to update
    graded resources scores. (Ex:
    https://github.com/openedx/edx-platform/blob/master/lms/djangoapps/lti_provider/signals.py#L40).
+      - Get related graded resource from data received.
+      - Send message back to platform related to resource with updated score. (Example: https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
 
 Approach A: Create new app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
