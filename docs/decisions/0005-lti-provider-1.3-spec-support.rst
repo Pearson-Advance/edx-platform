@@ -168,6 +168,175 @@ to be able to report scores back if required:
 And finally, it will use the usage_key to return back a HttpResponse
 with the XBlock using ``render_courseware`` view.
 
+LTI Provider Outcome Service
+---------------------------
+
+The LTI provider is able to pass grades back to the campus LMS platform
+using the LTI outcome service. For full details of the outcome service, see:
+http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
+
+In brief, the LTI 1.1 spec defines an outcome service that can be offered
+by an LTI consumer. The consumer determines whether a score should be
+returned (in Canvas, this means that the LTI tool is used in an assignment,
+and the launch was performed by a student). If so, it sends two additional
+parameters along with the LTI launch:
+
+- lis_outcome_service_url: the endpoint for the outcome service on the consumer;
+- lis_result_sourcedid: a unique identifier for the row in the gradebook.
+
+The LTI Provider launch view detects the presence of these optional fields,
+and creates database records for the specific Outcome Service and for the
+graded LTI launch.
+
+.. code:: python
+
+   # Store any parameters required by the outcome service in order to report
+   # scores back later. We know that the consumer exists, since the record was
+   # used earlier to verify the oauth signature.
+   store_outcome_parameters(params, request.user, lti_consumer)
+
+.. code:: python
+   # Create a record of the outcome service if necessary
+   outcomes, __ = OutcomeService.objects.get_or_create(
+      lis_outcome_service_url=result_service,
+      lti_consumer=lti_consumer
+   )
+
+   GradedAssignment.objects.get_or_create(
+      lis_result_sourcedid=result_id,
+      course_key=course_key,
+      usage_key=usage_key,
+      user=user,
+      outcome_service=outcomes
+   )
+
+Later, when a score on edX changes (identified using the signal mechanism):
+
+.. code:: python
+   @receiver(grades_signals.PROBLEM_WEIGHTED_SCORE_CHANGED)
+   def score_changed_handler(sender, **kwargs):  # pylint: disable=unused-argument
+      """
+      Consume signals that indicate score changes. See the definition of
+      PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
+      """
+
+While handling the score change, first it will get all assignments related
+to the course_key, usage_key received from the signal, and increment each one
+version_number by 1, this version number is used to avoid race conditions
+while sending score updates:
+
+.. code:: python
+   # Get all assignments involving the current problem for which the campus LMS
+   # is expecting a grade. There may be many possible graded assignments, if
+   # a problem has been added several times to a course at different
+   # granularities (such as the unit or the vertical).
+   assignments = outcomes.get_assignments_for_problem(
+      problem_descriptor, user_id, course_key
+   )
+
+Then for each assigment in the assigments queryset, it determines if the
+score, is of a composite module or a single problem, and depending on the
+case it will send a task:
+
+.. code:: python
+   for assignment in assignments:
+      if assignment.usage_key == usage_key:
+            send_leaf_outcome.delay(
+               assignment.id, points_earned, points_possible
+            )
+      else:
+            send_composite_outcome.apply_async(
+               (user_id, course_id, assignment.id, assignment.version_number),
+               countdown=settings.LTI_AGGREGATE_SCORE_PASSBACK_DELAY
+            )
+
+For a single problem the send_leaf_outcome task is used, and the score is
+weighted and sent back to the tool consumer using the send_score_update
+method from the outcomes module:
+
+.. code:: python
+   @CELERY_APP.task
+   def send_leaf_outcome(assignment_id, points_earned, points_possible):
+      """
+      Calculate and transmit the score for a single problem. This method assumes
+      that the individual problem was the source of a score update, and so it
+      directly takes the points earned and possible values. As such it does not
+      have to calculate the scores for the course, making this method far faster
+      than send_outcome_for_composite_assignment.
+      """
+      assignment = GradedAssignment.objects.get(id=assignment_id)
+      if points_possible == 0:
+         weighted_score = 0
+      else:
+         weighted_score = float(points_earned) / float(points_possible)
+      outcomes.send_score_update(assignment, weighted_score)
+
+In the case of a composite module, send_composite_outcome task is sent,
+in this case a composite module may contain multiple problems,
+so we calculate the total points earned and possible for all child problems,
+after all calculations the score update is sent using outcomes module
+send_score_update function:
+
+.. code:: python
+   @CELERY_APP.task(name='lms.djangoapps.lti_provider.tasks.send_composite_outcome')
+   def send_composite_outcome(user_id, course_id, assignment_id, version):
+      """
+      Calculate and transmit the score for a composite module (such as a
+      vertical).
+
+      A composite module may contain multiple problems, so we need to
+      calculate the total points earned and possible for all child problems. This
+      requires calculating the scores for the whole course, which is an expensive
+      operation.
+
+      Callers should be aware that the score calculation code accesses the latest
+      scores from the database. This can lead to a race condition between a view
+      that updates a user's score and the calculation of the grade. If the Celery
+      task attempts to read the score from the database before the view exits (and
+      its transaction is committed), it will see a stale value. Care should be
+      taken that this task is not triggered until the view exits.
+
+      The GradedAssignment model has a version_number field that is incremented
+      whenever the score is updated. It is used by this method for two purposes.
+      First, it allows the task to exit if it detects that it has been superseded
+      by another task that will transmit the score for the same assignment.
+      Second, it prevents a race condition where two tasks calculate different
+      scores for a single assignment, and may potentially update the campus LMS
+      in the wrong order.
+      """
+      ...
+      outcomes.send_score_update(assignment, weighted_score)
+
+This process for calculating and sending scores will be the same for LTI 1.3,
+the only difference beign, of using the pylti1.3 Grade utility for AGS to send
+score updates to the tool.
+
+How to use IMS LTI Tool Consumer emulator
+-----------------------------------------
+
+IMS LTI Tool Consumer emulator is a simple emulator of an
+IMS Learning Tools Interoperability (LTI) 1.1.1 tool consumer (TC, e.g. a VLE)
+launch of a tool provider (TP, e.g. a blog or premium content). It includes support
+for the LTI 1.1 Basic Outcomes service and the unofficial extensions for memberships,
+outcomes and setting services.
+
+To test the Open edX LTI 1.1 Tool provider, you must first set the Launch URL,
+consumer key and shared secret, to create the consumer key and shared secret,
+go to the LMS admin, go to LTI Provider > Lti consumers, and create a new one, for example:
+
+- Launch URL: http://localhost:18000/lti_provider/courses/course-v1:edX+DemoX+Demo_Course/block-v1:edX+DemoX+Demo_Course+type@sequential+block@edx_introduction
+- Consumer Key: 90ed7f3d40e5997c9fb744194ebd169d
+- Shared Secret: 747d9c4faa88df9ff0557df33af863ee
+
+After this you should be able to click on the "Save data" button and use
+the "Launch TP" or "Launch TP in new window", the content from the LMS
+should be displayed properly, and the platform should have logged you
+into the new user created for this LTI consumer.
+
+You should also be able to see the gradebook for this launch using the
+"Gradebook" button, it will open a modal with all the information sent
+from the platform related to scores.
+
 Content Libraries App LTI 1.3 Provider
 --------------------------------------
 
@@ -384,7 +553,10 @@ LTI 1.3 Support Roadmap
    graded resources scores. (Ex:
    https://github.com/openedx/edx-platform/blob/master/lms/djangoapps/lti_provider/signals.py#L40).
       - Get related graded resource from data received.
-      - Send message back to platform related to resource with updated score. (Example: https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
+      - Get all assignments related
+      - Increment version value of each assignment
+      - Determine each assignment type and send corresponding task (composite module, or single problem).
+      - Send task to update score for each assignment by sending message back to platform related to resource. (Example: https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
 
 Approach A: Create new app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
