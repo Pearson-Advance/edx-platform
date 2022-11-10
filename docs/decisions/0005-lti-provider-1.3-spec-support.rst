@@ -234,7 +234,7 @@ while sending score updates:
       problem_descriptor, user_id, course_key
    )
 
-Then for each assigment in the assigments queryset, it determines if the
+Then for each assignment in the assignments queryset, it determines if the
 score, is of a composite module or a single problem, and depending on the
 case it will send a task:
 
@@ -308,7 +308,7 @@ send_score_update function:
       outcomes.send_score_update(assignment, weighted_score)
 
 This process for calculating and sending scores will be the same for LTI 1.3,
-the only difference beign, of using the pylti1.3 Grade utility for AGS to send
+the only difference being, of using the pylti1.3 Grade utility for AGS to send
 score updates to the tool.
 
 How to use IMS LTI Tool Consumer emulator
