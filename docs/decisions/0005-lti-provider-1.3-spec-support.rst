@@ -19,7 +19,7 @@ Currently, the Open edX platform can work as an LTI 1.1 tool provider,
 for XBlocks on any course. LTI 1.1 has been deprecated since 2019,
 the current specification, LTI 1.3 is only supported on the platform
 for Content Libraries V2 content, various changes have been made to the new
-specification, mainly the change on how authentication works and how certain services
+specification, mainly on how authentication works and how certain services
 are exposed to tool consumers. There was a previous PR created to add LTI 1.3
 support to the platform: https://github.com/openedx/edx-platform/pull/21435
 
@@ -102,7 +102,7 @@ LTI Provider Models
 LTI Provider Launch
 ~~~~~~~~~~~~~~~~~~~
 
-To start an LTI 1.1 launch, a POST request with the XBlock usage_id and
+To start an LTI 1.1 launch, a POST request with the XBlock's usage_id and
 course_id will be sent to the ``lti_launch`` view URL:
 
 .. code:: python
@@ -146,7 +146,7 @@ it to the to the dictionary containing the received data from the POST
 request.
 
 After all data is validated and transformed it will try to authenticate
-into a user in the platform if a ``user_id`` was sent, otherwise it will
+a user into the platform if a ``user_id`` was sent, otherwise it will
 create a new account and associate it to an LtiUser:
 
 .. code:: python
@@ -220,8 +220,8 @@ Later, when a score on edX changes (identified using the signal mechanism):
       PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
       """
 
-While handling the score change, first it will get all assignments related
-to the course_key, usage_key received from the signal, and increment each one
+While handling the score change, first it will get all the assignments related
+to the course_key and usage_key received from the signal, and increment each one
 version_number by 1, this version number is used to avoid race conditions
 while sending score updates:
 
@@ -235,7 +235,7 @@ while sending score updates:
    )
 
 Then for each assignment in the assignments queryset, it determines if the
-score, is of a composite module or a single problem, and depending on the
+score, comes from a composite module or a single problem, and depending on the
 case it will send a task:
 
 .. code:: python
