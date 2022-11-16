@@ -607,6 +607,16 @@ is an example of the folder structure:
        ├── 1p1 # Define LTI 1.1 views here
        └── 1p3 # Define LTI 1.3 views here
 
+Approach C: Create LTI Provider Plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Another approach would be to create a new openedx-plugin.
+We would create a new app that will include a common set of utilities and services
+used by both LTI 1.1 and LTI 1.3, and an app for each LTI specification, and their
+corresponding services, each one with their views and tasks. Similar to the
+structure of the B approach. This approach would also avoid adding more code to
+the monolithic edx-platform structure.
+
 LTI 1.3 Open edX community discussion
 -------------------------------------
 
