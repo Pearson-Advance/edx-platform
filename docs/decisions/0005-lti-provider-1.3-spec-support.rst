@@ -1,4 +1,3 @@
-=====================================================
 PADV-228: Add LTI 1.3 support to the LTI Provider app
 =====================================================
 
@@ -169,7 +168,8 @@ to be able to report scores back if required:
 And finally, it will use the usage_key to return a HttpResponse with the
 XBlock using ``render_courseware`` view.
 
-LTI Provider Outcome Service ---------------------------
+LTI Provider Outcome Service
+----------------------------
 
 The LTI provider can pass grades back to the campus LMS platform using
 the LTI outcome service. For full details of the outcome service, see:
@@ -320,7 +320,7 @@ This process for calculating and sending scores will be the same for LTI
 AGS to send score updates to the tool.
 
 How to use the IMS LTI Tool Consumer emulator
------------------------------------------
+---------------------------------------------
 
 IMS LTI Tool Consumer emulator is a simple emulator of an IMS Learning
 Tools Interoperability (LTI) 1.1.1 tool consumer (TC, e.g. a VLE) launch
@@ -576,7 +576,8 @@ LTI 1.3 Support Roadmap
    related to the resource. (Example:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
 
-Approach A: Create a new app ~~~~~~~~~~~~~~~~~~~~~~~~~~
+Approach A: Create a new app 
+----------------------------
 
 This approach would be similar to the one proposed in the `PR
 21435 <https://github.com/openedx/edx-platform/pull/21435>`__). We will
@@ -584,7 +585,7 @@ create a new app (Example: lti1p3_tool), and integrate all logic related
 to LTI 1.3 separated from the existing lti_provider app.
 
 Approach B: Refactor the lti_provider app
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------
 
 We could refactor the existing lti_provider. With this approach, we
 could separate the logic of each specification per folder, and keep
@@ -625,7 +626,7 @@ app, here is an example of the folder structure:
        └── 1p3 # Define LTI 1.3 views here
 
 Approach C: Create LTI Provider Plugin
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 Another approach would be to create a new openedx-plugin. We would
 create a new app that will include a common set of utilities and
