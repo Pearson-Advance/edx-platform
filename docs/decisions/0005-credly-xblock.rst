@@ -19,7 +19,7 @@ subsection in a course. This XBlock can work by communicating with the
 Badgr API, this XBlock no longer works on versions newer than the Ginkgo
 release, and also requires modifying the edx-platform grade V0 API
 views. This discovery is to analyze how we could add such a feature to
-award badges using Credly has badges server and what other events could
+award badges using Credly and what other events could
 be used to award badges to learners.
 
 Badgr XBlock
@@ -71,7 +71,7 @@ XBlock Proposal
 
 Given how badgr-xblock can interact with Badgr and the edx-platform to
 award badges, we could create a new XBlock to replicate this exact
-functionality using Credly has a backend service for badging to award
+functionality using Credly as a backend service for badging to award
 badges on sub-section completion. A template for this XBlock could be
 generated using the XBlock SDK, this SDK also contains various examples
 of how we could use XBlock for various scenarios.
