@@ -197,13 +197,13 @@ the graded LTI launch.
    # used earlier to verify the OAuth signature.
    store_outcome_parameters(params, request.user, lti_consumer)
 
-.. code:: {.python
+.. code:: python
 
    # Create a record of the outcome service if necessary
    outcomes, __ = OutcomeService.objects.get_or_create(
-   lis_outcome_service_url=result_service,
-   lti_consumer=lti_consumer
-   )}
+      lis_outcome_service_url=result_service,
+      lti_consumer=lti_consumer
+   )
    GradedAssignment.objects.get_or_create(
       lis_result_sourcedid=result_id,
       course_key=course_key,
@@ -215,68 +215,69 @@ the graded LTI launch.
 Later, when a score on edX changes (identified using the signal
 mechanism):
 
-.. code:: {.python
+.. code:: python
 
    @receiver(grades_signals.PROBLEM_WEIGHTED_SCORE_CHANGED)
    def score_changed_handler(sender, **kwargs):  # pylint: disable=unused-argument
-   \"\"\"
-   Consume signals that indicate score changes. See the definition of
-   PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
-   \"\"\"}
+      """
+      Consume signals that indicate score changes. See the definition of
+      PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
+      """
 
 While handling the score change, first it will get all the assignments
 related to the course_key and usage_key received from the signal, and
 increment each one version_number by 1, this version number is used to
 avoid race conditions while sending score updates:
 
-.. code:: {.python
+.. code:: python
 
    # Get all assignments involving the current problem for which the campus LMS
    # is expecting a grade. There may be many possible graded assignments, if
    # a problem has been added several times to a course at different
    # granularities (such as the unit or the vertical).
    assignments = outcomes.get_assignments_for_problem(
-   problem_descriptor, user_id, course_key
-   )}
+      problem_descriptor, user_id, course_key
+   )
 
 Then for each assignment in the assignments queryset, it determines if
 the score comes from a composite module or a single problem, and
 depending on the case it will send a task:
 
-.. code:: {.python
+.. code:: python
 
    for assignment in assignments:
-   if assignment.usage_key == usage_key:
-   send_leaf_outcome.delay(
-   assignment.id, points_earned, points_possible
-   )
-   else:
-   send_composite_outcome.apply_async(
-   (user_id, course_id, assignment.id, assignment.version_number),
-   countdown=settings.LTI_AGGREGATE_SCORE_PASSBACK_DELAY
-   )}
+      if assignment.usage_key == usage_key:
+         send_leaf_outcome.delay(
+            assignment.id, points_earned, points_possible
+         )
+      else:
+         send_composite_outcome.apply_async(
+            (user_id, course_id, assignment.id, assignment.version_number),
+            countdown=settings.LTI_AGGREGATE_SCORE_PASSBACK_DELAY
+         )
 
 For a single problem the send_leaf_outcome task is used, and the score
 is weighted and sent back to the tool consumer using the
 send_score_update method from the outcomes module:
 
-.. code:: {.python
+.. code:: python
 
    @CELERY_APP.task
    def send_leaf_outcome(assignment_id, points_earned, points_possible):
-   \"\"\"
-   Calculate and transmit the score for a single problem. This method assumes
-   that the individual problem was the source of a score update, and so it
-   directly takes the points earned and possible values. As such it does not
-   have to calculate the scores for the course, making this method far faster
-   than send_outcome_for_composite_assignment.
-   \"\"\"
-   assignment = GradedAssignment.objects.get(id=assignment_id)
-   if points_possible == 0:
-   weighted_score = 0
-   else:
-   weighted_score = float(points_earned) / float(points_possible)
-   outcomes.send_score_update(assignment, weighted_score)}
+      """
+      Calculate and transmit the score for a single problem. This method assumes
+      that the individual problem was the source of a score update, and so it
+      directly takes the points earned and possible values. As such it does not
+      have to calculate the scores for the course, making this method far faster
+      than send_outcome_for_composite_assignment.
+      """
+      assignment = GradedAssignment.objects.get(id=assignment_id)
+
+      if points_possible == 0:
+         weighted_score = 0
+      else:
+         weighted_score = float(points_earned) / float(points_possible)
+         outcomes.send_score_update(assignment, weighted_score)
 
 In the case of a composite module, the send_composite_outcome task is
 sent, in this case, a composite module may contain multiple problems, so
@@ -284,35 +285,35 @@ we calculate the total points earned and possible for all child
 problems, after all, calculations are done, the score update is sent
 using the outcomes module send_score_update function:
 
-.. code:: {.python
+.. code:: python
 
    @CELERY_APP.task(name='lms.djangoapps.lti_provider.tasks.send_composite_outcome')
    def send_composite_outcome(user_id, course_id, assignment_id, version):
-   \"\"\"
-   Calculate and transmit the score for a composite module (such as a
-   vertical).}
-   A composite module may contain multiple problems, so we need to
-   calculate the total points earned and possible for all child problems. This
-   requires calculating the scores for the whole course, which is an expensive
-   operation.
+      """
+      Calculate and transmit the score for a composite module (such as a
+      vertical).
+      A composite module may contain multiple problems, so we need to
+      calculate the total points earned and possible for all child problems. This
+      requires calculating the scores for the whole course, which is an expensive
+      operation.
 
-   Callers should be aware that the score calculation code accesses the latest
-   scores from the database. This can lead to a race condition between a view
-   that updates a user's score and the calculation of the grade. If the Celery
-   task attempts to read the score from the database before the view exits (and
-   its transaction is committed), it will see a stale value. Care should be
-   taken that this task is not triggered until the view exits.
+      Callers should be aware that the score calculation code accesses the latest
+      scores from the database. This can lead to a race condition between a view
+      that updates a user's score and the calculation of the grade. If the Celery
+      task attempts to read the score from the database before the view exits (and
+      its transaction is committed), it will see a stale value. Care should be
+      taken that this task is not triggered until the view exits.
 
-   The GradedAssignment model has a version_number field that is incremented
-   whenever the score is updated. It is used by this method for two purposes.
-   First, it allows the task to exit if it detects that it has been superseded
-   by another task that will transmit the score for the same assignment.
-   Second, it prevents a race condition where two tasks calculate differently
-   scores for a single assignment, and may potentially update the campus LMS
-   in the wrong order.
-   """
-   ...
-   outcomes.send_score_update(assignment, weighted_score)
+      The GradedAssignment model has a version_number field that is incremented
+      whenever the score is updated. It is used by this method for two purposes.
+      First, it allows the task to exit if it detects that it has been superseded
+      by another task that will transmit the score for the same assignment.
+      Second, it prevents a race condition where two tasks calculate differently
+      scores for a single assignment, and may potentially update the campus LMS
+      in the wrong order.
+      """
+      ...
+      outcomes.send_score_update(assignment, weighted_score)
 
 This process for calculating and sending scores will be the same for LTI
 1.3, the only difference being, of using the pylti1.3 Grade utility for
