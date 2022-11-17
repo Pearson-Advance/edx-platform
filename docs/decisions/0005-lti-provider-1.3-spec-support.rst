@@ -1,13 +1,14 @@
+=====================================================
 PADV-228: Add LTI 1.3 support to the LTI Provider app
 =====================================================
 
 Status
-------
+======
 
 In progress.
 
 Discovery
----------
+=========
 
 The 1EdTech Learning Tools Interoperability® (LTI®) specification allows
 Learning Management Systems (LMS) or platforms to integrate remote tools
@@ -16,15 +17,16 @@ incorporating a new model for security for message and service
 authentication.
 
 Currently, the Open edX platform can work as an LTI 1.1 tool provider,
-for XBlocks on any course. LTI 1.1 has been deprecated since 2019,
-the current specification, LTI 1.3 is only supported on the platform
-for Content Libraries V2 content, various changes have been made to the new
-specification, mainly on how authentication works and how certain services
-are exposed to tool consumers. There was a previous PR created to add LTI 1.3
-support to the platform: https://github.com/openedx/edx-platform/pull/21435
+for XBlocks on any course. LTI 1.1 has been deprecated since 2019, the
+current specification, LTI 1.3 is only supported on the platform for
+Content Libraries V2 content, various changes have been made to the new
+specification, mainly on how authentication works and how certain
+services are exposed to tool consumers. There was a previous PR created
+to add LTI 1.3 support to the platform:
+https://github.com/openedx/edx-platform/pull/21435
 
 LTI Terminology
-~~~~~~~~~~~~~~~
+---------------
 
 -  **Platform (Tool Provider)**: LMS or any kind of platform that needs
    to delegate bits of functionality out to a suite of tools.
@@ -44,15 +46,15 @@ LTI Terminology
    platform MUST distinguish between each of these LTI links by
    assigning a resource_link_id to an LTI Link.
 -  **LTI Link**: An LTI Link is a reference to a specific tool stored by
-   a platform which may, for example, lead to a specific resource or
+   a platform that may, for example, lead to a specific resource or
    content hosted on the tool, depending on the message_type of the LTI
    Link. The LTI Link is presented by the platform that provides access
    to the content of the tool and may be used as a means of performing
    LTI launches within the context of the platform.
 -  **LTI Launch**: An LTI Launch refers to the process in which a user
    interacts with an LTI Link within the platform and is subsequently
-   “launched” into a tool. The data between tool and platform in
-   establishing a launch are defined upon tool integration into the
+   “launched” into a tool. The data between the tool and platform in
+   establishing a launch are defined by the tool integrated into the
    platform. LTI platforms and tools use messages to transfer the user
    agent from one host to another through an HTML form post redirection
    containing the message payload. The data of this payload is
@@ -64,46 +66,45 @@ LTI Terminology
 
 Note that, historically, LTI referred to platforms as tool consumers
 (TC) and referred to tools as tool providers (TP). As this does not
-align with usage of these terms within the OAuth2 and OpenID Connect
+align with the usage of these terms within the OAuth2 and OpenID Connect
 communities, LTI 1.3 no longer uses these terms and shifts to the terms
 platform and tool to describe the parties involved in an LTI
 integration.
 
 Open edX LTI Provider App
--------------------------
+=========================
 
 The LTI tool provider used for XBlocks on modulestore using the LTI 1.1
 specification.
 
 LTI Provider Models
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 -  **LTIConsumer**: Database model representing an LTI consumer. This
-   model stores the consumer specific settings, such as the OAuth
+   the model stores the consumer-specific settings, such as the OAuth
    key/secret pair and any LTI fields that must be persisted.
 -  **LTIUser**: Model mapping the identity of an LTI user to an account
    on the edX platform. The LTI user_id field is guaranteed to be unique
-   per LTI consumer (per to the LTI spec), so we guarantee a unique
-   mapping from LTI to edX account by using the lti_consumer/lti_user_id
-   tuple.
+   per LTI consumer (per the LTI spec), so we guarantee a unique mapping
+   from LTI to edX account by using the lti_consumer/lti_user_id tuple.
 -  **OutcomeService**: Model for a single outcome service associated
-   with an lti consumer. Note that a given consumer may have more than
-   one outcome service url over its lifetime, so we need to store the
-   outcome service separately from the lticonsumer model.
+   with a lti consumer. Note that a given consumer may have more than
+   one outcome service URL over its lifetime, so we need to store the
+   outcome service separately from the LTI consumer model.
 -  **GradedAssignment**: Model representing a single launch of a graded
    assignment by an individual user. There will be a row created here
    only if the LTI consumer may require a result to be returned from the
-   LTI launch (determined by the presence of the lis_result_sourcedid
-   parameter in the launch POST). There will be only one row created for
-   a given usage/consumer combination; repeated launches of the same
-   content by the same user from the same LTI consumer will not add new
-   rows to the table.
+   LTI launch (determined by the presence of the parameter
+   lis_result_sourcedid in the launch POST). There will be only one row
+   created for a given usage/consumer combination; repeated launches of
+   the same content by the same user from the same LTI consumer will not
+   add new rows to the table.
 
 LTI Provider Launch
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
-To start an LTI 1.1 launch, a POST request with the XBlock's usage_id and
-course_id will be sent to the ``lti_launch`` view URL:
+To start an LTI 1.1 launch, a POST request with the XBlock's usage_id
+and course_id will be sent to the ``lti_launch`` view URL:
 
 .. code:: python
 
@@ -118,8 +119,8 @@ course_id will be sent to the ``lti_launch`` view URL:
            views.lti_launch, name="lti_provider_launch"),
    ]
 
-It will verify the POST contains the required data for a LTI 1.1 launch.
-It will also add any additional data sent in the request:
+It will verify the POST contains the required data for an LTI 1.1
+launch. It will also add any additional data sent in the request:
 
 .. code:: python
 
@@ -130,7 +131,7 @@ It will also add any additional data sent in the request:
        'oauth_nonce', 'user_id'
    ]
 
-Once the parameters are verified, it will try to get consumer
+Once the parameters are verified, it will try to get the consumer
 information using the sent ``oauth_consumer_key`` or
 ``tool_consumer_instance_guid`` using the LtiConsumer manager method
 ``get_or_supplement``.
@@ -141,13 +142,13 @@ OAuth 1.0 signature sent in the POST request. using
 module.
 
 It will transform ``course_id`` and ``usage_id`` into a ``course_key``
-and ``usage_key`` using ``parse_course_and_usage_keys`` function an add
-it to the to the dictionary containing the received data from the POST
+and ``usage_key`` using the ``parse_course_and_usage_keys`` function and
+add it to the dictionary containing the received data from the POST
 request.
 
-After all data is validated and transformed it will try to authenticate
+After all, data is validated and transformed it will try to authenticate
 a user into the platform if a ``user_id`` was sent, otherwise it will
-create a new account and associate it to an LtiUser:
+create a new account and associate it with a LtiUser:
 
 .. code:: python
 
@@ -160,48 +161,49 @@ to be able to report scores back if required:
 
 .. code:: python
 
-   # Store any parameters required by the outcome service in order to report
-   # scores back later. We know that the consumer exists, since the record was
-   # used earlier to verify the oauth signature.
+   # Store any parameters required by the outcome service to report
+   # scores back later. We know that the consumer exists since the record was
+   # used earlier to verify the OAuth signature.
    store_outcome_parameters(params, request.user, lti_consumer)
 
-And finally, it will use the usage_key to return back a HttpResponse
-with the XBlock using ``render_courseware`` view.
+And finally, it will use the usage_key to return a HttpResponse with the
+XBlock using ``render_courseware`` view.
 
-LTI Provider Outcome Service
----------------------------
+LTI Provider Outcome Service ---------------------------
 
-The LTI provider is able to pass grades back to the campus LMS platform
-using the LTI outcome service. For full details of the outcome service, see:
+The LTI provider can pass grades back to the campus LMS platform using
+the LTI outcome service. For full details of the outcome service, see:
 http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
 
-In brief, the LTI 1.1 spec defines an outcome service that can be offered
-by an LTI consumer. The consumer determines whether a score should be
-returned (in Canvas, this means that the LTI tool is used in an assignment,
-and the launch was performed by a student). If so, it sends two additional
-parameters along with the LTI launch:
+In brief, the LTI 1.1 spec defines an outcome service that can be
+offered by an LTI consumer. The consumer determines whether a score
+should be returned (in Canvas, this means that the LTI tool is used in
+an assignment, and the launch was performed by a student). If so, it
+sends two additional parameters along with the LTI launch:
 
-- lis_outcome_service_url: the endpoint for the outcome service on the consumer;
-- lis_result_sourcedid: a unique identifier for the row in the gradebook.
+-  lis_outcome_service_url: the endpoint for the outcome service on the
+   consumer;
+-  lis_result_sourcedid: a unique identifier for the row in the grade
+   book.
 
-The LTI Provider launch view detects the presence of these optional fields,
-and creates database records for the specific Outcome Service and for the
-graded LTI launch.
+The LTI Provider launch view detects the presence of these optional
+fields and creates database records for the specific Outcome Service and
+the graded LTI launch.
 
 .. code:: python
 
-   # Store any parameters required by the outcome service in order to report
-   # scores back later. We know that the consumer exists, since the record was
-   # used earlier to verify the oauth signature.
+   # Store any parameters required by the outcome service to report
+   # scores back later. We know that the consumer exists since the record was
+   # used earlier to verify the OAuth signature.
    store_outcome_parameters(params, request.user, lti_consumer)
 
-.. code:: python
+.. code:: {.python
+
    # Create a record of the outcome service if necessary
    outcomes, __ = OutcomeService.objects.get_or_create(
-      lis_outcome_service_url=result_service,
-      lti_consumer=lti_consumer
-   )
-
+   lis_outcome_service_url=result_service,
+   lti_consumer=lti_consumer
+   )}
    GradedAssignment.objects.get_or_create(
       lis_result_sourcedid=result_id,
       course_key=course_key,
@@ -210,188 +212,195 @@ graded LTI launch.
       outcome_service=outcomes
    )
 
-Later, when a score on edX changes (identified using the signal mechanism):
+Later, when a score on edX changes (identified using the signal
+mechanism):
 
-.. code:: python
+.. code:: {.python
+
    @receiver(grades_signals.PROBLEM_WEIGHTED_SCORE_CHANGED)
    def score_changed_handler(sender, **kwargs):  # pylint: disable=unused-argument
-      """
-      Consume signals that indicate score changes. See the definition of
-      PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
-      """
+   \"\"\"
+   Consume signals that indicate score changes. See the definition of
+   PROBLEM_WEIGHTED_SCORE_CHANGED for a description of the signal.
+   \"\"\"}
 
-While handling the score change, first it will get all the assignments related
-to the course_key and usage_key received from the signal, and increment each one
-version_number by 1, this version number is used to avoid race conditions
-while sending score updates:
+While handling the score change, first it will get all the assignments
+related to the course_key and usage_key received from the signal, and
+increment each one version_number by 1, this version number is used to
+avoid race conditions while sending score updates:
 
-.. code:: python
+.. code:: {.python
+
    # Get all assignments involving the current problem for which the campus LMS
    # is expecting a grade. There may be many possible graded assignments, if
    # a problem has been added several times to a course at different
    # granularities (such as the unit or the vertical).
    assignments = outcomes.get_assignments_for_problem(
-      problem_descriptor, user_id, course_key
-   )
+   problem_descriptor, user_id, course_key
+   )}
 
-Then for each assignment in the assignments queryset, it determines if the
-score, comes from a composite module or a single problem, and depending on the
-case it will send a task:
+Then for each assignment in the assignments queryset, it determines if
+the score comes from a composite module or a single problem, and
+depending on the case it will send a task:
 
-.. code:: python
+.. code:: {.python
+
    for assignment in assignments:
-      if assignment.usage_key == usage_key:
-            send_leaf_outcome.delay(
-               assignment.id, points_earned, points_possible
-            )
-      else:
-            send_composite_outcome.apply_async(
-               (user_id, course_id, assignment.id, assignment.version_number),
-               countdown=settings.LTI_AGGREGATE_SCORE_PASSBACK_DELAY
-            )
+   if assignment.usage_key == usage_key:
+   send_leaf_outcome.delay(
+   assignment.id, points_earned, points_possible
+   )
+   else:
+   send_composite_outcome.apply_async(
+   (user_id, course_id, assignment.id, assignment.version_number),
+   countdown=settings.LTI_AGGREGATE_SCORE_PASSBACK_DELAY
+   )}
 
-For a single problem the send_leaf_outcome task is used, and the score is
-weighted and sent back to the tool consumer using the send_score_update
-method from the outcomes module:
+For a single problem the send_leaf_outcome task is used, and the score
+is weighted and sent back to the tool consumer using the
+send_score_update method from the outcomes module:
 
-.. code:: python
+.. code:: {.python
+
    @CELERY_APP.task
    def send_leaf_outcome(assignment_id, points_earned, points_possible):
-      """
-      Calculate and transmit the score for a single problem. This method assumes
-      that the individual problem was the source of a score update, and so it
-      directly takes the points earned and possible values. As such it does not
-      have to calculate the scores for the course, making this method far faster
-      than send_outcome_for_composite_assignment.
-      """
-      assignment = GradedAssignment.objects.get(id=assignment_id)
-      if points_possible == 0:
-         weighted_score = 0
-      else:
-         weighted_score = float(points_earned) / float(points_possible)
-      outcomes.send_score_update(assignment, weighted_score)
+   \"\"\"
+   Calculate and transmit the score for a single problem. This method assumes
+   that the individual problem was the source of a score update, and so it
+   directly takes the points earned and possible values. As such it does not
+   have to calculate the scores for the course, making this method far faster
+   than send_outcome_for_composite_assignment.
+   \"\"\"
+   assignment = GradedAssignment.objects.get(id=assignment_id)
+   if points_possible == 0:
+   weighted_score = 0
+   else:
+   weighted_score = float(points_earned) / float(points_possible)
+   outcomes.send_score_update(assignment, weighted_score)}
 
-In the case of a composite module, send_composite_outcome task is sent,
-in this case a composite module may contain multiple problems,
-so we calculate the total points earned and possible for all child problems,
-after all calculations the score update is sent using outcomes module
-send_score_update function:
+In the case of a composite module, the send_composite_outcome task is
+sent, in this case, a composite module may contain multiple problems, so
+we calculate the total points earned and possible for all child
+problems, after all, calculations are done, the score update is sent
+using the outcomes module send_score_update function:
 
-.. code:: python
+.. code:: {.python
+
    @CELERY_APP.task(name='lms.djangoapps.lti_provider.tasks.send_composite_outcome')
    def send_composite_outcome(user_id, course_id, assignment_id, version):
-      """
-      Calculate and transmit the score for a composite module (such as a
-      vertical).
+   \"\"\"
+   Calculate and transmit the score for a composite module (such as a
+   vertical).}
+   A composite module may contain multiple problems, so we need to
+   calculate the total points earned and possible for all child problems. This
+   requires calculating the scores for the whole course, which is an expensive
+   operation.
 
-      A composite module may contain multiple problems, so we need to
-      calculate the total points earned and possible for all child problems. This
-      requires calculating the scores for the whole course, which is an expensive
-      operation.
+   Callers should be aware that the score calculation code accesses the latest
+   scores from the database. This can lead to a race condition between a view
+   that updates a user's score and the calculation of the grade. If the Celery
+   task attempts to read the score from the database before the view exits (and
+   its transaction is committed), it will see a stale value. Care should be
+   taken that this task is not triggered until the view exits.
 
-      Callers should be aware that the score calculation code accesses the latest
-      scores from the database. This can lead to a race condition between a view
-      that updates a user's score and the calculation of the grade. If the Celery
-      task attempts to read the score from the database before the view exits (and
-      its transaction is committed), it will see a stale value. Care should be
-      taken that this task is not triggered until the view exits.
+   The GradedAssignment model has a version_number field that is incremented
+   whenever the score is updated. It is used by this method for two purposes.
+   First, it allows the task to exit if it detects that it has been superseded
+   by another task that will transmit the score for the same assignment.
+   Second, it prevents a race condition where two tasks calculate differently
+   scores for a single assignment, and may potentially update the campus LMS
+   in the wrong order.
+   """
+   ...
+   outcomes.send_score_update(assignment, weighted_score)
 
-      The GradedAssignment model has a version_number field that is incremented
-      whenever the score is updated. It is used by this method for two purposes.
-      First, it allows the task to exit if it detects that it has been superseded
-      by another task that will transmit the score for the same assignment.
-      Second, it prevents a race condition where two tasks calculate different
-      scores for a single assignment, and may potentially update the campus LMS
-      in the wrong order.
-      """
-      ...
-      outcomes.send_score_update(assignment, weighted_score)
+This process for calculating and sending scores will be the same for LTI
+1.3, the only difference being, of using the pylti1.3 Grade utility for
+AGS to send score updates to the tool.
 
-This process for calculating and sending scores will be the same for LTI 1.3,
-the only difference being, of using the pylti1.3 Grade utility for AGS to send
-score updates to the tool.
-
-How to use IMS LTI Tool Consumer emulator
+How to use the IMS LTI Tool Consumer emulator
 -----------------------------------------
 
-IMS LTI Tool Consumer emulator is a simple emulator of an
-IMS Learning Tools Interoperability (LTI) 1.1.1 tool consumer (TC, e.g. a VLE)
-launch of a tool provider (TP, e.g. a blog or premium content). It includes support
-for the LTI 1.1 Basic Outcomes service and the unofficial extensions for memberships,
-outcomes and setting services.
+IMS LTI Tool Consumer emulator is a simple emulator of an IMS Learning
+Tools Interoperability (LTI) 1.1.1 tool consumer (TC, e.g. a VLE) launch
+of a tool provider (TP, e.g. a blog or premium content). It includes
+support for the LTI 1.1 Basic Outcomes service and the unofficial
+extensions for memberships, outcomes, and setting services.
 
-To test the Open edX LTI 1.1 Tool provider, you must first set the Launch URL,
-consumer key and shared secret, to create the consumer key and shared secret,
-go to the LMS admin, go to LTI Provider > Lti consumers, and create a new one, for example:
+To test the Open edX LTI 1.1 Tool provider, you must first set the
+Launch URL, consumer key, and shared secret, to create the consumer key
+and shared secret, go to the LMS admin, go to LTI Provider > Lti
+consumers, and create a new one, for example:
 
-- Launch URL: http://localhost:18000/lti_provider/courses/course-v1:edX+DemoX+Demo_Course/block-v1:edX+DemoX+Demo_Course+type@sequential+block@edx_introduction
-- Consumer Key: 90ed7f3d40e5997c9fb744194ebd169d
-- Shared Secret: 747d9c4faa88df9ff0557df33af863ee
+-  Launch URL:
+   http://localhost:18000/lti_provider/courses/course-v1:edX+DemoX+Demo_Course/block-v1:edX+DemoX+Demo_Course+type@sequential+block@edx_introduction
+-  Consumer Key: 90ed7f3d40e5997c9fb744194ebd169d
+-  Shared Secret: 747d9c4faa88df9ff0557df33af863ee
 
-After this you should be able to click on the "Save data" button and use
-the "Launch TP" or "Launch TP in new window", the content from the LMS
-should be displayed properly, and the platform should have logged you
-into the new user created for this LTI consumer.
+After this, you should be able to click on the "Save data" button and
+use the "Launch TP" or "Launch TP in new window", the content from the
+LMS should be displayed properly, and the platform should have logged
+you into the new user created for this LTI consumer.
 
-You should also be able to see the gradebook for this launch using the
-"Gradebook" button, it will open a modal with all the information sent
-from the platform related to scores.
+You should also be able to see the grade book for this launch using the
+"Gradebook" button, will open a modal with all the information sent from
+the platform related to scores.
 
 Content Libraries App LTI 1.3 Provider
---------------------------------------
+======================================
 
 Open EdX can act as an LTI 1.3 tool provider for content managed by
-Content Libraries and backed up by blockstore.
+Content Libraries backed up by blockstore.
 
 Content Libraries Models
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 -  **ContentLibrary**: This Studio model is used to track settings
-   specific to this this content library. The `PR
+   specific to this content library. The `PR
    27411 <https://github.com/openedx/edx-platform/pull/27411/>`__
    introduces a new field ``authorized_lti_configs`` to store any LTI
-   tool associated to a content library, and method ``allow_lti`` to
-   return any LTI config if any and ``authorize_lti_launch`` to identify
-   if a given Issuer and Client ID are authorized to launch content from
-   this library.
+   tool associated with a content library, and method ``allow_lti`` to
+   return any LTI config, if any, and ``authorize_lti_launch`` to
+   identify if a given Issuer and Client ID are authorized to launch
+   content from this library.
 -  **LtiProfile**: Unless Anonymous, this should be a unique
    representation of the LTI subject (as per the client token ``sub``
    identify claim) that initiated an LTI launch through Content
-   Libraries. This model is similar to LtiUser model role on
+   Libraries. This model is similar to the LtiUser model role on
    lti_provider app.
 -  **LtiGradedResource**: This model represents a successful LTI AGS
    (Assignment and Grade Services) launch. This model links the profile
    that launched the resource with the resource itself, allowing
    identification of the link through its blockstore usage key string
    and LtiProfile. This model includes a method to send messages back
-   with updated scores, is uses pylti1.3 grade module for this.
+   with updated scores, it uses the pylti1.3 grade module for this.
 
 Relationship with LMS’s ``lti_provider`` models
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------
 
 The data model above is similar to the one provided by the current LTI
-1.1 implementation for modulestore and courseware content. But, Content
-Libraries is orthogonal. Its use-case is to offer standalone, embedded
+1.1 implementation of modulestore and courseware content. But, Content
+Libraries are orthogonal. Its use-case is to offer standalone, embedded
 content from a specific backend (blockstore). As such, it decouples from
-LTI 1.1. and the logic assume no relationship or impact across the two
+LTI 1.1. and the logic assumes no relationship or impact across the two
 applications. The same reasoning applies to steps beyond the data model,
-such as at the XBlock runtime, authentication, and score handling, etc.
+such as at the XBlock runtime, authentication, score handling, etc.
 
 Content Libraries LTI 1.3 Launch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
-In order to execute a launch, first the content library and LTI tool
-must be setup on both the platform and the tools (Example: Canvas LMS).
-you can follow the instructions in the PR
+To execute a launch, first the content library and LTI tool must be set
+up on both the platform and the tools (Example: Canvas LMS). you can
+follow the instructions in the PR
 `27411 <https://github.com/openedx/edx-platform/pull/27411>`__ on how to
-setup the content library and tool for an example.
+setup the content library and tool for example.
 
 LTI 1.3 uses a modified version of the OpenId Connect third party
 initiate login flow. This means that to do an LTI 1.3 launch, you must
-first receive a login initialization request and return to the platform,
-the tool will initialize the login request by sending an GET or POST
-request to LtiToolLoginView, this will receive the target_link_uri
-previously setup on the tool and redirect to the launch view.
+first, receive a login initialization request and return to the
+platform, the tool will initialize the login request by sending a GET or
+POST request to LtiToolLoginView, this will receive the target_link_uri
+previously set up on the tool and redirect to the launch view.
 
 .. code:: python
 
@@ -412,17 +421,17 @@ previously setup on the tool and redirect to the launch view.
            return oidc_login.redirect(launch_url)
        except OIDCException as exc:
            # Relying on downstream error messages, attempt to sanitize it up
-           # for customer facing errors.
+           # for customer-facing errors.
            log.error('LTI OIDC login failed: %s', exc)
            return HttpResponseBadRequest('Invalid LTI login request.')
 
 On the redirected LtiToolLaunchView POST request, a launch message
-object will be created using DjangoMessageLaunch from pylti1.3 library,
-then the ``id`` parameter from the request will be used with
+object will be created using DjangoMessageLaunch from the pylti1.3
+library, then the ``id`` parameter from the request will be used with
 LibraryUsageLocatorV2 to retrieve the usage key of the content
-requested, and also use that usage key to check is the current issuer
-and authorization server are authorized to launch the content using the
-``authorize_lti_launch`` function.
+requested, and also use that usage key to check if the current issuer
+and the authorization server is authorized to launch the content using
+the ``authorize_lti_launch`` function.
 
 .. code:: python
 
@@ -443,7 +452,7 @@ and authorization server are authorized to launch the content using the
    usage_key = LibraryUsageLocatorV2.from_string(usage_key_str)
    log.info('LTI 1.3: Launch block: id=%s', usage_key)
 
-   # Authenticate the launch and setup LTI profiles.
+   # Authenticate the launch and set up LTI profiles.
 
    if not self._authenticate_and_login(usage_key):
        return self._bad_request_response()
@@ -464,9 +473,10 @@ current user permissions to the requested content:
        aud=self.launch_data['aud'],
        sub=self.launch_data['sub'])
 
-After all request information has been processed, the view will load the
-requested block, also setup the signal handler for AGS, and generating
-the required context data that will be sent with the view response:
+After all requested information has been processed, the view will load
+the requested block, also set up the signal handler for AGS, and
+generating the required context data that will be sent with the view
+response:
 
 .. code:: python
 
@@ -489,15 +499,15 @@ services, validate the AGS launch data and create a new
 LtiGradedResource to track the grades of this resource launch.
 
 Content Libraries LTI 1.3 AGS
------------------------------
+=============================
 
 The receiver ``score_changed_handler`` on
 ``openedx/core/djangoapps/content_libraries/signal_handlers.py``, will
 catch the signal PROBLEM_WEIGHTED_SCORE_CHANGED from
 ``lms.djangoapps.grades.api``, this will send a request to the LTI
 platform to update the assignment score using the method
-``update_score`` of the LtiGradedResource associated to the ``usage_id``
-received from the signal.
+``update_score`` of the LtiGradedResource associated with the
+``usage_id`` received from the signal.
 
 .. code:: python
 
@@ -524,7 +534,7 @@ DjangoMessageLaunch, by sending a pylti1.3 Grade object to the
 ``put_grade`` method.
 
 LTI 1.3 Support Roadmap
------------------------
+=======================
 
 -  Add new settings to enable LTI 1.3 platform tool. (Ex:
    https://github.com/openedx/edx-platform/blob/bfe6494e9d71f42513885b83afae2664cc52a4cc/lms/envs/production.py#L799)
@@ -532,19 +542,24 @@ LTI 1.3 Support Roadmap
    https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR314).
 -  Add model to store LTI 1.3 graded resources. (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR434).
--  Add ModelBackend to authenticate LTI launches using iss, aud, sub, claims. (Ex: https://github.com/openedx/edx-platform/pull/27411/files/#diff-de507716bf580a04015b1aacdd87eba1792cda2be79773bd7bdf63ab753cb9adR19).
+-  Add ModelBackend to authenticate LTI launches using iss, aud, sub,
+   claims. (Ex:
+   https://github.com/openedx/edx-platform/pull/27411/files/#diff-de507716bf580a04015b1aacdd87eba1792cda2be79773bd7bdf63ab753cb9adR19).
 -  Add view for LTI 1.3 third-party Initiated OpenID login. (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R849).
 -  Add view for LTI 1.3 launch. (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R883).
-      - Parse data from launch message.
-      - Parse requested resource (Example: usage_id, course_id, etc).
-      - Get or create subject related model instance from iss, aud, sub claims.
-      - Authenticate user using subject related model.
-      - Verify permissions to render resource.(We could add a signal here to verify extra permissions from other apps, Example: Licensing).
-      - Verify message contains AGS service.
-      - Validate AGS lineitem and score. (Example: https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1030).
-      - Upsert graded resource from launch (Example: https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1053).
+   - Parse data from the launch message. - Parse requested resource
+   (Example: usage_id, course_id, etc). - Get or create a
+   subject-related model instance from iss, aud, sub claims. -
+   Authenticate the user using the subject-related model. - Verify
+   permissions to render the resource. (We could add a signal here to
+   verify extra permissions from other apps, for example, Licensing). -
+   Verify message contains AGS service. - Validate AGS lineitem and
+   score. (Example:
+   https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1030).
+   - Upsert graded resource from launch (Example:
+   https://github.com/openedx/edx-platform/pull/27411/files/#diff-aee1ed7cd71a9cbd5d28d029e3589f4391e7ecc0259178a20a48cbb4f752aea5R1053).
 -  Add logic to get or automatically create LTI users for LTI launches.
    (Ex:
    https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR374,
@@ -552,27 +567,28 @@ LTI 1.3 Support Roadmap
 -  Add or modify PROBLEM_WEIGHTED_SCORE_CHANGED receiver to update
    graded resources scores. (Ex:
    https://github.com/openedx/edx-platform/blob/master/lms/djangoapps/lti_provider/signals.py#L40).
-      - Get related graded resource from data received.
-      - Get all assignments related
-      - Increment version value of each assignment
-      - Determine each assignment type and send corresponding task (composite module, or single problem).
-      - Send task to update score for each assignment by sending message back to platform related to resource. (Example: https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
+   - Get related graded resources from data received. - Get all
+   assignments related - Increment the version value of each assignment
+   - Determine each assignment type and send the corresponding task
+   (composite module, or single problem). - Send the task to update the
+   score for each assignment by sending a message back to the platform
+   related to the resource. (Example:
+   https://github.com/openedx/edx-platform/pull/27411/files#diff-36022deef8607c7a4647c8f2620b4d9ed283d5b41077e966bfd097585e0ebe7cR480)
 
-Approach A: Create new app
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Approach A: Create a new app ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This approach would be similar to the proposed on the `PR
+This approach would be similar to the one proposed in the `PR
 21435 <https://github.com/openedx/edx-platform/pull/21435>`__). We will
 create a new app (Example: lti1p3_tool), and integrate all logic related
 to LTI 1.3 separated from the existing lti_provider app.
 
-Approach B: Refactor lti_provider app
+Approach B: Refactor the lti_provider app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We could refactor the existing lti_provider. With this approach we could
-separate the logic of each specification per folder, and keep utilities
-that are used on both specifications on the base folder of the app, here
-is an example of the folder structure:
+We could refactor the existing lti_provider. With this approach, we
+could separate the logic of each specification per folder, and keep
+utilities that are used on both specifications on the base folder of the
+app, here is an example of the folder structure:
 
 .. code:: bash
 
@@ -590,9 +606,9 @@ is an example of the folder structure:
    │   ├── __init__.py
    │   └── ...
    ├── models.py
-   │   ├── __init__.py # LtiUser and GradedAssignment model could be store here
-   │   ├── 1p1 # Create LtiUser1p1 using multi table inheritance with LtiUser
-   │   └── 1p3 # Create LtiUser1p3 using multi table inheritance with LtiUser
+   │   ├── __init__.py # LtiUser and GradedAssignment model could be  here
+   │   ├── 1p1 # Create LtiUser1p1 using multi-table inheritance with LtiUser
+   │   └── 1p3 # Create LtiUser1p3 using multi-table inheritance with LtiUser
    ├── utils
    │   ├── __init__.py
    │   ├── users.py
@@ -610,15 +626,21 @@ is an example of the folder structure:
 Approach C: Create LTI Provider Plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Another approach would be to create a new openedx-plugin.
-We would create a new app that will include a common set of utilities and services
-used by both LTI 1.1 and LTI 1.3, and an app for each LTI specification, and their
-corresponding services, each one with their views and tasks. Similar to the
-structure of the B approach. This approach would also avoid adding more code to
-the monolithic edx-platform structure.
+Another approach would be to create a new openedx-plugin. We would
+create a new app that will include a common set of utilities and
+services used by both LTI 1.1 and LTI 1.3, and an app for each LTI
+specification, and their corresponding services, each one with their
+views and tasks. Similar to the structure of the B approach. This
+approach would also avoid adding more code to the monolithic
+edx-platform structure.
+
+In this approach, we will require to import a few classes and functions
+from edx-platform, for example, the User model to keep track of users on
+LTI launches the PROBLEM_WEIGHTED_SCORE_CHANGED signal to receive the
+score changes and more.
 
 LTI 1.3 Open edX community discussion
--------------------------------------
+=====================================
 
 -  Deep dive into LTI 1.3 in the Open edX platform:
    https://openedx.org/video/deep-dive-into-lti-1-3-in-the-open-edx-platform/
@@ -632,7 +654,7 @@ LTI 1.3 Open edX community discussion
    https://openedx.slack.com/archives/C0GR05YC
 
 References
-----------
+==========
 
 1.  Using Open edX as an LTI Tool Provider:
     https://edx.readthedocs.io/projects/open-edx-building-and-running-a-course/en/latest/course_features/lti/index.html
@@ -652,7 +674,7 @@ References
     https://github.com/dmitry-viskov/pylti1.3
 9.  Open edX LTI Provider Tool:
     https://edx.readthedocs.io/projects/open-edx-building-and-running-a-course/en/latest/course_features/lti/index.html
-10. LTI Xblock Consumer: https://github.com/openedx/xblock-lti-consumer
+10. LTI XBlock Consumer: https://github.com/openedx/xblock-lti-consumer
 11. Previous LTI 1.3 PR:
     https://github.com/openedx/edx-platform/pull/21435
 12. Content Libraries V2 LTI 1.3 Tool:
