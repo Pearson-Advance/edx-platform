@@ -29,8 +29,11 @@ views. This discovery is to analyze how we could add such a feature to
 award badges using Credly and what other events could
 be used to award badges to learners.
 
-XBlock Overview
-===============
+XBlock 
+======
+
+Overview
+--------
 
 XBlocks are like miniature web applications: they maintain state in a
 storage layer, render themselves through views, and process user actions
@@ -215,7 +218,7 @@ the edx-platform, and reload the XBlock HTML to display the newly
 created badge for this user, otherwise, it will reload the HTML to an
 error message.
 
-XBlock Proposal
+Proposal
 ===============
 
 Given how badgr-xblock can interact with Badgr and the edx-platform to
