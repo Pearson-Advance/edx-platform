@@ -61,7 +61,7 @@ way they talk to services. Fields and XBlocks both store data, and
 XBlocks need access to not only their Field data but to other
 XBlocks. Fields need editing views (now up to each runtime).
 
-XBlock Reference Implementation: https://github.com/openedx/XBlock/tree/master/xblock/reference
+- XBlock Reference Implementation: https://github.com/openedx/XBlock/tree/master/xblock/reference
 
 Fields API
 ----------
@@ -116,8 +116,8 @@ The user_state_summary scope is used to save data aggregated across many
 users of a single block. For example, a block might store a histogram of
 the points scored by all users attempting a problem.
 
-Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
-API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
+- Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
+- API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
 
 Fragments
 ---------
@@ -168,8 +168,8 @@ Here is an example of how it's used on the Drag and Drop v2 XBlock:
 
    fragment.initialize_js('DragAndDropBlock', self.student_view_data())
 
-Library source code: https://github.com/openedx/web-fragments
-XBlock source code: https://github.com/openedx/xblock-drag-and-drop-v2/blob/master/drag_and_drop_v2/drag_and_drop_v2.py
+- Library source code: https://github.com/openedx/web-fragments
+- XBlock source code: https://github.com/openedx/xblock-drag-and-drop-v2/blob/master/drag_and_drop_v2/drag_and_drop_v2.py
 
 Badgr XBlock
 ============
