@@ -83,8 +83,8 @@ use for each scope. These are the types of fields you can declare on an XBlock:
 - xblock.fields.String: A field class for representing a string.
 - xblock.fields.XMLString: A field class for representing an XML string.
 
-Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
-API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
+- Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
+- API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
 
 Scopes
 ------
