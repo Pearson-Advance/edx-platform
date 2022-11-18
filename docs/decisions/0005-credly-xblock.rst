@@ -79,6 +79,7 @@ use for each scope. These are the types of fields you can declare on an XBlock:
 - xblock.fields.XMLString: A field class for representing an XML string.
 
 Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
+API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
 
 Scopes
 ------
@@ -111,6 +112,7 @@ users of a single block. For example, a block might store a histogram of
 the points scored by all users attempting a problem.
 
 Read more: https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
+API Source code: https://github.com/openedx/XBlock/blob/master/xblock/fields.py
 
 Fragments
 ---------
@@ -160,6 +162,9 @@ Here is an example of how it's used on the Drag and Drop v2 XBlock:
    self.include_theme_files(fragment)
 
    fragment.initialize_js('DragAndDropBlock', self.student_view_data())
+
+Library source code: https://github.com/openedx/web-fragments
+XBlock source code: https://github.com/openedx/xblock-drag-and-drop-v2/blob/master/drag_and_drop_v2/drag_and_drop_v2.py
 
 Badgr XBlock
 ============
@@ -236,16 +241,16 @@ XBlock fields, or using any of the XBlock services, such as the user
 service. More information on what API methods are available can be found
 in the XBlock API guide.
 
-Proposal Cons
--------------
+Bading with XBlock Cons
+-----------------------
 
 - Course/subsection scope which means there would be no badges that
   involve multiple courses, for example, courses of the program.
 - Badges can only be awarded manually when a learner interacts
   with an XBlock.
 
-Proposal Pros
--------------
+Badging with XBlock Pros
+------------------------
 
 - Xblock in a studio offers a UI where content creators can configure the
   Badge. The platform is missing this part, and the only way to customize a
@@ -271,6 +276,9 @@ References
 -  Badgr XBlock (Deprecated):
    https://github.com/proversity-org/badgr-xblock
 -  XBlock SDK: https://github.com/openedx/xblock-sdk
+-  web-fragments: https://github.com/openedx/web-fragments
+-  Drag and Drop XBlock v2:
+   https://github.com/openedx/xblock-drag-and-drop-v2/blob/master/drag_and_drop_v2/drag_and_drop_v2.py
 -  Credly Developer API: https://www.credly.com/docs
 -  Credly OBI Methods:
    https://www.credly.com/docs/obi_specified_endpoints
