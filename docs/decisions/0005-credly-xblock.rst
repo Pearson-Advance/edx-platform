@@ -9,13 +9,20 @@ In progress.
 Context
 =======
 
-OpenEDX supports badges using Badgr as a badge generator. Badges can
-only be obtained by learners when they trigger a course completion event
-for a course or a set of courses. Badgr works by using the Open Badges
-specification. Currently, there is no other event from which badges can
+OpenEDX supports badges using Badgr as a badge generator [1]_. Badges can
+only be obtained by learners when any of the following events occur:
+
+- A learner enrolls in a certain number of courses.
+- A learner receives a completion certificate for a certain number
+  of courses.
+- A learner receives a completion certificate for every course in a
+  specified list of courses.
+
+Badgr works by using the Open Badges specification.
+Currently, there is no other event from which badges can
 be awarded to learners. A few years back there was an XBlock developed
 to award learners badges based on a passing grade for a specific
-subsection in a course. This XBlock can work by communicating with the
+subsection in a course [4]_. This XBlock can work by communicating with the
 Badgr API, this XBlock no longer works on versions newer than the Ginkgo
 release, and also requires modifying the edx-platform grade V0 API
 views. This discovery is to analyze how we could add such a feature to
@@ -27,7 +34,7 @@ XBlock Overview
 
 XBlocks are like miniature web applications: they maintain state in a
 storage layer, render themselves through views, and process user actions
-through handlers.
+through handlers [5]_.
 
 XBlocks differ from web applications in that they render only a small
 piece of a complete web page.
@@ -35,8 +42,6 @@ piece of a complete web page.
 Like HTML <div> tags, XBlocks can represent components as small as a
 paragraph of text, a video, a multiple-choice input field, or as
 large as a section, a chapter, or an entire course.
-
-Read more: https://edx.readthedocs.io/projects/xblock/en/latest/introduction.html
 
 Plugins
 -------
@@ -56,7 +61,7 @@ way they talk to services. Fields and XBlocks both store data, and
 XBlocks need access to not only their Field data but to other
 XBlocks. Fields need editing views (now up to each runtime).
 
-Read more: https://github.com/openedx/XBlock/tree/master/xblock/reference
+XBlock Reference Implementation: https://github.com/openedx/XBlock/tree/master/xblock/reference
 
 Fields API
 ----------
@@ -220,6 +225,10 @@ badges on sub-section completion. A template for this XBlock could be
 generated using the XBlock SDK, this SDK also contains various examples
 of how we could use XBlock for various scenarios.
 
+This XBlock will depend on the Credly badging backend implementation
+beign developed, this backend service will be the reponsible of the
+communcation with the Credly API [12]_.
+
 We could query course grades using the grades v1 API grade book
 endpoint, which will return a list of the scores for each graded
 subsection per user, another option could be using the XBlock get_parent
@@ -241,13 +250,17 @@ XBlock fields, or using any of the XBlock services, such as the user
 service. More information on what API methods are available can be found
 in the XBlock API guide.
 
-Bading with XBlock Cons
------------------------
+Badging with XBlock Cons
+------------------------
 
 - Course/subsection scope which means there would be no badges that
   involve multiple courses, for example, courses of the program.
 - Badges can only be awarded manually when a learner interacts
   with an XBlock.
+- This XBlock will rely on the Credly backend implementation,
+  so the integration with Credly will depend upon the Credly backend
+  implementation and where where it will be located
+  (Plugin, add a new Djangoapp in edx-platform, Python package...)
 
 Badging with XBlock Pros
 ------------------------
@@ -267,20 +280,30 @@ Badging with XBlock Pros
 References
 ==========
 
--  Enabled Badging:
+-  [1] Enabled Badging:
    https://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/configuration/enable_badging.html
--  XBlock API Guide:
+-  [2] XBlock API Guide:
    https://edx.readthedocs.io/projects/xblock/en/latest/index.html
--  XBlock Reference Implementation:
+-  [3] XBlock Reference Implementation:
    https://github.com/openedx/XBlock/tree/master/xblock/reference
--  Badgr XBlock (Deprecated):
+-  [4] Badgr XBlock (Deprecated):
    https://github.com/proversity-org/badgr-xblock
--  XBlock SDK: https://github.com/openedx/xblock-sdk
--  web-fragments: https://github.com/openedx/web-fragments
--  Drag and Drop XBlock v2:
+-  [5] Introduction to XBlocks:
+   https://edx.readthedocs.io/projects/xblock/en/latest/introduction.html
+-  [6] XBlocks Reference Implementations:
+   https://github.com/openedx/XBlock/tree/master/xblock/reference
+-  [7] XBlock Fields API:
+   https://edx.readthedocs.io/projects/xblock/en/latest/fields.html
+-  [8] XBlock Fields Source Code:
+   https://github.com/openedx/XBlock/blob/master/xblock/fields.py
+-  [9] XBlock SDK: https://github.com/openedx/xblock-sdk
+-  [10] web-fragments: https://github.com/openedx/web-fragments
+-  [11] Drag and Drop XBlock v2:
    https://github.com/openedx/xblock-drag-and-drop-v2/blob/master/drag_and_drop_v2/drag_and_drop_v2.py
--  Credly Developer API: https://www.credly.com/docs
--  Credly OBI Methods:
+-  [12] Credly Backend Implementation:
+   https://github.com/Pearson-Advance/course_operations/blob/vue/PADV-234/pearson_course_operation/docs/discoveries/001-add-credly-support.rst
+-  [13] Credly Developer API: https://www.credly.com/docs
+-  [14] Credly OBI Methods:
    https://www.credly.com/docs/obi_specified_endpoints
--  Open Badges v2.0 IMS Final Release:
+-  [15] Open Badges v2.0 IMS Final Release:
    https://www.imsglobal.org/sites/default/files/Badges/OBv2p0Final/index.html
