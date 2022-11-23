@@ -286,8 +286,8 @@ Workflows
 Staff
 -----
 
-.. image:: https://user-images.githubusercontent.com/8495728/203473725-1c99372a-7c5d-4b39-ae64-fca7769f2c1b.png
-   :width: 801
+.. image:: https://user-images.githubusercontent.com/8495728/203593596-b5169e2f-e1e3-4a82-a81f-55d9f8b83660.png
+   :width: 1401
 
 Learner
 -----
