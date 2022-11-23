@@ -280,6 +280,21 @@ Badging with XBlock Pros
   system relies on certificates, the platform can only award badges to
   people who purchased the verified track.
 
+Workflows
+=========
+
+Staff
+-----
+
+.. image:: https://user-images.githubusercontent.com/8495728/203473725-1c99372a-7c5d-4b39-ae64-fca7769f2c1b.png
+   :width: 801
+
+Learner
+-----
+
+.. image:: https://user-images.githubusercontent.com/8495728/203473723-4749bb0b-12cb-468e-b359-fec314a4663b.png
+   :width: 801
+
 References
 ==========
 
