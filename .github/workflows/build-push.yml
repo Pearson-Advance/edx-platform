@@ -29,8 +29,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # - name: Build and push
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     push: true
-      #     tags: user/app:latest
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: user/app:latest
+
+      # - name: Push the image
+      #   id: docker-push-image
+      #   shell: bash
+      #   run: ${{ github.action_path }}/scripts/upload-to-aws-ecr.sh
