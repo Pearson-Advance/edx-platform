@@ -34,3 +34,4 @@ jobs:
 
       - name: Push docker image
         run: docker push pearsonopenedxops/tutor-test:1.0.0
+
