@@ -14,6 +14,11 @@ jobs:
         with:
           python-version: '3.8'
 
+      - name: Create and activate the env
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
       - name: Install Tutor
         run: pip install "tutor[full]"
 
@@ -21,10 +26,13 @@ jobs:
         run: tutor config save
 
       - name: Build docker image
-        run: tutor images build openedx
+        run: |
+          tutor images build openedx \
+              --build-arg BUILDKIT_INLINE_CACHE=1 \
+              --docker-arg --tag="pearsonopenedxops/tutor-test:1.1.0"
 
-      - name: New image name
-        run: docker tag overhangio/openedx:15.3.0 pearsonopenedxops/tutor-test:1.0.0
+      # - name: New image name
+      #   run: docker tag overhangio/openedx:15.3.0 pearsonopenedxops/tutor-test:1.0.0
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -33,4 +41,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push docker image
-        run: docker push pearsonopenedxops/tutor-test:1.0.0
+        run: docker push pearsonopenedxops/tutor-test:1.1.0
