@@ -57,7 +57,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
-        uses: actions/composite-build-action@v1
+        uses: composite-build-action@v1
         with:
           tutor-version: '15'
           repository-name: 'pearsonopenedxops'
