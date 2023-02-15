@@ -1,27 +1,27 @@
-name: Tutor Build Action
+name: Tutor Build Action Test
 
 on:
-  # push:
-  #   branches:
-  #     - 'vue/PADV-317'
-  workflow_dispatch:
-    inputs:
-      tutor_version:
-        description: 'Tutor version'
-        required: false
-        default: '15'
-      build_image:
-        description: 'Build image'
-        required: true
-        default: false
-      image_tag:
-        description: 'Image tag (e.g., tutor-test:1.0.0)'
-        required: false
-        default: 'tutor-test:latest'
-      repository_name:
-        description: 'Repository name'
-        required: true
-        default: 'pearsonopenedxops'
+  push:
+    branches:
+      - 'vue/PADV-317'
+  # workflow_dispatch:
+  #   inputs:
+  #     tutor_version:
+  #       description: 'Tutor version'
+  #       required: false
+  #       default: '15'
+  #     build_image:
+  #       description: 'Build image'
+  #       required: true
+  #       default: false
+  #     image_tag:
+  #       description: 'Image tag (e.g., tutor-test:1.0.0)'
+  #       required: false
+  #       default: 'tutor-test:latest'
+  #     repository_name:
+  #       description: 'Repository name'
+  #       required: true
+  #       default: 'pearsonopenedxops'
 
 jobs:
   docker:
@@ -37,24 +37,32 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install Tutor
-        run: pip install tutor==${{ github.event.inputs.tutor_version }}
+      # - name: Install Tutor
+      #   run: pip install tutor==${{ github.event.inputs.tutor_version }}
 
-      - name: Render templates
-        run: tutor config save
+      # - name: Render templates
+      #   run: tutor config save
 
-      - if: github.event.inputs.build_image == 'true'
-        name: Build docker image
-        run: |
-          tutor images build openedx \
-              --build-arg BUILDKIT_INLINE_CACHE=1 \
-              --docker-arg --tag="${{ github.event.inputs.repository_name }}/${{ github.event.inputs.image_tag }}"
+      # - if: github.event.inputs.build_image == 'true'
+      #   name: Build docker image
+      #   run: |
+      #     tutor images build openedx \
+      #         --build-arg BUILDKIT_INLINE_CACHE=1 \
+      #         --docker-arg --tag="${{ github.event.inputs.repository_name }}/${{ github.event.inputs.image_tag }}"
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image
+        uses: actions/composite-build-action@v1
+        with:
+          tutor-version: '15'
+          repository-name: 'pearsonopenedxops'
+          image-name: 'tutor-test'
+          image-tag: '1.3.0'
 
       # - name: Push docker image
       #   run: docker push ${{ github.event.inputs.repository_name }}/${{ github.event.inputs.image_tag }}
