@@ -1,6 +1,9 @@
 name: Tutor Build Action
 
 on:
+  push:
+    branches:
+      - 'vue/PADV-317'
   workflow_dispatch:
     inputs:
       tutor_version:
