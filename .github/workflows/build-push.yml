@@ -56,8 +56,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # - name: pearson-advance/actions/checkout@v1
       - name: Build Image
-        uses: actions/tutor-build-image-action@v1
+        uses: pearson-advance/actions/tutor-build-image-action@v1
         with:
           tutor-version: '15'
           repository-name: 'pearsonopenedxops'
