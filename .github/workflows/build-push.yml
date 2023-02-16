@@ -56,18 +56,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Checkout repository
-        uses: actions/checkout@v1
-        with:
-          repository: pearson-advance/tutor-build-image-action
-
-      # - name: Build Image
-      #   uses: actions/tutor-build-image-action@v1
+      # - name: Checkout repository
+      #   uses: actions/checkout@v1
       #   with:
-      #     tutor-version: '15'
-      #     repository-name: 'pearsonopenedxops'
-      #     image-name: 'tutor-test'
-      #     image-tag: '1.3.0'
+      #     repository: pearson-advance/tutor-build-image-action
+
+      - name: Build Image
+        uses: pearson-advance/actions/tutor-build-image-action@v1
+        with:
+          tutor-version: '15'
+          repository-name: 'pearsonopenedxops'
+          image-name: 'tutor-test'
+          image-tag: '1.3.0'
 
       # - name: Push docker image
       #   run: docker push ${{ github.event.inputs.repository_name }}/${{ github.event.inputs.image_tag }}
