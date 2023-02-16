@@ -62,7 +62,7 @@ jobs:
       #     repository: pearson-advance/tutor-build-image-action
 
       - name: Build Image
-        uses: pearson-advance/tutor-build-image-action@v1
+        uses: pearson-advance/tutor-build-image-action@v2
         with:
           tutor-version: '15'
           repository-name: 'pearsonopenedxops'
