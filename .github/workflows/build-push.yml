@@ -21,6 +21,6 @@ jobs:
           image-tag: '0.0.2'
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          private-repository: 'git@github.com:Pearson-Advance/pearson-core.git'
-          theme-repository: 'git@github.com:Pearson-Advance/openedx-themes.git'
+          private-repository: 'Pearson-Advance/pearson-core.git'
+          theme-repository: 'Pearson-Advance/openedx-themes.git'
           github-token: ${{ secrets.GITHUB_TOKEN }}
