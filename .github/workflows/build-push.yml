@@ -11,7 +11,7 @@ jobs:
     steps:
 
       - name: Build Image
-        uses: pearson-advance/tutor-build-image-action@0.0.2.alpha
+        uses: pearson-advance/tutor-build-image-action@0.0.1.alpha
         with:
           python-version: '3.8'
           tutor-version: '15'
@@ -19,5 +19,8 @@ jobs:
           repository-name: 'pearsonopenedxops'
           image-name: 'tutor-test'
           image-tag: '0.0.2'
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          token: ${{ secrets.DOCKERHUB_TOKEN }}
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          private-repository: 'git@github.com:Pearson-Advance/pearson-core.git'
+          theme-repository: 'git@github.com:Pearson-Advance/openedx-themes.git'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
