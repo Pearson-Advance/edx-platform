@@ -39,7 +39,7 @@ jobs:
         run: pip install tutor=='15.3.0'
 
       - name: Extra requirements
-        run: git clone https://github.com/open-craft/xblock-pdf.git "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
+        run: git clone https://github.com/Pearson-Advance/pearson-core.git "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
 
 
       # - name: Clone private repository
