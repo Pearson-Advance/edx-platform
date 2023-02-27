@@ -14,7 +14,7 @@ jobs:
       #   uses: pearson-advance/tutor-build-image-action@0.0.1.alpha
       #   with:
       #     python-version: '3.8'
-      #     tutor-version: '15'
+      #     tutor-version: '15.3.0'
       #     image-to-be-built: 'openedx'
       #     repository-name: 'pearsonopenedxops'
       #     image-name: 'tutor-test'
@@ -36,7 +36,7 @@ jobs:
           source venv/bin/activate
 
       - name: Install Tutor
-        run: pip install tutor==${{ inputs.tutor-version }}
+        run: pip install tutor=='15.3.0'
 
       - name: Extra requirements
         run: git clone git@github.com:open-craft/xblock-pdf.git "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
