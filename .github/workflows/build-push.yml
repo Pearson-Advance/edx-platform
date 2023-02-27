@@ -28,7 +28,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: '3.8'
 
       - name: Create and activate the env
         run: |
