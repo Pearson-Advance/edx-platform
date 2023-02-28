@@ -55,7 +55,7 @@ jobs:
               fi
             else
               if [ -z "true" ]; then
-                  git clone https://github.com/${owners[COUNTER]}/$repository.git
+                  git clone https://github.com/${owners[$COUNTER]}/$repository.git
               else
                   git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git
               fi
