@@ -35,70 +35,19 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install Tutor
-        run: pip install tutor=='15.3.0'
-
-
-      # - name: Extra requirements
-      #   run: git clone git@github.com:Pearson-Advance/pearson-core.git \
-      #         "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
-
-      # - name: Extra requirements
-      #   uses: GuillaumeFalourd/clone-github-repo-action@v2
-      #   with:
-      #     owner: 'Pearson-Advance'
-      #     repository: 'pearson-core'
-      #     access-token: ${{ secrets.CLONE_SECRET }}
-
-      # - name: Clone private repository
-      #   uses: sudosubin/git-clone-action@v1
-      #   with:
-      #     repository: ${{ inputs.private-repository }}
-      #     platform: 'github'
-      #     path: "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
-
-      # - name: Clone GuillaumeFalourd/formulas-training PRIVATE repository
-      #   uses: GuillaumeFalourd/clone-github-repo-action@v2
-      #   with:
-      #     owner: 'sergivalero20'
-      #     repository: 'Pearson-Advance/pearson-core.git'
-      #     access-token: ${{ secrets.ACCESS_TOKEN }}
-
-      # - name: Extra requirements
-      #   run: echo "-e ./myprivaterepo" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
-
-      # - name: Install theme
-      #   run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
-      #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-
-      # - name: Checkout private tools
-      #   uses: actions/checkout@v3
-      #   with:
-      #     repository: Pearson-Advance/pearson-core
-      #     token: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-
-      # TODO
-      # - name: Setup SSH
-      #   uses: MrSquaare/ssh-setup-action@v2
-      #   with:
-      #     host: github.com
-      #     private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # - name: Install Tutor
+      #   run: pip install tutor=='15.3.0'
 
       - name: Clone repository
         run: |
-          if [ -z "true" ]; then
-              git clone https://github.com/Pearson-Advance/pearson-core.git
-          else
-              git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/Pearson-Advance/pearson-core.git
-          fi
-          if [ -d "pearson-core" ]; then
-              echo "Cloned pearson-core repository successfully."
-          else
-              echo "Error: Couldn't clone pearson-core repository. Check the inputs or the PAT scope."
-              exit 1
-          fi
-
+          list={{ secrets.list }}
+          for i in "${list[@]}"; do   # The quotes are necessary here
+            if [ -z "true" ]; then
+                git clone https://github.com/${{ secrets.GH_PAT }}.git
+            else
+                git clone https://${{ secrets.GH_PAT }}@github.com/{{ $i }}.git
+            fi
+          done
 
       # - name: Extra requirements
       #   run: git clone git@github.com:Pearson-Advance/pearson-core.git \
@@ -107,13 +56,6 @@ jobs:
       # - name: Install theme
       #   run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
       #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-
-      # - name: Clone theme repository
-      #   uses: sudosubin/git-clone-action@v1
-      #   with:
-      #     repository: ${{ inputs.theme-repository }}
-      #     platform: 'github'
-      #     path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
       # - name: Render Tutor Templates
       #   run: tutor config save
