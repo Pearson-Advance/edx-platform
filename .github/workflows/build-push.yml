@@ -77,19 +77,34 @@ jobs:
       #     token: ${{ secrets.SSH_PRIVATE_KEY }}
       #     path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
-      - name: Setup SSH
-        uses: MrSquaare/ssh-setup-action@v2
-        with:
-          host: github.com
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # TODO
+      # - name: Setup SSH
+      #   uses: MrSquaare/ssh-setup-action@v2
+      #   with:
+      #     host: github.com
+      #     private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Extra requirements
-        run: git clone git@github.com:Pearson-Advance/pearson-core.git \
-              "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
+      - name: Clone repository
+        run: |
+          if [ -z "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" ]; then
+              git clone https://github.com/Pearson-Advance/pearson-core.git
+          else
+              git clone https://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@github.com/Pearson-Advance/pearson-core.git
+          fi
+          if [ -d "pearson-core" ]; then
+              echo "Cloned pearson-core repository successfully."
+          else
+              echo "Error: Couldn't clone pearson-core repository. Check the inputs or the PAT scope."
+              exit 1
+          fi
 
-      - name: Install theme
-        run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
-              "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+      # - name: Extra requirements
+      #   run: git clone git@github.com:Pearson-Advance/pearson-core.git \
+      #         "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
+
+      # - name: Install theme
+      #   run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
+      #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
       # - name: Clone theme repository
       #   uses: sudosubin/git-clone-action@v1
@@ -98,20 +113,20 @@ jobs:
       #     platform: 'github'
       #     path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
-      - name: Render Tutor Templates
-        run: tutor config save
+      # - name: Render Tutor Templates
+      #   run: tutor config save
 
-      - name: Build image
-        run: |
-          tutor images build openedx \
-              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.3"
+      # - name: Build image
+      #   run: |
+      #     tutor images build openedx \
+      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.3"
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push image to DockerHub
-        run: docker push pearsonopenedxops/tutor-test:0.0.3
+      # - name: Push image to DockerHub
+      #   run: docker push pearsonopenedxops/tutor-test:0.0.3
 
