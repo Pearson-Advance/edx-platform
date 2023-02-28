@@ -38,9 +38,16 @@ jobs:
       - name: Install Tutor
         run: pip install tutor=='15.3.0'
 
-      - name: Extra requirements
-        run: git clone git@github.com:Pearson-Advance/pearson-core.git "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
+      # - name: Extra requirements
+      #   run: git clone git@github.com:Pearson-Advance/pearson-core.git \
+      #         "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
 
+      - name: Extra requirements
+        uses: GuillaumeFalourd/clone-github-repo-action@v2
+        with:
+          owner: 'Pearson-Advance'
+          repository: 'pearson-core'
+          access-token: ${{ secrets.CLONE_SECRET }}
 
       # - name: Clone private repository
       #   uses: sudosubin/git-clone-action@v1
@@ -56,12 +63,12 @@ jobs:
       #     repository: 'Pearson-Advance/pearson-core.git'
       #     access-token: ${{ secrets.ACCESS_TOKEN }}
 
-      - name: Extra requirements
-        run: echo "-e ./myprivaterepo" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
+      # - name: Extra requirements
+      #   run: echo "-e ./myprivaterepo" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
 
-      - name: Install theme
-        run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
-              "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+      # - name: Install theme
+      #   run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
+      #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
       # - name: Checkout private tools
       #   uses: actions/checkout@v3
