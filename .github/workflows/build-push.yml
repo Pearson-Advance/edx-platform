@@ -45,7 +45,7 @@ jobs:
           COUNTER=0
           theme-repository="openedx-themes"
           for repository in "${repositories[@]}"; do
-            if [ $repository=="openedx-themes" ]; then
+            if [ $repository==$theme-repository ]; then
               if [ -z "true" ]; then
                   git clone https://github.com/${owner[COUNTER]}/$repository.git \
                     "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
