@@ -43,9 +43,9 @@ jobs:
           list=${{ secrets.list }}
           for i in "${list[@]}"; do   # The quotes are necessary here
             if [ -z "true" ]; then
-                git clone https://github.com/${{ secrets.GH_PAT }}.git
+                git clone https://github.com/$i.git
             else
-                git clone https://${{ secrets.GH_PAT }}@github.com/{{ $i }}.git
+                git clone https://${{ secrets.GH_PAT }}@github.com/$i.git
             fi
           done
 
