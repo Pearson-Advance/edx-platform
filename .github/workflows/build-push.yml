@@ -40,7 +40,7 @@ jobs:
 
       - name: Clone repository
         run: |
-          list={{ secrets.list }}
+          list=${{ secrets.list }}
           for i in "${list[@]}"; do   # The quotes are necessary here
             if [ -z "true" ]; then
                 git clone https://github.com/${{ secrets.GH_PAT }}.git
