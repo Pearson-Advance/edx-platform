@@ -89,7 +89,7 @@ jobs:
           if [ -z "true" ]; then
               git clone https://github.com/Pearson-Advance/pearson-core.git
           else
-              git clone https://{{ secrets.GH_PAT }}@github.com/Pearson-Advance/pearson-core.git
+              git clone https://${{ secrets.GH_PAT }}@github.com/Pearson-Advance/pearson-core.git
           fi
           if [ -d "pearson-core" ]; then
               echo "Cloned pearson-core repository successfully."
