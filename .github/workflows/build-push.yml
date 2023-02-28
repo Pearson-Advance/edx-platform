@@ -86,10 +86,10 @@ jobs:
 
       - name: Clone repository
         run: |
-          if [ -z "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" ]; then
+          if [ -z "true" ]; then
               git clone https://github.com/Pearson-Advance/pearson-core.git
           else
-              git clone https://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@github.com/Pearson-Advance/pearson-core.git
+              git clone https://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@github.com/Pearson-Advance/pearson-core.git
           fi
           if [ -d "pearson-core" ]; then
               echo "Cloned pearson-core repository successfully."
