@@ -35,8 +35,8 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      # - name: Install Tutor
-      #   run: pip install tutor=='15.3.0'
+      - name: Install Tutor
+        run: pip install tutor=='15.3.0'
 
       - name: Clone repository
         run: |
