@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: Pearson-Advance/pearson-core
-          token: ${{ secrets.SSH_PRIVATE_KEY }} # `GH_PAT` is a secret that contains your PAT
+          token: ${{ secrets.SSH_PRIVATE_KEY }}
           path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
       # - name: Clone theme repository
