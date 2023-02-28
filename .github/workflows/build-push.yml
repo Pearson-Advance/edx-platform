@@ -43,7 +43,7 @@ jobs:
           owners=${{ secrets.OWNERS }}
           repositories=${{ secrets.REPOSITORIES }}
           COUNTER=0
-          theme-repository="openedx-themes"
+          themes="openedx-themes"
           for repository in "${repositories[@]}"; do
             if [ $repository==$theme-repository ]; then
               if [ -z "true" ]; then
