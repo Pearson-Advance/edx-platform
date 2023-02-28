@@ -47,6 +47,7 @@ jobs:
             else
                 git clone https://${{ secrets.GH_PAT }}@github.com/$i.git
             fi
+          echo "Cloned $i repository successfully."
           done
 
       # - name: Extra requirements
