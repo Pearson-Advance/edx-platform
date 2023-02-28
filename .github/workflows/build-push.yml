@@ -42,12 +42,12 @@ jobs:
       #   run: git clone git@github.com:Pearson-Advance/pearson-core.git \
       #         "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
 
-      - name: Extra requirements
-        uses: GuillaumeFalourd/clone-github-repo-action@v2
-        with:
-          owner: 'Pearson-Advance'
-          repository: 'pearson-core'
-          access-token: ${{ secrets.CLONE_SECRET }}
+      # - name: Extra requirements
+      #   uses: GuillaumeFalourd/clone-github-repo-action@v2
+      #   with:
+      #     owner: 'Pearson-Advance'
+      #     repository: 'pearson-core'
+      #     access-token: ${{ secrets.CLONE_SECRET }}
 
       # - name: Clone private repository
       #   uses: sudosubin/git-clone-action@v1
@@ -70,12 +70,12 @@ jobs:
       #   run: git clone git@github.com:Pearson-Advance/openedx-themes.git \
       #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
-      # - name: Checkout private tools
-      #   uses: actions/checkout@v3
-      #   with:
-      #     repository: my-org/my-private-tools
-      #     token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
-      #     path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+      - name: Checkout private tools
+        uses: actions/checkout@v3
+        with:
+          repository: Pearson-Advance/pearson-core
+          token: ${{ secrets.CLONE_SECRET }} # `GH_PAT` is a secret that contains your PAT
+          path: "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
 
       # - name: Clone theme repository
       #   uses: sudosubin/git-clone-action@v1
