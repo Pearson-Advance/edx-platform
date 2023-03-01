@@ -46,7 +46,7 @@ jobs:
           themes="openedx-themes"
           for repository in "${repositories[@]}"; do
             if [ $repository == $themes ]; then
-              if [ "true" ]; then
+              if [ -z "true" ]; then
                   git clone https://github.com/"${owners[$COUNTER]}"/"$repository" # \
                     # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               else
@@ -54,7 +54,7 @@ jobs:
                     # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               fi
             else
-              if [ "true" ]; then
+              if [ -z "true" ]; then
                   git clone https://github.com/"${owners[$COUNTER]}"/"$repository"
               else
                   git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository"
