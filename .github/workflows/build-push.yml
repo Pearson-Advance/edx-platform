@@ -67,20 +67,20 @@ jobs:
             echo "Cloned "$repository" repository successfully."
           done
 
-      # - name: Render Tutor Templates
-      #   run: tutor config save
+      - name: Render Tutor Templates
+        run: tutor config save
 
-      # - name: Build image
-      #   run: |
-      #     tutor images build openedx \
-      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.3"
+      - name: Build image
+        run: |
+          tutor images build openedx \
+              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Push image to DockerHub
-      #   run: docker push pearsonopenedxops/tutor-test:0.0.3
+      - name: Push image to DockerHub
+        run: docker push pearsonopenedxops/tutor-test:0.0.4
 
