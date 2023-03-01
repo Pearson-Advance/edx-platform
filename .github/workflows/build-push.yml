@@ -40,7 +40,7 @@ jobs:
 
       - name: Install extra requirements
         run: |
-          requirements="false"
+          requirements="true"
           if [ $requirements == false ]; then
             echo "No extra requirements to be installed"
           else
@@ -55,7 +55,7 @@ jobs:
 
       - name: Install themes
         run: |
-          theme="false"
+          theme="true"
           if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
