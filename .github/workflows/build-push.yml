@@ -47,10 +47,10 @@ jobs:
           for repository in "${repositories[@]}"; do
             if [ $repository == $themes ]; then
               if [ -z "true" ]; then
-                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git
+                  git clone https://github.com/${owners[$COUNTER]}/$repository.git
                     #"$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git
+                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git
                     #"$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               fi
             else
@@ -58,7 +58,7 @@ jobs:
                   git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git \
                     "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
               else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git \
+                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git \
                     "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
               fi
               echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
