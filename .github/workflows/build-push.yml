@@ -38,49 +38,45 @@ jobs:
       - name: Install Tutor
         run: pip install tutor=='15.3.0'
 
-      - name: Clone repository
+      - name: Install extra requirements
         run: |
-          owners=${{ secrets.OWNERS }}
-          repositories=${{ secrets.REPOSITORIES }}
-          COUNTER=0
-          themes="openedx-themes"
-          for repository in "${repositories[@]}"; do
-            if [ $repository == $themes ]; then
-              if [ -z "true" ]; then
-                  git clone https://github.com/${owners[$COUNTER]}/$repository.git
-                    #"$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-              else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git
-                    #"$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-              fi
-            else
-              if [ -z "true" ]; then
-                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git \
-                    "$(tutor config printroot)/env/build/openedx/requirements/$repository"
-              else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git \
-                    "$(tutor config printroot)/env/build/openedx/requirements/$repository"
-              fi
+          $extra-requirements="false"
+          if [ $extra-requirements == false ]; then
+            eccho "No extra requirements to be installed"
+          else
+            repositories=${{ secrets.REPOSITORIES }}
+            for repository in "${repositories[@]}"; do
+              git clone https://${{ secrets.GH_PAT }}@github.com/$repository.git \
+                "$(tutor config printroot)/env/build/openedx/requirements/$repository"
               echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
-            fi
-            let COUNTER=COUNTER+1
-            echo "Cloned "$repository" repository successfully."
-          done
+              echo "Cloned "$repository" repository successfully."
+            done
+          fi
 
-      - name: Render Tutor Templates
-        run: tutor config save
-
-      - name: Build image
+      - name: Install themes
         run: |
-          tutor images build openedx \
-              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
+          theme-repository="false"
+          if [ $theme-repository == false ]; then
+            echo "No theme repository to be cloned"
+          else
+            git clone https://github.com/Pearson-Advanced/openedx-themes.git \
+              "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+          fi
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Render Tutor Templates
+      #   run: tutor config save
 
-      - name: Push image to DockerHub
-        run: docker push pearsonopenedxops/tutor-test:0.0.4
+      # - name: Build image
+      #   run: |
+      #     tutor images build openedx \
+      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # - name: Push image to DockerHub
+      #   run: docker push pearsonopenedxops/tutor-test:0.0.4
 
