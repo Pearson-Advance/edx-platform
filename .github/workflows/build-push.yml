@@ -50,7 +50,6 @@ jobs:
             else
               echo "Dos"
             fi
-            let COUNTER++
             echo "Cloned "$repository" repository successfully."
           done
 
