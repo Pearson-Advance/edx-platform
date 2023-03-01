@@ -40,7 +40,7 @@ jobs:
 
       - name: Install extra requirements
         run: |
-          $extra-requirements="false"
+          extra-requirements="false"
           if [ $extra-requirements == false ]; then
             eccho "No extra requirements to be installed"
           else
