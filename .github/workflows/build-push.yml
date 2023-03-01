@@ -24,6 +24,8 @@ jobs:
           extra-requirements: true
           theme-repository: 'Pearson-Advance/openedx-themes'
           access-token: ${{ secrets.GH_PAT }}
+          repositories: ${{ vars.REPOSITORIES }}
+          branches: ${{ vars.BRANCHES }}
 
       # - name: Setup Python
       #   uses: actions/setup-python@v4
