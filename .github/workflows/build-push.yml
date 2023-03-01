@@ -59,10 +59,11 @@ jobs:
       - name: Install themes
         run: |
           theme="true"
+          repo="Pearson-Advance/openedx-themes"
           if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
-            git clone https://github.com/Pearson-Advanced/openedx-themes.git \
+            git clone https://github.com/$repo.git \
               "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
           fi
 
