@@ -45,6 +45,7 @@ jobs:
             echo "No extra requirements to be installed"
           else
             repositories=${{ secrets.REPOSITORIES }}
+            owners=${{ secrets.OWNERS }}
             COUNTER=0
             for repository in "${repositories[@]}"; do
               git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git \
