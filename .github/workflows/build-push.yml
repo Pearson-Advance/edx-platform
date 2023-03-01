@@ -10,62 +10,62 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # - name: Build Image
-      #   uses: pearson-advance/tutor-build-image-action@0.0.1.alpha
-      #   with:
-      #     python-version: '3.8'
-      #     tutor-version: '15.3.0'
-      #     image-to-be-built: 'openedx'
-      #     repository-name: 'pearsonopenedxops'
-      #     image-name: 'tutor-test'
-      #     image-tag: '0.0.2'
-      #     docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-      #     private-repository: 'Pearson-Advance/pearson-core.git'
-      #     theme-repository: 'Pearson-Advance/openedx-themes.git'
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Build Image
+        uses: pearson-advance/tutor-build-image-action@0.0.1.alpha
         with:
           python-version: '3.8'
+          tutor-version: '15.3.0'
+          repository-name: 'pearsonopenedxops'
+          image-to-be-built: 'openedx'
+          image-name: 'tutor-test'
+          image-tag: '0.0.5'
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          extra-requirements: true
+          theme-repository: 'Pearson-Advance/openedx-themes'
+          access-token: ${{ secrets.GH_PAT }}
 
-      - name: Create and activate the env
-        run: |
-          python -m venv venv
-          source venv/bin/activate
+      # - name: Setup Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.8'
 
-      - name: Install Tutor
-        run: pip install tutor=='15.3.0'
+      # - name: Create and activate the env
+      #   run: |
+      #     python -m venv venv
+      #     source venv/bin/activate
 
-      - name: Install extra requirements
-        run: |
-          requirements="true"
-          if [ $requirements == false ]; then
-            echo "No extra requirements to be installed"
-          else
-            repositories=${{ secrets.REPOSITORIES }}
-            owners=${{ secrets.OWNERS }}
-            COUNTER=0
-            for repository in "${repositories[@]}"; do
-              git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git \
-                "$(tutor config printroot)/env/build/openedx/requirements/$repository"
-              echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
-              echo "Cloned "$repository" repository successfully."
-              COUNTER=COUNTER+1
-            done
-          fi
+      # - name: Install Tutor
+      #   run: pip install tutor=='15.3.0'
 
-      - name: Install themes
-        run: |
-          theme="true"
-          repo="Pearson-Advance/openedx-themes"
-          if [ $theme == false ]; then
-            echo "No theme repository to be cloned"
-          else
-            git clone https://github.com/$repo.git \
-              "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-          fi
+      # - name: Install extra requirements
+      #   run: |
+      #     requirements="true"
+      #     if [ $requirements == false ]; then
+      #       echo "No extra requirements to be installed"
+      #     else
+      #       repositories=${{ secrets.REPOSITORIES }}
+      #       owners=${{ secrets.OWNERS }}
+      #       COUNTER=0
+      #       for repository in "${repositories[@]}"; do
+      #         git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git \
+      #           "$(tutor config printroot)/env/build/openedx/requirements/$repository"
+      #         echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
+      #         echo "Cloned "$repository" repository successfully."
+      #         COUNTER=COUNTER+1
+      #       done
+      #     fi
+
+      # - name: Install themes
+      #   run: |
+      #     theme="true"
+      #     repo="Pearson-Advance/openedx-themes"
+      #     if [ $theme == false ]; then
+      #       echo "No theme repository to be cloned"
+      #     else
+      #       git clone https://github.com/$repo.git \
+      #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+      #     fi
 
       # - name: Render Tutor Templates
       #   run: tutor config save
