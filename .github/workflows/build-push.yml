@@ -55,11 +55,12 @@ jobs:
               fi
             else
               if [ -z "true" ]; then
-                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git
+                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git \
+                    "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
               else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git
+                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git \
+                    "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
               fi
-              mv $repository "$(tutor config printroot)/env/build/openedx/requirements/myprivaterepo"
               echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
             fi
             let COUNTER=COUNTER+1
