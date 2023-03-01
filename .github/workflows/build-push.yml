@@ -68,7 +68,7 @@ jobs:
               # mv $repository "$(tutor config printroot)/env/build/openedx/requirements/"$repository"
               # echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
             fi
-            let COUNTER++
+            let COUNTER=COUNTER+1
             echo "Cloned "$repository" repository successfully."
           done
 
