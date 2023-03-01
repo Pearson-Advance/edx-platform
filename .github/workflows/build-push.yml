@@ -40,8 +40,8 @@ jobs:
 
       - name: Install extra requirements
         run: |
-          extra-requirements="false"
-          if [ $extra-requirements == false ]; then
+          requirements="false"
+          if [ $requirements == false ]; then
             eccho "No extra requirements to be installed"
           else
             repositories=${{ secrets.REPOSITORIES }}
@@ -55,8 +55,8 @@ jobs:
 
       - name: Install themes
         run: |
-          theme-repository="false"
-          if [ $theme-repository == false ]; then
+          theme="false"
+          if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
             git clone https://github.com/Pearson-Advanced/openedx-themes.git \
