@@ -47,23 +47,23 @@ jobs:
           for repository in "${repositories[@]}"; do
             if [ $repository == $themes ]; then
               if [ "true" ]; then
-                  git clone https://github.com/${owners[$COUNTER]}/$repository.git # \
+                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git # \
                     # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git # \
+                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git # \
                     # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
               fi
             else
               if [ "true" ]; then
-                  git clone https://github.com/${owners[$COUNTER]}/$repository.git
+                  git clone https://github.com/"${owners[$COUNTER]}"/"$repository".git
               else
-                  git clone https://${{ secrets.GH_PAT }}@github.com/${owners[$COUNTER]}/$repository.git
+                  git clone https://${{ secrets.GH_PAT }}@github.com/"${owners[$COUNTER]}"/"$repository".git
               fi
-              # mv $repository "$(tutor config printroot)/env/build/openedx/requirements/$repository"
+              # mv $repository "$(tutor config printroot)/env/build/openedx/requirements/"$repository"
               # echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
             fi
             let COUNTER++
-            echo "Cloned $repository repository successfully."
+            echo "Cloned "$repository" repository successfully."
           done
 
 
