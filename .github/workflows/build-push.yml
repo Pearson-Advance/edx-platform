@@ -42,7 +42,7 @@ jobs:
         run: |
           requirements="false"
           if [ $requirements == false ]; then
-            eccho "No extra requirements to be installed"
+            echo "No extra requirements to be installed"
           else
             repositories=${{ secrets.REPOSITORIES }}
             for repository in "${repositories[@]}"; do
