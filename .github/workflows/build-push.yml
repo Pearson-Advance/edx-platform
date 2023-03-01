@@ -50,6 +50,7 @@ jobs:
             else
               echo "Dos"
             fi
+            let COUNTER=COUNTER+1
             echo "Cloned "$repository" repository successfully."
           done
 
