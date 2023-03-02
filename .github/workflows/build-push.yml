@@ -44,6 +44,7 @@ jobs:
         run: |
           # repositores is an array that contains private repositories.
           pip install jq
+          jq --version
           echo ${{ vars.REPOSITORIES }} > file.json
           # repositories=${{ vars.REPOSITORIES }}
           amount=$(jq '.amount' file.json)
