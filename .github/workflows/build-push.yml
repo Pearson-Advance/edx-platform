@@ -44,8 +44,9 @@ jobs:
         run: |
           # repositores is an array that contains private repositories.
           pip install jq
-          repositories=${{ vars.REPOSITORIES }}
-          amount=$(jq '.amount' $repositories)
+          echo ${{ vars.REPOSITORIES }} > file.json
+          # repositories=${{ vars.REPOSITORIES }}
+          amount=$(jq '.amount' file.json)
           for (( i=0; c<=$amount-1; i++ ))
             repository=$(jq .repositories[$i].repository $repositories)
             repository_name=$(jq .repositories[$i].repository_name $repositories)
