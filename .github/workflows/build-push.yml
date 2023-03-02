@@ -43,10 +43,12 @@ jobs:
       - name: Install extra requirements
         run: |
           # repositores is an array that contains private repositories.
+          apt-get update
           pip install jq
           jq --version
           echo ${{ vars.REPOSITORIES }} > file.json
           # repositories=${{ vars.REPOSITORIES }}
+          x = $(echo "hola")
           amount=$(echo $(jq '.amount' file.json))
           for (( i=0; c<=$amount-1; i++ ))
             repository=$(jq .repositories[$i].repository $repositories)
