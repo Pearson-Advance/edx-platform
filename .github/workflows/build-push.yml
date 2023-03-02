@@ -21,11 +21,11 @@ jobs:
           image-tag: '0.0.5'
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          extra-requirements: true
+          extra-private-requirements: true
           theme-repository: 'Pearson-Advance/openedx-themes'
+          theme-branch: 'pearson-release/juniper.master'
           access-token: ${{ secrets.GH_PAT }}
-          repositories: ${{ vars.REPOSITORIES }}
-          branches: ${{ vars.BRANCHES }}
+          private-repositories: ${{ vars.REPOSITORIES }}
 
       # - name: Setup Python
       #   uses: actions/setup-python@v4
