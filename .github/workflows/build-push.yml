@@ -10,53 +10,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # - name: Build Image
-      #   uses: pearson-advance/tutor-build-image-action@0.0.4.alpha
-      #   with:
-      #     python-version: '3.8'
-      #     tutor-version: '15.3.0'
-      #     repository-name: 'pearsonopenedxops'
-      #     image-to-be-built: 'openedx'
-      #     image-name: 'tutor-test'
-      #     image-tag: '0.0.5'
-      #     docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-      #     extra-private-requirements: true
-      #     theme-repository: 'Pearson-Advance/openedx-themes'
-      #     theme-branch: 'pearson-release/juniper.master'
-      #     access-token: ${{ secrets.GH_PAT }}
-      #     private-repositories: ${{ vars.REPOSITORIES }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Build Image
+        uses: pearson-advance/tutor-build-image-action@0.0.1.alpha
         with:
           python-version: '3.8'
+          tutor-version: '15.3.0'
+          repository-name: 'pearsonopenedxops'
+          image-to-be-built: 'openedx'
+          image-name: 'tutor-test'
+          image-tag: '0.0.6'
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          extra-private-requirements: true
+          theme-repository: 'Pearson-Advance/openedx-themes'
+          theme-branch: 'pearson-release/juniper.master'
+          gh-access-token: ${{ secrets.GH_PAT }}
+          private-repositories: ${{ vars.REPOSITORIES }}
 
-      - name: Create and activate the env
-        run: |
-          python -m venv venv
-          source venv/bin/activate
+      # - name: Setup Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.8'
 
-      - name: Install Tutor
-        run: pip install tutor=='15.3.0'
+      # - name: Create and activate the env
+      #   run: |
+      #     python -m venv venv
+      #     source venv/bin/activate
 
-      - name: Install extra requirements
-        run: |
-          # repositores is an array that contains private repositories.
-          pip install jq
-          jq --version
-          echo ${{ vars.REPOSITORIES }} > file.json
-          # repositories=${{ vars.REPOSITORIES }}
-          x = $(echo "hola")
-          amount=$(echo $(jq '.amount' file.json))
-          for (( i=0; c<=$amount-1; i++ ))
-            repository=$(jq .repositories[$i].repository $repositories)
-            repository_name=$(jq .repositories[$i].repository_name $repositories)
-            branch=$(jq .repositories[$i].target_branch $repositories)
-            git clone -b $branch https://${{ inputs.access-token }}@github.com/$repository.git \
-              "$(tutor config printroot)/env/build/openedx/requirements/$repository_name"
-            echo "-e ./$repository_name" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
-          done
+      # - name: Install Tutor
+      #   run: pip install tutor=='15.3.0'
+
+      # - name: Install extra requirements
+      #   run: |
+      #     # repositores is an array that contains private repositories.
+      #     pip install jq
+      #     jq --version
+      #     echo ${{ vars.REPOSITORIES }} > file.json
+      #     # repositories=${{ vars.REPOSITORIES }}
+      #     x = $(echo "hola")
+      #     amount=$(echo $(jq '.amount' file.json))
+      #     for (( i=0; c<=$amount-1; i++ ))
+      #       repository=$(jq .repositories[$i].repository $repositories)
+      #       repository_name=$(jq .repositories[$i].repository_name $repositories)
+      #       branch=$(jq .repositories[$i].target_branch $repositories)
+      #       git clone -b $branch https://${{ inputs.access-token }}@github.com/$repository.git \
+      #         "$(tutor config printroot)/env/build/openedx/requirements/$repository_name"
+      #       echo "-e ./$repository_name" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
+      #     done
 
 
       # - name: Install extra requirements
