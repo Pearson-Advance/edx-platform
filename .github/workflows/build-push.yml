@@ -22,7 +22,7 @@ jobs:
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
           extra-private-requirements: true
-          theme-repository: 'Pearson-Advance/openedx-themes'
+          theme-repository: 'https://github.com/Pearson-Advance/openedx-themes.git'
           theme-branch: 'pearson-release/juniper.master'
           gh-access-token: ${{ secrets.GH_PAT }}
           private-repositories: ${{ vars.REPOSITORIES }}
