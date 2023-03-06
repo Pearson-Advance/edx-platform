@@ -80,12 +80,12 @@ jobs:
           if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
-            git clone https://github.com/$repo.git \
-              "$(tutor config printroot)/env/build/openedx/themes/"
-            #mv $(tutor config printroot)/env/build/openedx/themes/myopenedxtheme .
-            ln -s $(tutor config printroot)/env/build/openedx/themes/openedx-theme/edx-platform \
-              $(tutor config printroot)/env/build/openedx/themes/
-            ls -la $(tutor config printroot)/env/build/openedx/
+            git clone https://github.com/$repo.git
+            mkdir -p $(tutor config printroot)/env/build/openedx/themes/
+            mv openedx-theme/edx-platform $(tutor config printroot)/env/build/openedx/themes/
+            # ln -s $(tutor config printroot)/env/build/openedx/themes/openedx-theme/edx-platform \
+            #   $(tutor config printroot)/env/build/openedx/themes/
+            ls -la $(tutor config printroot)/env/build/openedx/thmes
           fi
 
       - name: Render Tutor Templates
