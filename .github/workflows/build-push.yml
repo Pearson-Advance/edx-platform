@@ -80,7 +80,7 @@ jobs:
           if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
-            ls $(tutor config printroot)/env/build/openedx
+            ls $(tutor config printroot)/env/build/
             git clone https://github.com/$repo.git
             ln -s openedx-themes/edx-platform $(tutor config printroot)/env/build/openedx/themes/
             # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
