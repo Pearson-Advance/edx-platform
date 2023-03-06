@@ -10,36 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Build Image
-        uses: pearson-advance/tutor-build-image-action@0.0.11.alpha
-        with:
-          python-version: '3.8'
-          tutor-version: '15.3.0'
-          repository-name: 'pearsonopenedxops'
-          image-to-be-built: 'openedx'
-          image-name: 'tutor-test'
-          image-tag: '0.0.6'
-          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
-          docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          extra-private-requirements: true
-          theme-repository: 'Pearson-Advance/openedx-themes'
-          theme-branch: 'pearson-release/juniper.master'
-          gh-access-token: ${{ secrets.GH_PAT }}
-          private-repositories: ${{ vars.REPOSITORIES }}
-          branches: ${{ vars.BRANCHES }}
-
-      # - name: Setup Python
-      #   uses: actions/setup-python@v4
+      # - name: Build Image
+      #   uses: pearson-advance/tutor-build-image-action@0.0.11.alpha
       #   with:
       #     python-version: '3.8'
+      #     tutor-version: '15.3.0'
+      #     repository-name: 'pearsonopenedxops'
+      #     image-to-be-built: 'openedx'
+      #     image-name: 'tutor-test'
+      #     image-tag: '0.0.6'
+      #     docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
+      #     extra-private-requirements: true
+      #     theme-repository: 'Pearson-Advance/openedx-themes'
+      #     theme-branch: 'pearson-release/juniper.master'
+      #     gh-access-token: ${{ secrets.GH_PAT }}
+      #     private-repositories: ${{ vars.REPOSITORIES }}
+      #     branches: ${{ vars.BRANCHES }}
 
-      # - name: Create and activate the env
-      #   run: |
-      #     python -m venv venv
-      #     source venv/bin/activate
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
 
-      # - name: Install Tutor
-      #   run: pip install tutor=='15.3.0'
+      - name: Create and activate the env
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install Tutor
+        run: pip install tutor=='15.3.0'
 
       # - name: Install extra requirements
       #   run: |
@@ -73,24 +73,25 @@ jobs:
       #         let COUNTER=COUNTER+1
       #       done
 
-      # - name: Install themes
-      #   run: |
-      #     theme="true"
-      #     repo="Pearson-Advance/openedx-themes"
-      #     if [ $theme == false ]; then
-      #       echo "No theme repository to be cloned"
-      #     else
-      #       git clone https://github.com/$repo.git \
-      #         "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
-      #     fi
+      - name: Install themes
+        run: |
+          theme="true"
+          repo="Pearson-Advance/openedx-themes"
+          if [ $theme == false ]; then
+            echo "No theme repository to be cloned"
+          else
+            git clone https://github.com/$repo.git
+            ln -s openedx-themes/edx-platform "$(tutor config printroot)/env/build/openedx/themes/"
+            # "$(tutor config printroot)/env/build/openedx/themes/myopenedxtheme"
+          fi
 
-      # - name: Render Tutor Templates
-      #   run: tutor config save
+      - name: Render Tutor Templates
+        run: tutor config save
 
-      # - name: Build image
-      #   run: |
-      #     tutor images build openedx \
-      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
+      - name: Build image
+        run: |
+          tutor images build openedx \
+              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
 
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v2
