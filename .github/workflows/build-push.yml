@@ -73,19 +73,19 @@ jobs:
       #         let COUNTER=COUNTER+1
       #       done
 
-      - name: Install themes
-        run: |
-          theme="true"
-          repo="Pearson-Advance/openedx-themes"
-          if [ $theme == false ]; then
-            echo "No theme repository to be cloned"
-          else
-            themes_path="$(tutor config printroot)/env/build/openedx/themes"
-            mkdir -p $themes_path
-            git clone https://github.com/$repo.git
-            cd openedx-themes/edx-platform
-            mv * $themes_path
-          fi
+      # - name: Install themes
+      #   run: |
+      #     theme="true"
+      #     repo="Pearson-Advance/openedx-themes"
+      #     if [ $theme == false ]; then
+      #       echo "No theme repository to be cloned"
+      #     else
+      #       themes_path="$(tutor config printroot)/env/build/openedx/themes"
+      #       mkdir -p $themes_path
+      #       git clone https://github.com/$repo.git
+      #       cd openedx-themes/edx-platform
+      #       mv * $themes_path
+      #     fi
 
       - name: Render Tutor Templates
         run: tutor config save
