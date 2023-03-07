@@ -107,7 +107,7 @@ jobs:
           context: /home/runner/.local/share/tutor/env/build/
           push: true
           tags: "pearsonopenedxops/tutor-test:0.0.4"
-          no-cache: 'false'
+          no-cache: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
