@@ -82,7 +82,7 @@ jobs:
           else
             git clone https://github.com/$repo.git
             cd openedx-themes/edx-platform
-            mv pearson* $(tutor config printroot)/env/build/openedx/themes/
+            mv pearson* $(tutor config printroot)/env/build/openedx/themes
             rm -rf openedx-theme
           fi
 
