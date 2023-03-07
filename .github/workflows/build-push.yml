@@ -107,7 +107,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: /home/runner/.local/share/tutor/env/build/
+          context: /home/runner/.local/share/tutor/env/build/openedx
           push: true
           tags: "pearsonopenedxops/tutor-test:0.0.4"
           no-cache: 'false'
