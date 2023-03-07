@@ -80,12 +80,11 @@ jobs:
           if [ $theme == false ]; then
             echo "No theme repository to be cloned"
           else
-            git clone https://github.com/$repo.git
             themes_path="$(tutor config printroot)/env/build/openedx/themes"
             mkdir -p $themes_path
+            git clone https://github.com/$repo.git
             cd openedx-themes/edx-platform
-            mv pearson* themes_path
-            rm -rf openedx-theme
+            mv * $themes_path
           fi
 
       - name: Render Tutor Templates
