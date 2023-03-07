@@ -90,16 +90,26 @@ jobs:
       - name: Render Tutor Templates
         run: tutor config save
 
-      - name: Build image
-        run: |
-          tutor images build openedx \
-              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
+      # - name: Build image
+      #   run: |
+      #     tutor images build openedx \
+      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: /home/runner/.local/share/tutor/env/build/
+          push: true
+          tags: "pearsonopenedxops/tutor-test:0.0.4"
+          no-cache: 'false'
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # - name: Push image to DockerHub
       #   run: docker push pearsonopenedxops/tutor-test:0.0.4
