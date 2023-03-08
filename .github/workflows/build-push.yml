@@ -64,6 +64,7 @@ jobs:
 
       - name: Install extra requirements
         run: |
+            source venv/bin/activate
             repositories=${{ vars.REPOSITORIES }}
             branches=${{ vars.BRANCHES }}
             COUNTER=0
@@ -77,6 +78,7 @@ jobs:
 
       - name: Install themes
         run: |
+          source venv/bin/activate
           theme="true"
           repo="Pearson-Advance/openedx-themes"
           if [ $theme == false ]; then
@@ -88,10 +90,11 @@ jobs:
             mv * $themes_path
           fi
 
-      # - name: Build image
-      #   run: |
-      #     tutor images build openedx \
-      #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
+      - name: Build image
+        run: |
+          source venv/bin/activate
+          tutor images build openedx \
+              --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
 
       # - name: Setup buildx
       #   uses: docker/setup-buildx-action@v2
