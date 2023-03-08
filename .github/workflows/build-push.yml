@@ -59,60 +59,58 @@ jobs:
       #       echo "-e ./$repository_name" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
       #     done
 
-
-      # - name: Install extra requirements
-      #   run: |
-      #       repositories=${{ vars.REPOSITORIES }}
-      #       branches=${{ vars.BRANCHES }}
-      #       COUNTER=0
-      #       for repository in "${repositories[@]}"; do
-      #         git clone -b ${branches[$COUNTER]} https://${{ secrets.GH_PAT }}@github.com/Pearson-Advance/$repository.git \
-      #           "$(tutor config printroot)/env/build/openedx/requirements/$repository"
-      #         echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
-      #         echo "Cloned "$repository" repository successfully."
-      #         let COUNTER=COUNTER+1
-      #       done
-
-      # - name: Install themes
-      #   run: |
-      #     theme="true"
-      #     repo="Pearson-Advance/openedx-themes"
-      #     if [ $theme == false ]; then
-      #       echo "No theme repository to be cloned"
-      #     else
-      #       themes_path="$(tutor config printroot)/env/build/openedx/themes"
-      #       mkdir -p $themes_path
-      #       git clone https://github.com/$repo.git
-      #       cd openedx-themes/edx-platform
-      #       mv * $themes_path
-      #     fi
-
       - name: Render Tutor Templates
         run: tutor config save
+
+      - name: Install extra requirements
+        run: |
+            repositories=${{ vars.REPOSITORIES }}
+            branches=${{ vars.BRANCHES }}
+            COUNTER=0
+            for repository in "${repositories[@]}"; do
+              git clone -b ${branches[$COUNTER]} https://${{ secrets.GH_PAT }}@github.com/Pearson-Advance/$repository.git \
+                "$(tutor config printroot)/env/build/openedx/requirements/$repository"
+              echo "-e ./$repository" >> "$(tutor config printroot)/env/build/openedx/requirements/private.txt"
+              echo "Cloned "$repository" repository successfully."
+              let COUNTER=COUNTER+1
+            done
+
+      - name: Install themes
+        run: |
+          theme="true"
+          repo="Pearson-Advance/openedx-themes"
+          if [ $theme == false ]; then
+            echo "No theme repository to be cloned"
+          else
+            themes_path="$(tutor config printroot)/env/build/openedx/themes"
+            git clone https://github.com/$repo.git
+            cd openedx-themes/edx-platform
+            mv * $themes_path
+          fi
 
       # - name: Build image
       #   run: |
       #     tutor images build openedx \
       #         --docker-arg --tag="pearsonopenedxops/tutor-test:0.0.4"
 
-      - name: Setup buildx
-        uses: docker/setup-buildx-action@v2
+      # - name: Setup buildx
+      #   uses: docker/setup-buildx-action@v2
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          context: /home/runner/.local/share/tutor/env/build/openedx
-          push: true
-          tags: "pearsonopenedxops/tutor-test:0.0.4"
-          no-cache: 'false'
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build and push
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: /home/runner/.local/share/tutor/env/build/openedx
+      #     push: true
+      #     tags: "pearsonopenedxops/tutor-test:0.0.4"
+      #     no-cache: 'false'
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       # - name: Push image to DockerHub
       #   run: docker push pearsonopenedxops/tutor-test:0.0.4
