@@ -16,9 +16,9 @@ jobs:
           python-version: ${{ vars.BUILD_PYTHON_VERSION }}
           tutor-version: ${{ vars.BUILD_TUTOR_VERSION }}
           path-image-to-be-built: '/env/build/openedx'
-          repository-name: ${{ vars.BUILD_REPOSITORY_NAME }}
-          image-name: ${{ vars.BUILD_IMAGE_NAME }}
-          image-tag: ${{ vars.BUILD_IMAGE_TAG }}
+          repository-name: ${{ vars.BUILD_STAGE_REPOSITORY_NAME }}
+          image-name: ${{ vars.BUILD_STAGE_IMAGE_NAME }}
+          image-tag: ${{ vars.BUILD_STAGE_IMAGE_TAG }}
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
           no-docker-cache: true
