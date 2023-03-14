@@ -10,20 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Build Image
+      - name: Build and push Image
         uses: Pearson-Advance/tutor-build-image-action@vue/PADV-328
         with:
-          python-version: ${{ vars.PYTHON_VERSION }}
-          tutor-version: ${{ vars.TUTOR_VERSION }}
+          python-version: ${{ vars.BUILD_PYTHON_VERSION }}
+          tutor-version: ${{ vars.BUILD_TUTOR_VERSION }}
           path-image-to-be-built: '/env/build/openedx'
-          repository-name: ${{ vars.REPOSITORY_NAME }}
-          image-name: "name"
-          image-tag: "tag"
+          repository-name: ${{ vars.BUILD_REPOSITORY_NAME }}
+          image-name: ${{ vars.BUILD_IMAGE_NAME }}
+          image-tag: ${{ vars.BUILD_IMAGE_TAG }}
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
           no-docker-cache: true
           gh-access-token: ${{ secrets.GH_PAT }}
           extra-private-requirements: true
-          private-repositories: ${{ vars.PRIVATE_REPOSITORIES }}
-          branches: ${{ vars.branches }}
+          private-repositories: ${{ vars.BUILD_PRIVATE_REPOSITORIES }}
+          branches: ${{ vars.BUILD_BRANCHES }}
           install-tutor-pearson-plugin: true
