@@ -26,6 +26,5 @@ jobs:
           extra-private-requirements: true
           private-repositories: ${{ vars.BUILD_PRIVATE_REPOSITORIES }}
           branches: ${{ vars.BUILD_BRANCHES }}
-          install-tutor-plugins: true
-          tutor-plugins-array: ("tutor-pearson-plugin")
+          private-tutor-plugins: ("tutor-pearson-plugin")
           tutor-plugins-to-enable: ("pearson-plugin")
