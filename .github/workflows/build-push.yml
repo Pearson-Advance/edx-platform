@@ -13,11 +13,12 @@ jobs:
       - name: Build Image
         uses: Pearson-Advance/tutor-build-image-action@vue/PADV-328
         with:
-          tutor-version: '15.3.0'
+          python-version: ${{ vars.PYTHON_VERSION }}
+          tutor-version: ${{ vars.TUTOR_VERSION }}
           path-image-to-be-built: '/env/build/openedx'
           repository-name: ${{ vars.REPOSITORY_NAME }}
-          image-name: "example-image"
-          image-tag: "example-tag"
+          image-name: "name"
+          image-tag: "tag"
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
           no-docker-cache: true
