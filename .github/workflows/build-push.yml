@@ -27,4 +27,4 @@ jobs:
           private-repositories: ${{ vars.BUILD_PRIVATE_REPOSITORIES }}
           branches: ${{ vars.BUILD_BRANCHES }}
           private-tutor-plugins: ("tutor-pearson-plugin")
-          tutor-plugins-to-enable: ("pearson-plugin")
+          plugin-names: ("pearson-plugin")
