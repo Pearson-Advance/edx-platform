@@ -13,8 +13,7 @@ jobs:
       - name: Build Image
         uses: Pearson-Advance/tutor-build-image-action@vue/PADV-328
         with:
-          python-version: ${{ vars.PYTHON_VERSION }}
-          tutor-version: ${{ vars.TUTOR_VERSION }}
+          tutor-version: '15.3.0'
           path-image-to-be-built: '/env/build/openedx'
           repository-name: ${{ vars.REPOSITORY_NAME }}
           image-name: "example-image"
