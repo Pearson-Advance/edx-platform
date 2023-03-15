@@ -1,14 +1,20 @@
-name: Tutor Build Action Test
+name: Tutor Build Action
 
 on:
   push:
     branches:
-      - 'vue/PADV-328'
+      - 'pearson-release/olive.stage'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+
+      - name: Get current time
+        uses: josStorer/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DD
 
       - name: Build and push Image
         uses: Pearson-Advance/tutor-build-image-action@vue/PADV-328
@@ -18,13 +24,12 @@ jobs:
           path-image-to-be-built: '/env/build/openedx'
           repository-name: ${{ vars.BUILD_STAGE_REPOSITORY_NAME }}
           image-name: ${{ vars.BUILD_STAGE_IMAGE_NAME }}
-          image-tag: ${{ vars.BUILD_STAGE_IMAGE_TAG }}
+          image-tag: ${{ vars.BUILD_TUTOR_VERSION }}-RC-${{ steps.current-time.outputs.formattedTime }}
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          no-docker-cache: true
+          no-docker-cache: false
           gh-access-token: ${{ secrets.GH_PAT }}
           extra-private-requirements: true
           private-repositories: ${{ vars.BUILD_PRIVATE_REPOSITORIES }}
           branches: ${{ vars.BUILD_BRANCHES }}
-          private-tutor-plugins: ("tutor-pearson-plugin")
-          plugin-names: ("pearson-plugin")
+          tutor-pearson-plugin-url: ${{ secrets.TUTOR_PEARSON_PLUGIN_URL }}
