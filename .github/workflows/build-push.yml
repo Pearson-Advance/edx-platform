@@ -3,7 +3,7 @@ name: Tutor Build Action
 on:
   push:
     branches:
-      - 'pearson-release/olive.stage'
+      - 'vue/PADV-328'
 
 jobs:
   docker:
