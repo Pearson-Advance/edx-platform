@@ -32,4 +32,4 @@ jobs:
           extra-private-requirements: true
           private-repositories: ${{ vars.BUILD_PRIVATE_REPOSITORIES }}
           branches: ${{ vars.BUILD_BRANCHES }}
-          tutor-pearson-plugin-url: ${{ secrets.TUTOR_PEARSON_PLUGIN_URL }}
+          tutor-pearson-plugin-url: ${{ vars.TUTOR_PEARSON_PLUGIN_URL }}
