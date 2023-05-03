@@ -22,7 +22,7 @@ jobs:
           python-version: ${{ vars.BUILD_PYTHON_VERSION }}
           tutor-version: ${{ vars.BUILD_TUTOR_VERSION }}
           path-image-to-be-built: 'env/build/openedx'
-          organization-name: ${{ vars.BUILD_ORGANIZATION_NAME }}
+          space-name: ${{ vars.BUILD_ORGANIZATION_NAME }}
           repository-name: ${{ vars.BUILD_REPOSITORY_NAME }}
           image-tag: ${{ vars.BUILD_TUTOR_VERSION }}-${{ steps.current-time.outputs.formattedTime }}
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
