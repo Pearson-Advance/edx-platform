@@ -3,7 +3,7 @@ name: Tutor Build Action
 on:
   push:
     branches:
-      - 'pearson-release/olive.main'
+      - 'vue/PADV-377.1.test'
 
 jobs:
   Build:
@@ -17,7 +17,7 @@ jobs:
           format: YYYY-MM-DD-HH-mm
 
       - name: Build and push Image
-        uses: Pearson-Advance/tutor-build-image-action@v1.0.0
+        uses: Pearson-Advance/tutor-build-image-action@vue/PADV-377.1.test
         with:
           python-version: ${{ vars.BUILD_PYTHON_VERSION }}
           tutor-version: ${{ vars.BUILD_TUTOR_VERSION }}
