@@ -947,3 +947,11 @@ plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.LMS, plugin_c
 ########################## Derive Any Derived Settings  #######################
 
 derive_settings(__name__)
+
+from sentry_sdk import init, capture_message
+
+sentry_dns = ENV_TOKENS.get('EDXAPP_SENTRY_INTEGRATION_DSN_LMS')
+
+if sentry_dns:
+    init(sentry_dns)
+    capture_message('Sentry integration - LMS')
