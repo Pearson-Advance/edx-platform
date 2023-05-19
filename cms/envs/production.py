@@ -556,3 +556,11 @@ MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB = ENV_TOKENS.get(
     'MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB',
     MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB
 )
+
+from sentry_sdk import init, capture_message
+
+sentry_dns = ENV_TOKENS.get('EDXAPP_SENTRY_INTEGRATION_DSN_CMS')
+
+if sentry_dns:
+    init(sentry_dns)
+    capture_message('Sentry integration - CMS')
