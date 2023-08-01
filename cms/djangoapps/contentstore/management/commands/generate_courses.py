@@ -30,14 +30,24 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        try:
-            courses = json.loads(options["courses_json"])["courses"]
-        except ValueError:
-            raise CommandError("Invalid JSON object")  # lint-amnesty, pylint: disable=raise-missing-from
-        except KeyError:
-            raise CommandError("JSON object is missing courses list")  # lint-amnesty, pylint: disable=raise-missing-from
 
-        for course_settings in courses:
+        courses = int(options["courses_json"])
+
+        for e in range(1, courses+1):
+            number = str(e)
+            course_settings ={
+                "organization": "PX",
+                "number": number,
+                "run": "2023",
+                "user": "edx@example.com",
+                "fields": {
+                    "display_name": "Master Course " + number,
+                    "enrollment_start": "2023-01-01",
+                    "enrollment_end": "2030-01-01",
+                    "start": "2023-01-01",
+                    "end": "2030-01-01",
+                },
+            }
             # Validate course
             if not self._course_is_valid(course_settings):
                 logger.warning("Can't create course, proceeding to next course")
