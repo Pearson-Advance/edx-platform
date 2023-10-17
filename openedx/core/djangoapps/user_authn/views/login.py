@@ -313,8 +313,10 @@ def _handle_successful_authentication_and_login(user, request):
 
     try:
         django_login(request, user)
-        request.session.set_expiry(604800 * 4)
-        log.debug("Setting user session expiry to 4 weeks")
+
+        seconds_to_expire = settings.SESSION_EXPIRY_SECONDS
+        request.session.set_expiry(seconds_to_expire)
+        log.debug("Setting user session expiry to {} seconds".format(seconds_to_expire))
 
         # .. event_implemented_name: SESSION_LOGIN_COMPLETED
         SESSION_LOGIN_COMPLETED.send_event(

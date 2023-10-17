@@ -3718,6 +3718,13 @@ ORA2_FILE_PREFIX = None
 FILE_UPLOAD_STORAGE_BUCKET_NAME = 'SET-ME-PLEASE (ex. bucket-name)'
 FILE_UPLOAD_STORAGE_PREFIX = 'submissions_attachments'
 
+##### SESSION EXPIRATION TIME #####
+# .. setting_name: SESSION_EXPIRY_SECONDS
+# .. setting_default: 604800 * 4
+# .. setting_description: Specifies the expiration duration for session users.
+SESSION_EXPIRY_SECONDS = 604800 * 4
+
+
 ##### ACCOUNT LOCKOUT DEFAULT PARAMETERS #####
 # .. setting_name: MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED
 # .. setting_default: 6
