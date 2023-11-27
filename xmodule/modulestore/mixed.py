@@ -19,7 +19,7 @@ from openedx_events.content_authoring.signals import (
     XBLOCK_CREATED,
     XBLOCK_DELETED,
     XBLOCK_PUBLISHED,
-    XBLOCK_UPDATED
+    XBLOCK_UPDATED,
 )
 
 from django.utils.timezone import datetime, timezone

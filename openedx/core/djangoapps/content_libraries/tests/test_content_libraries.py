@@ -501,8 +501,9 @@ class ContentLibrariesTestMixin:
             assert len(self._get_library_blocks(lib['id'], {'text_search': 'Video'})) == 1
             assert len(self._get_library_blocks(lib['id'], {'text_search': 'Foo', 'block_type': 'video'})) == 0
             assert len(self._get_library_blocks(lib['id'], {'text_search': 'Baz', 'block_type': 'video'})) == 1
-            assert len(self._get_library_blocks(lib['id'], {'text_search': 'Baz', 'block_type': ['video', 'html']})) ==\
-                2
+            assert len(
+                self._get_library_blocks(lib['id'],{'text_search': 'Baz', 'block_type': ['video', 'html']})
+            ) == 2
             assert len(self._get_library_blocks(lib['id'], {'block_type': 'video'})) == 1
             assert len(self._get_library_blocks(lib['id'], {'block_type': 'problem'})) == 3
             assert len(self._get_library_blocks(lib['id'], {'block_type': 'squirrel'})) == 0
@@ -955,7 +956,12 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         CONTENT_LIBRARY_CREATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_event_create", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_event_create",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         library_key = LibraryLocatorV2.from_string(lib['id'])
 
         event_receiver.assert_called_once()
@@ -977,8 +983,12 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         CONTENT_LIBRARY_UPDATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_event_update", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
 
+        lib = self._create_library(
+            slug="test_lib_event_update",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib2 = self._update_library(lib["id"], title="New Title")
         library_key = LibraryLocatorV2.from_string(lib2['id'])
 
@@ -1001,7 +1011,12 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         CONTENT_LIBRARY_DELETED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_event_delete", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_event_delete",
+            title="Event Test Library",
+            description="Testing event in library"
+            )
         library_key = LibraryLocatorV2.from_string(lib['id'])
 
         self._delete_library(lib["id"])
@@ -1025,10 +1040,14 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_CREATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_create", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_block_event_create",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
         self._add_block_to_library(lib_id, "problem", "problem1")
-
         library_key = LibraryLocatorV2.from_string(lib_id)
         usage_key = LibraryUsageLocatorV2(
             lib_key=library_key,
@@ -1055,11 +1074,14 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_UPDATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_olx_update", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_block_event_olx_update",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
-
         library_key = LibraryLocatorV2.from_string(lib_id)
-
         block = self._add_block_to_library(lib_id, "problem", "problem1")
         block_id = block["id"]
         usage_key = LibraryUsageLocatorV2(
@@ -1067,7 +1089,6 @@ class ContentLibrariesTestMixin:
             block_type="problem",
             usage_id="problem1"
         )
-
         new_olx = """
         <problem display_name="New Multi Choice Question" max_attempts="5">
             <multiplechoiceresponse>
@@ -1082,7 +1103,6 @@ class ContentLibrariesTestMixin:
             </multiplechoiceresponse>
         </problem>
         """.strip()
-
         self._set_library_block_olx(block_id, new_olx)
 
         event_receiver.assert_called_once()
@@ -1104,16 +1124,17 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_UPDATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_child_update", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_block_event_child_update",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
-
         library_key = LibraryLocatorV2.from_string(lib_id)
-
         parent_block = self._add_block_to_library(lib_id, "unit", "u1")
         parent_block_id = parent_block["id"]
-
         self._add_block_to_library(lib["id"], "problem", "problem1", parent_block=parent_block_id)
-
         usage_key = LibraryUsageLocatorV2(
             lib_key=library_key,
             block_type="problem",
@@ -1139,15 +1160,17 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_UPDATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_add_asset_update", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_block_event_add_asset_update",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
-
         library_key = LibraryLocatorV2.from_string(lib_id)
-
         block = self._add_block_to_library(lib_id, "unit", "u1")
         block_id = block["id"]
         self._set_library_block_asset(block_id, "test.txt", b"data")
-
         usage_key = LibraryUsageLocatorV2(
             lib_key=library_key,
             block_type="unit",
@@ -1173,17 +1196,18 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_UPDATED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_del_asset_update", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
+
+        lib = self._create_library(
+            slug="test_lib_block_event_del_asset_update",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
-
         library_key = LibraryLocatorV2.from_string(lib_id)
-
         block = self._add_block_to_library(lib_id, "unit", "u1")
         block_id = block["id"]
         self._set_library_block_asset(block_id, "test.txt", b"data")
-
         self._delete_library_block_asset(block_id, 'text.txt')
-
         usage_key = LibraryUsageLocatorV2(
             lib_key=library_key,
             block_type="unit",
@@ -1209,20 +1233,21 @@ class ContentLibrariesTestMixin:
         """
         event_receiver = Mock()
         LIBRARY_BLOCK_DELETED.connect(event_receiver)
-        lib = self._create_library(slug="test_lib_block_event_delete", title="Event Test Library", description="Testing event in library")  # lint-amnesty, pylint: disable=line-too-long
 
+        lib = self._create_library(
+            slug="test_lib_block_event_delete",
+            title="Event Test Library",
+            description="Testing event in library"
+        )
         lib_id = lib["id"]
         library_key = LibraryLocatorV2.from_string(lib_id)
-
         block = self._add_block_to_library(lib_id, "problem", "problem1")
         block_id = block['id']
-
         usage_key = LibraryUsageLocatorV2(
             lib_key=library_key,
             block_type="problem",
             usage_id="problem1"
         )
-
         self._delete_library_block(block_id)
 
         event_receiver.assert_called()

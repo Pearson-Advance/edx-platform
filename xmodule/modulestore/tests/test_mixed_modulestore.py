@@ -21,7 +21,7 @@ from openedx_events.content_authoring.signals import (
     XBLOCK_CREATED,
     XBLOCK_DELETED,
     XBLOCK_PUBLISHED,
-    XBLOCK_UPDATED
+    XBLOCK_UPDATED,
 )
 import pymongo
 import pytest
@@ -493,10 +493,13 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
 
         items = self.store.get_items(course_key)
         # Check items found are either course or about type
-        assert {'course', 'about'}.issubset({item.location.block_type for item in items})  # pylint: disable=line-too-long
+        assert {'course', 'about'}.issubset(
+            {item.location.block_type for item in items}
+            )
         # Assert that about is a detached category found in get_items
-        assert [item.location.block_type for item in items if item.location.block_type == 'about'][0]\
-            in DETACHED_XBLOCK_TYPES
+        assert [
+            item.location.block_type for item in items if item.location.block_type == 'about'
+            ][0] in DETACHED_XBLOCK_TYPES
         assert len(items) == 2
 
         # Check that orphans are not found
@@ -745,14 +748,12 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         Check that COURSE_CREATED event is sent when a course is created.
         """
         self.initdb(default_ms)
-
         event_receiver = Mock()
-        COURSE_CREATED.connect(event_receiver)
 
+        COURSE_CREATED.connect(event_receiver)
         test_course = self.store.create_course('test_org', 'test_course', 'test_run', self.user_id)
 
         event_receiver.assert_called()
-
         self.assertDictContainsSubset(
             {
                 "signal": COURSE_CREATED,
@@ -770,17 +771,14 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         Check that XBLOCK_CREATED event is sent when xblock is created.
         """
         self.initdb(default_ms)
-
         event_receiver = Mock()
+
         XBLOCK_CREATED.connect(event_receiver)
-
         test_course = self.store.create_course('test_org', 'test_course', 'test_run', self.user_id)
-
         # create sequential to test against
         sequential = self.store.create_child(self.user_id, test_course.location, 'sequential', 'test_sequential')
 
         event_receiver.assert_called()
-
         assert event_receiver.call_args.kwargs['signal'] == XBLOCK_CREATED
         assert event_receiver.call_args.kwargs['xblock_info'].usage_key == sequential.location
         assert event_receiver.call_args.kwargs['xblock_info'].block_type == sequential.location.block_type
@@ -792,21 +790,17 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         Check that XBLOCK_UPDATED event is sent when xblock is updated.
         """
         self.initdb(default_ms)
-
         event_receiver = Mock()
+
         XBLOCK_UPDATED.connect(event_receiver)
-
         test_course = self.store.create_course('test_org', 'test_course', 'test_run', self.user_id)
-
         # create sequential to test against
         sequential = self.store.create_child(self.user_id, test_course.location, 'sequential', 'test_sequential')
-
         # Change the xblock
         sequential.display_name = 'Updated Display Name'
         self.store.update_item(sequential, user_id=self.user_id)
 
         event_receiver.assert_called()
-
         assert event_receiver.call_args.kwargs['signal'] == XBLOCK_UPDATED
         assert event_receiver.call_args.kwargs['xblock_info'].usage_key == sequential.location
         assert event_receiver.call_args.kwargs['xblock_info'].block_type == sequential.location.block_type
@@ -819,6 +813,7 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         """
         self.initdb(default_ms)
         event_receiver = Mock()
+
         XBLOCK_PUBLISHED.connect(event_receiver)
         test_course = self.store.create_course('test_org', 'test_course', 'test_run', self.user_id)
         # create sequential and vertical to test against
@@ -826,6 +821,7 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         self.store.create_child(self.user_id, sequential.location, 'vertical', 'test_vertical')
         # publish sequential changes
         self.store.publish(sequential.location, self.user_id)
+
         event_receiver.assert_called()
         self.assertDictContainsSubset(
             {
@@ -845,6 +841,7 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         """
         self.initdb(default_ms)
         event_receiver = Mock()
+
         XBLOCK_DELETED.connect(event_receiver)
         test_course = self.store.create_course('test_org', 'test_course', 'test_run', self.user_id)
         # create sequential and vertical to test against
@@ -854,6 +851,7 @@ class TestMixedModuleStore(CommonMixedModuleStoreSetup):
         self.store.publish(sequential.location, self.user_id)
         # delete vertical
         self.store.delete_item(vertical.location, self.user_id)
+
         event_receiver.assert_called()
         self.assertDictContainsSubset(
             {

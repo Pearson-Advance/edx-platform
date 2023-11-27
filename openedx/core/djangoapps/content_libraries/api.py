@@ -454,7 +454,7 @@ def create_library(
         raise LibraryAlreadyExists(slug)  # lint-amnesty, pylint: disable=raise-missing-from
     CONTENT_LIBRARY_CREATED.send_event(
         content_library=ContentLibraryData(
-            library_key=ref.library_key
+            library_key=ref.library_key,
         )
     )
     return ContentLibraryMetadata(
@@ -608,7 +608,7 @@ def update_library(
     update_bundle(ref.bundle_uuid, **fields)
     CONTENT_LIBRARY_UPDATED.send_event(
         content_library=ContentLibraryData(
-            library_key=ref.library_key
+            library_key=ref.library_key,
         )
     )
 
@@ -627,7 +627,7 @@ def delete_library(library_key):
     ref.delete()
     CONTENT_LIBRARY_DELETED.send_event(
         content_library=ContentLibraryData(
-            library_key=ref.library_key
+            library_key=ref.library_key,
         )
     )
     try:
@@ -769,7 +769,7 @@ def set_library_block_olx(usage_key, new_olx_str):
     LIBRARY_BLOCK_UPDATED.send_event(
         library_block=LibraryBlockData(
             library_key=usage_key.context_key,
-            usage_key=usage_key
+            usage_key=usage_key,
         )
     )
 
@@ -823,7 +823,7 @@ def create_library_block(library_key, block_type, definition_id):
     LIBRARY_BLOCK_CREATED.send_event(
         library_block=LibraryBlockData(
             library_key=ref.library_key,
-            usage_key=usage_key
+            usage_key=usage_key,
         )
     )
     return get_library_block(usage_key)
@@ -881,7 +881,7 @@ def delete_library_block(usage_key, remove_from_parent=True):
     LIBRARY_BLOCK_DELETED.send_event(
         library_block=LibraryBlockData(
             library_key=lib_bundle.library_key,
-            usage_key=usage_key
+            usage_key=usage_key,
         )
     )
 
@@ -910,7 +910,7 @@ def create_library_block_child(parent_usage_key, block_type, definition_id):
     LIBRARY_BLOCK_UPDATED.send_event(
         library_block=LibraryBlockData(
             library_key=ref.library_key,
-            usage_key=metadata.usage_key
+            usage_key=metadata.usage_key,
         )
     )
     return metadata
@@ -965,7 +965,7 @@ def add_library_block_static_asset_file(usage_key, file_name, file_content):
     LIBRARY_BLOCK_UPDATED.send_event(
         library_block=LibraryBlockData(
             library_key=lib_bundle.library_key,
-            usage_key=usage_key
+            usage_key=usage_key,
         )
     )
     return LibraryXBlockStaticFile(path=file_metadata.path, url=file_metadata.url, size=file_metadata.size)
@@ -991,7 +991,7 @@ def delete_library_block_static_asset_file(usage_key, file_name):
     LIBRARY_BLOCK_UPDATED.send_event(
         library_block=LibraryBlockData(
             library_key=lib_bundle.library_key,
-            usage_key=usage_key
+            usage_key=usage_key,
         )
     )
 
@@ -1088,7 +1088,7 @@ def create_bundle_link(library_key, link_id, target_opaque_key, version=None):
     LibraryBundle(library_key, ref.bundle_uuid, draft_name=DRAFT_NAME).cache.clear()
     CONTENT_LIBRARY_UPDATED.send_event(
         content_library=ContentLibraryData(
-            library_key=library_key
+            library_key=library_key,
         )
     )
 
@@ -1116,7 +1116,7 @@ def update_bundle_link(library_key, link_id, version=None, delete=False):
     LibraryBundle(library_key, ref.bundle_uuid, draft_name=DRAFT_NAME).cache.clear()
     CONTENT_LIBRARY_UPDATED.send_event(
         content_library=ContentLibraryData(
-            library_key=library_key
+            library_key=library_key,
         )
     )
 
@@ -1136,7 +1136,7 @@ def publish_changes(library_key):
     LibraryBundle(library_key, ref.bundle_uuid, draft_name=DRAFT_NAME).cache.clear()
     CONTENT_LIBRARY_UPDATED.send_event(
         content_library=ContentLibraryData(
-            library_key=library_key
+            library_key=library_key,
         )
     )
 
@@ -1157,7 +1157,7 @@ def revert_changes(library_key):
     CONTENT_LIBRARY_UPDATED.send_event(
         content_library=ContentLibraryData(
             library_key=library_key,
-            update_blocks=True
+            update_blocks=True,
         )
     )
 
