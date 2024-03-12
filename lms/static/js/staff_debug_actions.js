@@ -9,6 +9,10 @@ var StaffDebug = (function() {
         return string.replace(/[.*+?^:${}()|[\]\\]/g, '\\$&');
     };
 
+    var sanitizeScore = function(string){
+        return string.replace(/[^0-9.]/g, '');
+    };
+
     var getUser = function(locationName) {
         var sanitizedLocationName = sanitizeString(locationName);
         var uname = $('#sd_fu_' + sanitizedLocationName).val();
@@ -24,6 +28,7 @@ var StaffDebug = (function() {
         if (score === '') {
             score = $('#sd_fs_' + sanitizedLocationName).attr('placeholder');
         }
+        score = sanitizeScore(score)
         return score;
     };
 
