@@ -45,6 +45,7 @@ from openedx.core.djangoapps.util.maintenance_banner import add_maintenance_bann
 from openedx.core.djangoapps.waffle_utils import WaffleFlag, WaffleFlagNamespace
 from openedx.core.djangolib.markup import HTML, Text
 from openedx.features.enterprise_support.api import get_dashboard_consent_notification
+from openedx.core.djangoapps.plugins.plugins_hooks import run_extension_point
 from shoppingcart.models import CourseRegistrationCode, DonationConfiguration
 from student.api import COURSE_DASHBOARD_PLUGIN_VIEW_NAME
 from student.helpers import cert_info, check_verify_status_by_course, get_resume_urls_for_enrollments
@@ -804,6 +805,19 @@ def student_dashboard(request):
     )
     courses_requirements_not_met = get_pre_requisite_courses_not_completed(user, courses_having_prerequisites)
 
+    # Sort requirements for each course in course_requirements_not_met
+    courses_requirements_not_met = run_extension_point(
+        'PEARSON_CORE_SORT_ENROLLED_PREREQUISITES',
+        user=user,
+        courses_requirements_not_met=courses_requirements_not_met,
+    )
+    # Get the SKU value for the requirements of each course in courses_requirements_not_met
+    skus_not_enrollment_in_requirements = run_extension_point(
+        'PEARSON_CORE_STUDENT_NOT_ENROLLED_IN_REQUIREMENTS',
+        user=user,
+        courses_requirements_not_met=courses_requirements_not_met,
+    )
+
     if 'notlive' in request.GET:
         redirect_message = _("The course you are looking for does not start until {date}.").format(
             date=request.GET['notlive']
@@ -865,6 +879,7 @@ def student_dashboard(request):
         'enrolled_courses_either_paid': enrolled_courses_either_paid,
         'provider_states': [],
         'courses_requirements_not_met': courses_requirements_not_met,
+        'sku_not_enrollment_in_requirement': skus_not_enrollment_in_requirements,
         'nav_hidden': True,
         'inverted_programs': inverted_programs,
         'show_program_listing': ProgramsApiConfig.is_enabled(),
