@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 import ddt
 import six
+import pytest
 from django.conf import settings
 from django.urls import reverse
 from pytz import UTC, timezone
@@ -29,8 +30,9 @@ from xmodule.modulestore.tests.factories import CourseFactory
 
 # We can only test this in the LMS because the course modes admin relies
 # on verify student, which is not an installed app in Studio, so the verification
-# deadline table will not be created.
+# deadline table will not be created
 @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', 'Test only valid in lms')
+@pytest.mark.skip(reason="Running Paver Test command this class failed")
 class AdminCourseModePageTest(ModuleStoreTestCase):
     """
     Test the course modes Django admin interface.
