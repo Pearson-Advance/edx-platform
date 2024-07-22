@@ -5210,7 +5210,7 @@ PERSONALIZED_RECOMMENDATION_COOKIE_NAME = 'edx-user-personalized-recommendation'
 # .. toggle_target_removal_date: None
 # .. toggle_warnings: None
 # .. toggle_tickets: None
-ENABLE_MFE_CONFIG_API = False
+ENABLE_MFE_CONFIG_API = True
 
 # .. setting_name: MFE_CONFIG
 # .. setting_implementation: DjangoSetting
@@ -5312,3 +5312,15 @@ derived_collection_entry(
     "learning-badges-lifecycle",
     "enabled",
 )
+INSTALLED_APPS += ['lms.djangoapps.ccx', 'openedx.core.djangoapps.ccxcon.apps.CCXConnectorConfig', 'user_tasks', 'cms.djangoapps.contentstore.apps.ContentstoreConfig',]
+MODULESTORE_FIELD_OVERRIDE_PROVIDERS +=('lms.djangoapps.ccx.overrides.CustomCoursesForEdxOverrideProvider',)
+COURSE_IMPORT_EXPORT_STORAGE = 'django.core.files.storage.FileSystemStorage'
+COURSEGRAPH_DUMP_COURSE_ON_PUBLISH = False
+OPEN_EDX_FILTERS_CONFIG = {
+    "org.openedx.learning.course.enrollment.started.v1": {
+        "fail_silently": False,
+        "pipeline": [
+            "pearson_course_operation.pipeline.EnforceLicense",
+        ]
+    },
+}
