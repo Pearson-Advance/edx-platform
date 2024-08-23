@@ -51,7 +51,11 @@
                         destroy: '/annotations/:id/',
                         search: '/search/'
                     }
-                }
+                },
+                llmSummarize: {
+                    isEnabled: params?.llmSummarize?.isEnabled,
+                    courseId: params?.llmSummarize?.courseId,
+                },
             };
         };
 
@@ -85,6 +89,7 @@
                 logger = NotesLogger.getLogger(element.id, params.debug),
                 annotator;
 
+            if (options?.llmSummarize?.isEnabled) plugins.push('LlmSummarize')
             annotator = $el.annotator(options).data('annotator');
             setupPlugins(annotator, plugins, options);
             NotesCollector.storeNotesRequestData(
