@@ -72,7 +72,7 @@ ${block_content | n, decode.utf8}
       % if can_override_problem_score:
       <div>
         <label for="sd_fs_${location.block_id}">${_('Score (for override only)')}:</label>
-        <input type="text" tabindex="0" id="sd_fs_${location.block_id}" placeholder="0"/>
+        <input type="number" tabindex="0" id="sd_fs_${location.block_id}" placeholder="0"/>
         <label for="sd_fs_${location.block_id}"> / ${max_problem_score}</label>
       </div>
       % endif
