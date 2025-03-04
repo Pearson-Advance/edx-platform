@@ -298,18 +298,14 @@ class AccountCreationForm(forms.Form):
 
 def get_registration_extension_form(*args, **kwargs):
     """
-    Convenience function for getting the custom form set in site configurations or plataform settings
-    REGISTRATION_EXTENSION_FORM.
+    Convenience function for getting the custom form set in settings.REGISTRATION_EXTENSION_FORM.
 
-    Documentation on how to enable this feature can be found on
-    https://github.com/Pearson-Advance/pearson-core/blob/master/docs/pearson_core_features.md#amazon-custom-registration-form
+    An example form app for this can be found at http://github.com/open-craft/custom-form-app
     """
-    # No Default valued is passed since we prioritize site configurations over site settings.
-    registration_extra_form = configuration_helpers.get_value('REGISTRATION_EXTENSION_FORM',
-                                                              settings.REGISTRATION_EXTENSION_FORM)
-    if not registration_extra_form:
+    if not getattr(settings, 'REGISTRATION_EXTENSION_FORM', None):
         return None
-    module, klass = registration_extra_form.rsplit('.', 1)
+
+    module, klass = settings.REGISTRATION_EXTENSION_FORM.rsplit('.', 1)
     module = import_module(module)
     return getattr(module, klass)(*args, **kwargs)
 
@@ -1142,6 +1138,12 @@ class RegistrationFormFactory:
                             current_provider.skip_registration_form and enterprise_customer_for_request(request)
                         ) or current_provider.sync_learner_profile_data
                     )
+
+                    if (hide_registration_fields_except_tos and
+                        current_provider.slug in configuration_helpers.get_value(
+                            'SSO_SLUG_REGISTRATION_USERNAME_REQUIRED', [],
+                        )):
+                        field_overrides['username'] = None
 
                     for field_name in self.DEFAULT_FIELDS + self.EXTRA_FIELDS:
                         if field_name in field_overrides:
