@@ -773,14 +773,14 @@ if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     # for backwards compatibility.
     if not settings.FEATURES.get('ENABLE_CHANGE_USER_PASSWORD_ADMIN'):
         urlpatterns += [
-            re_path(r'^admin_ops/auth/user/\d+/password/$', handler404),
+            re_path(r'^ops_admin/auth/user/\d+/password/$', handler404),
         ]
     urlpatterns += [
-        path('admin_ops/password_change/', handler404),
+        path('ops_admin/password_change/', handler404),
         # We are enforcing users to login through third party auth in site's
         # login page so we are disabling the admin panel's login page.
-        path('admin_ops/login/', redirect_to_lms_login),
-        path('admin_ops/', admin.site.urls),
+        path('ops_admin/login/', redirect_to_lms_login),
+        path('ops_admin/', admin.site.urls),
     ]
 
 if configuration_helpers.get_value('ENABLE_BULK_ENROLLMENT_VIEW', settings.FEATURES.get('ENABLE_BULK_ENROLLMENT_VIEW')):
