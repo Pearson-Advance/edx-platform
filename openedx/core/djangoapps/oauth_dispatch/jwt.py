@@ -11,6 +11,8 @@ from edx_rbac.utils import create_role_auth_claim_for_user
 from jwkest import jwk
 from jwkest.jws import JWS
 
+from openedx_filters.authentication.filters import SessionJWTCreationRequested
+
 from common.djangoapps.student.models import UserProfile, anonymous_id_for_user
 
 log = logging.getLogger(__name__)
@@ -182,6 +184,7 @@ def _create_jwt(
     }
     payload.update(additional_claims or {})
     _update_from_additional_handlers(payload, user, scopes)
+    payload, user = SessionJWTCreationRequested.run_filter(payload=payload, user=user)
     role_claims = create_role_auth_claim_for_user(user)
     if role_claims:
         payload['roles'] = role_claims
