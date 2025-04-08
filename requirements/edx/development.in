@@ -17,7 +17,7 @@ click                                   # Used for perf_tests utilities in modul
 django-debug-toolbar                    # A set of panels that display debug information about the current request/response
 edx-sphinx-theme                        # Documentation theme
 mypy                                    # static type checking
-openedx-filters==0.8.0.post2            # Open edX Filters from Hooks Extension Framework (OEP-50); here to prevent version overwrite
+openedx-filters @ git+https://github.com/Pearson-Advance/openedx-filters.git@v0.8.0.post2#egg=openedx-filters     # Open edX Filters from Hooks Extension Framework (OEP-50); here to prevent version overwrite
 pywatchman                              # More efficient checking for runserver reload trigger events
 sphinxcontrib-openapi[markdown]==0.6.0  # OpenAPI (fka Swagger) spec renderer for Sphinx; pinned because 0.70 requires Python >=3.6
 vulture                                 # Detects possible dead/unused code, used in scripts/find-dead-code.sh
