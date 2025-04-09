@@ -766,7 +766,7 @@ openedx-events==9.10.0
     #   -c requirements/edx/../constraints.txt
     #   -r requirements/edx/base.in
     #   edx-event-bus-kafka
-openedx-filters==0.8.0
+openedx-filters @ git+https://github.com/Pearson-Advance/openedx-filters.git@v0.8.0.post2#egg=openedx-filters
     # via
     #   -r requirements/edx/base.in
     #   lti-consumer-xblock
