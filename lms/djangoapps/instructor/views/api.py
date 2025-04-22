@@ -794,6 +794,7 @@ def students_update_enrollment(request, course_id):  # lint-amnesty, pylint: dis
     if email_students:
         course = get_course_by_id(course_id)
         email_params = get_email_params(course, auto_enroll, secure=request.is_secure())
+        email_params['course'] = course
 
     results = []
     for identifier in identifiers:  # lint-amnesty, pylint: disable=too-many-nested-blocks

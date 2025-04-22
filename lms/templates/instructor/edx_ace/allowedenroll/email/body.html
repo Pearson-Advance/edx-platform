@@ -3,23 +3,26 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-<table width="100%" align="left" border="0" cellpadding="0" cellspacing="0" role="presentation">
+<table width="100%" align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="box-shadow: 0px 0px 10px 2px #c8c8c8;">
     <tr>
         <td style="width: 100%;
             max-width: 800px;
-            background-color: #FFF;
+            background-image: url(https://pearson-production-media.s3.amazonaws.com/IPbackground.svg);
+            background-repeat: no-repeat;
+            background-position: right center;
+            padding-bottom: 40px;
             color: #000000;
+            background-size: cover;
             margin: auto;
             text-align: center;
             padding: 20px;
             ">
 
-            <img src="https://partner-courses.pearson.com/static/pearson-theme/images/logo.png" style="width: 150px; padding: 5px; margin: auto;" />
+            <img src="https://partner-courses.pearson.com/static/pearson-theme/images/logo.png" style="width: 150px; padding: 5px; display: inline !important;" />
 
             <div style="width: 90%;
                         text-align: left;
                         padding: 2% 5%;
-                        background-color: #D4EAE4;
                         background-size: 50%;
                         background-position: right bottom;
                         background-repeat: no-repeat;
@@ -27,9 +30,7 @@
                         ">
 
                 <h1 style="font-family:'Playfair Display', serif; font-weight: 700;">
-                    {% filter force_escape %}
-                    {% blocktrans %}You have been invited to {{ course_name }}{% endblocktrans %}
-                    {% endfilter %}
+                    {% blocktrans %}You have been invited to join to <br/> {{ course_name }} <br/> {{ class_name }}{% endblocktrans %}
                 </h1>
                 <p style="padding: 0px;
                           width: 50%;
@@ -37,9 +38,15 @@
                           margin-top: 20px;
                           ">
                     {% filter force_escape %}
-                    {% blocktrans %}You have been invited to join {{ course_name }} at {{ site_name }} by a member of the course staff.{% endblocktrans %}
+                    {% blocktrans %}You have been invited to join a class by the course staff at {{ institution_name }}.{% endblocktrans %}
                     {% endfilter %}
                     <br />
+                </p>
+                <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px;">
+                    {% blocktrans with date=class_start_date %}Your class begins on: <strong>{{ date }}</strong>.{% endblocktrans %}
+                    <br />
+                    <br />
+
                 </p>
 
                 {% if is_shib_course %}
@@ -76,13 +83,36 @@
                             min-width: 300px;
                             margin-top: 20px;
                             ">
-                    {% filter force_escape %}
-                    {% blocktrans %}Please finish your registration and fill out the registration form, making sure to use {{ email_address }} in the Email field:{% endblocktrans %}
-                    {% endfilter %}
+                            <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px;">
+                                {% blocktrans with email=email_address %}
+                                Please follow these instructions to complete your registration:
+                                {% endblocktrans %}
+                            </p>
+                            <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px; margin-left:20px;">
+                                <strong>Step 1:</strong> {% trans "Create your Pearson account." %}<br/>
+                                {% blocktrans with email=email_address %}
+                                    Be sure to use your invited email address <strong>{{ email }}</strong> when creating your account.
+                                {% endblocktrans %}
+                            </p>
+                            <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px; margin-left:20px;">
+                                <strong>Step 2:</strong> {% trans "Log in to your class." %}<br/>
+                                {% blocktrans with url=new_domain_url %}
+                                    Visit this <a href="{{ course_url }}" target="_blank">url</a> to access your class.
+                                {% endblocktrans %}
+                            </p>
+                            <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px;">
+                                {% blocktrans with name=institution_name email=institution_admin_email %}
+                                    If you have questions about this invitation, please send an email to the administrator at {{ name }}:
+                                    <a href="mailto:{{ institution_admin_email }}">{{ institution_admin_email }}</a>
+                                {% endblocktrans %}
+                            </p>
+                            <p style="padding: 0px; width: 50%; min-width: 300px; margin-top: 20px;">
+                                {% trans "The Pearson Team" %}
+                            </p>
                     <br />
                 </p>
                 {# xss-lint: disable=django-trans-missing-escape #}
-                {% trans "Finish Your Registration" as button_cta_text %}
+                {% trans "Create your Pearson Account" as button_cta_text %}
                 {% include "ace_common/edx_ace/common/return_to_course_cta.html" with course_cta_text=button_cta_text course_cta_url=registration_url %}
 
                 <p style="padding: 0px;
@@ -92,7 +122,7 @@
                             ">
                     {% if auto_enroll %}
                     {% filter force_escape %}
-                    {% blocktrans %}Once you have registered and activated your account, you will see {{ course_name }} listed on your dashboard.{% endblocktrans %}
+                    {% blocktrans %}Once you have registered and activated your account, you will see {{ class_name }} listed on your dashboard.{% endblocktrans %}
                     {% endfilter %}
                     {% elif course_about_url is not None %}
                     {% filter force_escape %}
