@@ -5210,7 +5210,7 @@ PERSONALIZED_RECOMMENDATION_COOKIE_NAME = 'edx-user-personalized-recommendation'
 # .. toggle_target_removal_date: None
 # .. toggle_warnings: None
 # .. toggle_tickets: None
-ENABLE_MFE_CONFIG_API = False
+ENABLE_MFE_CONFIG_API = True
 
 # .. setting_name: MFE_CONFIG
 # .. setting_implementation: DjangoSetting
@@ -5326,3 +5326,13 @@ derived_collection_entry(
 #    Entity ID docs:
 #    https://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/configuration/tpa/tpa_integrate_open/tpa_SAML_IdP.html#add-and-enable-a-saml-identity-provider
 SAML_IES_ENTITIES_IDS = []
+
+
+OPEN_EDX_FILTERS_CONFIG = {
+    "org.openedx.learning.course.enrollment.email-notification-extra-params.v1": {
+        "fail_silently": False,
+        "pipeline": [
+            "pearson_course_operation.pipeline.GetEnrollEmailNotificationExtraParameters",
+        ],
+    },
+}

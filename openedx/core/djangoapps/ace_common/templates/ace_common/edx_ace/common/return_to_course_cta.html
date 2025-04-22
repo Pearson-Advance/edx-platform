@@ -16,21 +16,31 @@
         {% endif %}
     {% endif %}
     style="
-        padding: 15px 20px;
-        margin: 50px 0px;
-        font-family: 'Open Sans', sans-serif;
-        background-color: #FFB81C;
-        font-size: 18px;
-        border: 2px solid #505759;
-        border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
+        box-sizing: border-box;
+        margin: 0;
+        font-family: inherit;
+        overflow: visible;
+        text-transform: none;
+        -webkit-appearance: button;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        text-align: center;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 12px 24px;
+        font-size: 1rem;
+        line-height: 1.3333;
+        border-radius: 0.375rem;
+        color: #ffff;
+        background-color: #007394;
+        border-color: #007394;
+        cursor: pointer;
         text-decoration: none;
-        display: inline-block;
-        color: #000000;
-
     ">
     {# old email clients require the use of the font tag :( #}
-        <font color="#000000;"><b>{{ course_cta_text }}</b></font>
+        <font color="#fffff;"><b>{{ course_cta_text }}</b></font>
     </a>
 </p>
