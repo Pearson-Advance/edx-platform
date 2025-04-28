@@ -3,11 +3,12 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-<table width="100%" align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="box-shadow: 0px 0px 10px 2px #c8c8c8;">
-    <tr>
-        <td style="width: 100%;
+<table width="100%" align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="box-shadow: 0px 0px 10px 2px #c8c8c8; width: 100%;">
+        <tr>
+            <td style="
+            width: 100%;
             max-width: 800px;
-            background-image: url(https://pearson-production-media.s3.amazonaws.com/IPbackground.svg);
+            background-image: url(https://partner-courses.pearson.com/static/pearson-theme/images/IPbackground.svg);
             background-repeat: no-repeat;
             background-position: right center;
             padding-bottom: 40px;
@@ -16,7 +17,7 @@
             margin: auto;
             text-align: center;
             padding: 20px;
-            ">
+        ">
 
             <img src="https://partner-courses.pearson.com/static/pearson-theme/images/logo.png" style="width: 150px; padding: 5px; display: inline !important;" />
 
@@ -30,7 +31,11 @@
                         ">
 
                 <h1 style="font-family:'Playfair Display', serif; font-weight: 700;">
-                    {% blocktrans %}You have been invited to join to <br/> {{ course_name }} <br/> {{ class_name }}{% endblocktrans %}
+                    {% if class_name != none %}
+                        You have been invited to join to <br/> {{ course_name }} <br/> {{ class_name }}
+                    {% else %}
+                        You have been invited to join to <br/> {{ course_name }}
+                    {% endif %}
                 </h1>
                 <p style="padding: 0px;
                           width: 50%;
