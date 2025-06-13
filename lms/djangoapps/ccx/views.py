@@ -245,7 +245,18 @@ def create_ccx(request, course, ccx=None):
         coach=request.user,
         display_name=name)
     ccx.save()
-
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print(course)
+    print(course)
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print(ccx)
+    print(ccx)
     # Make sure start/due are overridden for entire course
     start = TODAY().replace(tzinfo=pytz.UTC)
     override_field_for_ccx(ccx, course, 'start', start)
@@ -298,9 +309,29 @@ def create_ccx(request, course, ccx=None):
         sender=ccx,
         course_key=CCXLocator.from_course_locator(course.id, str(ccx.id))
     )
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print(ccx)
+    print('COURSEOPERATIONS')
+    print(responses)
+    print('COURSEOPERATIONS')
+    print(CCXLocator.from_course_locator(course.id, str(ccx.id)))
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
     for rec, response in responses:
+        print(rec)
+        print(response)
         log.info('Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
-
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print('COURSEOPERATIONS')
+    print(ccx_id)
+    print(ccx_id)
     # .. event_implemented_name: COURSE_CREATED
     COURSE_CREATED.send_event(
         time=datetime.datetime.now(tz=timezone.utc),
