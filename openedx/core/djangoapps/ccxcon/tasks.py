@@ -36,6 +36,6 @@ def update_ccxcon(course_id, cur_retry=0):
         if cur_retry < 5:
             update_ccxcon.apply_async(
                 kwargs={'course_id': course_id, 'cur_retry': cur_retry + 1},
-                countdown=10 ** cur_retry  # number of seconds the task should be delayed
+                countdown=cur_retry  # number of seconds the task should be delayed
             )
             log.info('Requeued celery task for course key %s ; retry # %s', course_id, cur_retry + 1)
