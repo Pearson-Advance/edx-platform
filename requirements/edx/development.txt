@@ -991,7 +991,7 @@ openedx-django-pyfs==3.2.1
     # via
     #   -r requirements/edx/testing.txt
     #   xblock
-openedx-events==9.10.0
+openedx-events @ git+https://github.com/Pearson-Advance/openedx-events.git@v9.10.0#egg=openedx-events
     # via
     #   -c requirements/edx/../constraints.txt
     #   -r requirements/edx/testing.txt
