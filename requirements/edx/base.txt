@@ -761,7 +761,7 @@ openedx-calc==3.0.1
     # via -r requirements/edx/base.in
 openedx-django-pyfs==3.2.1
     # via xblock
-openedx-events @ git+https://github.com/Pearson-Advance/openedx-events.git@v9.10.0#egg=openedx-events
+openedx-events @ git+https://github.com/Pearson-Advance/openedx-events.git@v9.10.0.post2#egg=openedx-events
     # via
     #   -c requirements/edx/../constraints.txt
     #   -r requirements/edx/base.in
