@@ -1106,6 +1106,7 @@
     "You will not receive notification for emails that bounce, so double-check your spelling.": "No rebr\u00e0s la notificaci\u00f3 dels correus electr\u00f2nics que reboten, aix\u00ed que comprova la teva ortografia.",
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Utilitzar\u00e0s la teva c\u00e0mera web per fer una foto de la teva cara i l'identificador de fotografia em\u00e8s pel govern.",
     "You!": "Tu!",
+    "You're almost there.": "Ja gaireb\u00e9 hi ets. ",
     "You've made some changes": "Has fet canvis",
     "You've made some changes, but there are some errors": "Has fet canvis, per\u00f2 hi ha hagut errors",
     "Your ID must be a government-issued photo ID that clearly shows your face.": "La vostra identificaci\u00f3 ha de ser una identificaci\u00f3 de fotografia emesa pel govern que mostri clarament la vostra cara.",

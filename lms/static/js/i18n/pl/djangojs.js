@@ -1561,6 +1561,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Kamerki internetowej u\u017cyjesz do wykonania zdj\u0119cia swojej twarzy oraz zdj\u0119cia dokumentu to\u017csamo\u015bci.",
     "You!": "Ty!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Wysy\u0142asz odpowied\u017a na zadanie. Po wys\u0142aniu nie b\u0119dziesz m\u00f3g\u0142 jej zmieni\u0107, ani wys\u0142a\u0107 nowej odpowiedzi.",
+    "You're almost there.": "Jeste\u015b prawie na miejscu.",
     "You've made some changes": "Dokona\u0142e\u015b pewnych zmian",
     "You've made some changes, but there are some errors": "Dokona\u0142e\u015b zmian, ale wyst\u0105pi\u0142y pewne b\u0142\u0119dy",
     "You've successfully signed into %(currentProvider)s.": "Pomy\u015blnie zalogowa\u0142e\u015b si\u0119 do %(currentProvider)s.",

@@ -3392,6 +3392,10 @@ msgid "We couldn't create your account."
 msgstr "Ми не змогли створити Ваш обліковий запис"
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "Ви майже прийшли."
+
+#: lms/static/js/student_account/views/RegisterView.js
 msgid "Create Account"
 msgstr "Створити обліковий запис"
 

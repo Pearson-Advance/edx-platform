@@ -542,6 +542,7 @@
     "You have unsaved changes on individual editable fields. If you run an action, your unsaved changes will be lost.": "Vr\u00e1mci jednotliv\u00fdch editovate\u013en\u00fdch pol\u00ed m\u00e1te neulo\u017een\u00e9 zmeny. Ak vykon\u00e1te akciu, va\u0161e zmeny bud\u00fa straten\u00e9.",
     "You must enter a valid email address in order to add a new team member": "Mus\u00edte zada\u0165 platn\u00fa e-mailov\u00fa adresu, aby ste mohli prida\u0165 nov\u00e9ho \u010dlena t\u00edmu.",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Chyst\u00e1te sa odosla\u0165 va\u0161u odpove\u010f pre toto zadanie. Potom ako t\u00fato odpove\u010f odo\u0161lete, nebudete ju m\u00f4c\u0165 zmeni\u0165 ani nebudete m\u00f4c\u0165 odosla\u0165 nov\u00fa odpove\u010f.",
+    "You're almost there.": "U\u017e tam skoro si.",
     "You've made some changes": "Urobili ste nejak\u00e9 zmeny",
     "You've made some changes, but there are some errors": "Urobili ste ur\u010dit\u00e9 zmeny, ale vyskytli sa nejak\u00e9 chyby",
     "Your changes have been saved.": "Va\u0161e zmeny boli ulo\u017een\u00e9.",

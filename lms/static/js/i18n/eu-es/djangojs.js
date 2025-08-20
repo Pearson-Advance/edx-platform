@@ -1362,6 +1362,7 @@
     "You receive messages from {platform_name} and course teams at this address.": "Helbide honetara jasotzen dituzu {platform_name} plataformako eta ikastaroetako mezuak.",
     "You submitted {filename}; only {allowedFiles} are allowed.": "You submitted {filename} fitxategai bidali duzu; {allowedFiles} fitxategiak baino ez daude baimenduta.",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Zeregin honetarako erantzuna bidaltzear zaude. Bidali ondoren, ezin izango duzu aldatu edo beste bat bidali.",
+    "You're almost there.": "Ia iritsi zara.",
     "You've made some changes": "Hainbat aldaketa egin dituzu",
     "You've made some changes, but there are some errors": "Aldaketa batzuk egin dituzu, baina hainbat errore gertatu dira",
     "Your browser doesn't support direct access to the clipboard. Please use the Ctrl+X/C/V keyboard shortcuts instead.": "Zure nabigatzaileak ez du sarbide zuzena onartzen arbelera. Horren ordez, erabili Ctrl+X/C/V teklatu-lasterbidea.",

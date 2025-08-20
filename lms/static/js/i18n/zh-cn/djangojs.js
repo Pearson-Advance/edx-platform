@@ -1951,6 +1951,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "\u60a8\u5c06\u4f7f\u7528\u60a8\u7684\u7f51\u7edc\u6444\u50cf\u5934\u62cd\u6444\u4e00\u5f20\u540c\u65f6\u663e\u793a\u60a8\u7684\u8138\u90e8\u548c\u653f\u5e9c\u7b7e\u53d1\u7684\u6709\u7167\u7247\u7684\u8eab\u4efd\u8bc1\u4ef6\u7684\u7167\u7247\u3002",
     "You!": "\u60a8\uff01",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "\u60a8\u5c06\u4f1a\u63d0\u4ea4\u5bf9\u672c\u6b21\u4f5c\u4e1a\u7684\u7b54\u6848\u3002\u63d0\u4ea4\u540e\uff0c\u60a8\u5c06\u65e0\u6cd5\u4fee\u6539\u6216\u8005\u63d0\u4ea4\u65b0\u7684\u7b54\u6848\u3002",
+    "You're almost there.": "\u4f60\u5feb\u5230\u4e86\u3002",
     "You've made some changes": "\u60a8\u5df2\u66f4\u6539",
     "You've made some changes, but there are some errors": "\u60a8\u6240\u4f5c\u53d8\u66f4\u5b58\u5728\u9519\u8bef",
     "You've successfully signed into %(currentProvider)s.": "\u60a8\u5df2\u6210\u529f\u767b\u5f55%(currentProvider)s\u3002",

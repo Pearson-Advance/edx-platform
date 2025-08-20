@@ -4629,6 +4629,10 @@ msgid "We couldn't create your account."
 msgstr ""
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "आप लगभग वहाँ पहुँच गए हैं।"
+
+#: lms/static/js/student_account/views/RegisterView.js
 msgid "Create Account"
 msgstr ""
 

@@ -642,6 +642,7 @@
     "You need to activate your account before you can enroll in courses. Check your inbox for an activation email. After you complete activation you can return and refresh this page.": "Prie\u0161 registruojantis \u012f kursus, jums reik\u0117s aktyvinti savo paskyr\u0105. Pasitikrinkite savo el. pa\u0161to d\u0117\u017eut\u0119, mes jums i\u0161siunt\u0117me lai\u0161k\u0105 su aktyvinimo instrukcija. Suaktyvin\u0119 paskyr\u0105 galite gr\u012f\u017eti ir atnaujinti \u0161\u012f puslap\u012f.",
     "You will not receive notification for emails that bounce, so double-check your spelling.": "Jei nurodysite neteisingus el. pa\u0161to adresus, patvirtinimo negausite, tod\u0117l dar kart\u0105 patikrinkite ra\u0161yb\u0105.",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Ketinate pateikti savo darb\u0105. Kai pateiksite, savo atsakymo jau negal\u0117site keisti.",
+    "You're almost there.": "Atrodo, jau beveik pasiekei.",
     "You've made some changes": "J\u016bs esate atlik\u0119 kelet\u0105 pakeitim\u0173",
     "You've made some changes, but there are some errors": "J\u016bs esate atlik\u0119 kelet\u0105 pakeitim\u0173, bet yra klaid\u0173 ",
     "Your changes have been saved.": "J\u016bs\u0173 atlikti pakeitimai yra i\u0161saugoti.",

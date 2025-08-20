@@ -1600,6 +1600,7 @@
     "You will not receive notification for emails that bounce, so double-check your spelling.": "B\u1ea1n s\u1ebd kh\u00f4ng nh\u1eadn \u0111\u01b0\u1ee3c th\u00f4ng b\u00e1o cho c\u00e1c email b\u1ecb tr\u1ea3 l\u1ea1i, v\u00ec v\u1eady n\u00ean ki\u1ec3m tra ch\u00ednh t\u1ea3.",
     "You!": "B\u1ea1n!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "B\u1ea1n s\u1eafp n\u1ed9p c\u00e2u tr\u1ea3 l\u1eddi cho b\u00e0i t\u1eadp n\u00e0y. Sau khi g\u1eedi b\u00e0i b\u1ea1n s\u1ebd kh\u00f4ng th\u1ec3 ch\u1ec9nh s\u1eeda ho\u1eb7c n\u1ed9p b\u00e0i m\u1edbi. ",
+    "You're almost there.": "B\u1ea1n g\u1ea7n t\u1edbi n\u01a1i r\u1ed3i.",
     "You've made some changes": "B\u1ea1n \u0111\u00e3 th\u1ef1c hi\u1ec7n m\u1ed9t s\u1ed1 thay \u0111\u1ed5i",
     "You've made some changes, but there are some errors": "B\u1ea1n \u0111\u00e3 th\u1ef1c hi\u1ec7n m\u1ed9t s\u1ed1 thay \u0111\u1ed5i, nh\u01b0ng c\u00f3 m\u1ed9t s\u1ed1 l\u1ed7i",
     "You've successfully signed into %(currentProvider)s.": "B\u1ea1n \u0111\u00e3 th\u00e0nh c\u00f4ng \u0111\u00e3 k\u00fd v\u00e0o %(currentProvider)s.",

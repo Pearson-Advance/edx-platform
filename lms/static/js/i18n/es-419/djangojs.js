@@ -2401,6 +2401,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Usar\u00e1 su c\u00e1mara web para tomar una foto de su cara y de su documento de identificaci\u00f3n oficial con foto.",
     "You!": "\u00a1Usted!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Est\u00e1 a punto de subir su respuesta para esta tarea. Despu\u00e9s de subirla, no podr\u00e1 cambiarla o subir una nueva respuesta.",
+    "You're almost there.": "Ya casi terminas.",
     "You've made some changes": "Usted ha realizado algunos cambios",
     "You've made some changes, but there are some errors": "Usted ha hecho algunos cambios, pero se presentaron errores",
     "You've successfully signed into %(currentProvider)s.": "Has iniciado sesi\u00f3n exitosamente en %(currentProvider)s.",

@@ -2284,6 +2284,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Poder\u00e1 utilizar a sua webcam para tirar uma fotografia do seu rosto e do seu documento de identifica\u00e7\u00e3o com uma fotografia.",
     "You!": "Voc\u00ea!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Est\u00e1 prestes a submeter a sua resposta para esta tarefa. Depois de a submeter, n\u00e3o \u00e9 poss\u00edvel alter\u00e1-la ou submeter uma nova resposta.",
+    "You're almost there.": "Est\u00e1s quase l\u00e1.",
     "You've made some changes": "Fez algumas altera\u00e7\u00f5es",
     "You've made some changes, but there are some errors": "Fez algumas altera\u00e7\u00f5es, mas h\u00e1 alguns erros",
     "You've successfully signed into %(currentProvider)s.": "Iniciou sess\u00e3o com sucesso em %(currentProvider)s.",

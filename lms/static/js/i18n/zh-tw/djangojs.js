@@ -795,6 +795,7 @@
     "You will not receive notification for emails that bounce, so double-check your spelling.": "\u5c0d\u8a72\u985e\u554f\u984c\u60a8\u4e0d\u6703\u53d7\u5230\u63d0\u793a\u90f5\u4ef6\uff0c\u56e0\u6b64\u8acb\u4ed4\u7d30\u6aa2\u67e5\uff0c\u78ba\u4fdd\u62fc\u5beb\u7121\u8aa4\u3002",
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "\u60a8\u53ef\u4ee5\u4f7f\u7528\u60a8\u7684\u8996\u8a0a\u88dd\u7f6e\u62cd\u651d\u4e00\u5f35\u60a8\u7684\u7167\u7247\uff0c\u548c\u653f\u5e9c\u7c3d\u767c\u7684\u8b49\u4ef6\u7167\u7247\u3002",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "\u60a8\u5373\u5c07\u9001\u51fa\u4f60\u7684\u4f5c\u7b54\uff0c\u4e00\u65e6\u9001\u51fa\u4f5c\u7b54\u5c31\u4e0d\u80fd\u4fee\u6539\uff0c\u4e5f\u7121\u6cd5\u91cd\u65b0\u9001\u51fa\u65b0\u7684\u4f5c\u7b54\u3002",
+    "You're almost there.": "\u4f60\u5feb\u5230\u4e86\u3002",
     "You've made some changes": "\u60a8\u5df2\u7d93\u505a\u4e86\u66f4\u6539",
     "You've made some changes, but there are some errors": "\u60a8\u505a\u4e86\u4e00\u4e9b\u8b8a\u66f4\uff0c\u4f46\u51fa\u73fe\u932f\u8aa4\u3002",
     "You've successfully signed into %(currentProvider)s.": "\u60a8\u5df2\u7d93\u6210\u529f\u767b\u5165 %(currentProvider)s.",

@@ -3283,6 +3283,10 @@ msgid "We couldn't create your account."
 msgstr "无法创建账号。"
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "你快到了。"
+
+#: lms/static/js/student_account/views/RegisterView.js
 #: lms/templates/student_account/register.underscore
 msgid "Create Account"
 msgstr "创建账号"
