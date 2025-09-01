@@ -41,7 +41,7 @@
                 formFields: '.form-fields',
                 formStatusTpl: formStatusTpl,
                 authWarningJsHook: 'js-auth-warning',
-                defaultFormErrorsTitle: gettext('We couldn\'t create your account.'),
+                defaultFormErrorsTitle: gettext('You\'re almost there.'),
                 submitButton: '.js-register',
                 positiveValidationIcon: 'fa-check',
                 negativeValidationIcon: 'fa-exclamation',

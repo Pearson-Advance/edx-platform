@@ -2391,6 +2391,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Utilizzare la webcam per scattare una foto del viso e del documento di identit\u00e0 con fotografia rilasciato dalle autorit\u00e0. ",
     "You!": "Tu!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Stai per inviare la risposta per questo compito. Dopo aver inviato questa risposta, non \u00e8 possibile modificarla o inviare una nuova risposta.",
+    "You're almost there.": "Sei quasi arrivato.",
     "You've made some changes": "Hai fatto delle modifiche",
     "You've made some changes, but there are some errors": "Hai fatto delle modifiche , ma si sono verificati degli errori",
     "You've successfully signed into %(currentProvider)s.": "Hai correttamente effettuato l'accesso in %(currentProvider)s.",

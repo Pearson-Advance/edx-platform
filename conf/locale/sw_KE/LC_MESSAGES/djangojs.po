@@ -3219,6 +3219,10 @@ msgid "We couldn't create your account."
 msgstr "Hatukuweza kuunda akaunti yako. "
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "Uko karibu kufika."
+
+#: lms/static/js/student_account/views/RegisterView.js
 #: lms/templates/student_account/register.underscore
 msgid "Create Account"
 msgstr ""

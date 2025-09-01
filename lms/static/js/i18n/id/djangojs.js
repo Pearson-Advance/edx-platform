@@ -1625,6 +1625,7 @@
     "You will not be refunded the amount you paid.": "Anda tidak akan mendapatkan uang yang telah Anda bayarkan.",
     "You!": "Anda!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Anda akan mengirimkan tanggapan Anda untuk tugas ini. Setelah Anda mengirimkan tanggapan ini, Anda tidak dapat mengubah atau menyampaikan tanggapan baru.",
+    "You're almost there.": "Kamu hampir sampai.",
     "You've made some changes": "Anda telah membuat beberapa perubahan",
     "You've made some changes, but there are some errors": "Anda telah menyimpan beberapa perubahan, tetapi ada beberapa kesalahan",
     "You've successfully signed into %(currentProvider)s.": "Anda telah berhasil masuk ke dalam %(currentProvider)s.",

@@ -3652,6 +3652,10 @@ msgid "We couldn't create your account."
 msgstr "No pudimos crear tu cuenta."
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "Ya casi terminas."
+
+#: lms/static/js/student_account/views/RegisterView.js
 #: lms/templates/student_account/register.underscore
 msgid "Create Account"
 msgstr "Crear cuenta"

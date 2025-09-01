@@ -2215,6 +2215,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Y\u00fcz\u00fcn\u00fcz\u00fcn foto\u011fraf\u0131n\u0131 ve devlet taraf\u0131ndan verilmi\u015f foto\u011frafl\u0131 n\u00fcfus kimli\u011finizin foto\u011fraf\u0131n\u0131 webcam ile \u00e7ekin.",
     "You!": "Sen!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Bu g\u00f6rev i\u00e7in cevab\u0131n\u0131 g\u00f6ndermek \u00fczeresin. Cevab\u0131n\u0131 g\u00f6nderdikten sonra, cevab\u0131 de\u011fi\u015ftiremez veya yeni bir cevap ekleyemezsin.",
+    "You're almost there.": "Neredeyse geldin.",
     "You've made some changes": "Baz\u0131 de\u011fi\u015fiklikler yapt\u0131n\u0131z",
     "You've made some changes, but there are some errors": "Baz\u0131 de\u011fi\u015fiklikler yapt\u0131n\u0131z, ama baz\u0131 hatalar var",
     "You've successfully signed into %(currentProvider)s.": "Ba\u015far\u0131l\u0131 bir \u015fekilde \u015furaya %(currentProvider)s giri\u015f yapt\u0131n\u0131z. ",

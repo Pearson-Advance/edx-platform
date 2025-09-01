@@ -967,6 +967,7 @@
     "You will use your webcam to take a picture of your face and of your government-issued photo ID.": "Voc\u00ea vai usar sua webcam para tirar uma foto do seu rosto e do seu documento com foto emitido pelo governo.",
     "You!": "Voc\u00ea!",
     "You're about to submit your response for this assignment. After you submit this response, you can't change it or submit a new response.": "Voc\u00ea est\u00e1 prestes a enviar sua resposta para este trabalho. Depois que sua resposta for enviada voc\u00ea n\u00e3o poder\u00e1 mud\u00e1-la ou enviar uma nova resposta.",
+    "You're almost there.": "Voc\u00ea est\u00e1 quase l\u00e1.",
     "You've made some changes": "Voc\u00ea fez algumas altera\u00e7\u00f5es",
     "You've made some changes, but there are some errors": "Voc\u00ea fez algumas altera\u00e7\u00f5es, mas h\u00e1 erros",
     "Your ID must be a government-issued photo ID that clearly shows your face.": "Seu ID deve ser um documento com foto emitido pelo governo que mostra claramente o seu rosto.",

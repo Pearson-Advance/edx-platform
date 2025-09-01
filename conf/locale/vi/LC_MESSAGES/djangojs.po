@@ -3301,6 +3301,10 @@ msgid "We couldn't create your account."
 msgstr "Chúng tôi không thể tạo ra tài khoản của bạn."
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "Bạn gần tới nơi rồi."
+
+#: lms/static/js/student_account/views/RegisterView.js
 msgid "Create Account"
 msgstr "Tạo tài khoản"
 

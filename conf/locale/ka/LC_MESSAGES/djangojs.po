@@ -3218,6 +3218,10 @@ msgid "We couldn't create your account."
 msgstr "თქვენი ანგარიშის შექმნა ვერ მოხერხდა."
 
 #: lms/static/js/student_account/views/RegisterView.js
+msgid "You're almost there."
+msgstr "თქვენ თითქმის იქ ხართ."
+
+#: lms/static/js/student_account/views/RegisterView.js
 #: lms/templates/student_account/register.underscore
 msgid "Create Account"
 msgstr ""
