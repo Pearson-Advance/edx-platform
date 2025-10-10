@@ -41,7 +41,7 @@
               </p>
 
               <p style="padding: 0; width: 100%; margin-top: 5%; box-sizing: border-box;">
-                {% blocktrans with date=class_start_date %}Your class begins on: <strong>{{ class_start_date }}</strong>.{% endblocktrans %}
+                {% blocktrans with date=class_start_date|date:"F j, Y" %}Your class begins on: <strong>{{ date }}</strong>.{% endblocktrans %}
               </p>
 
               <p style="padding: 0; width: 100%; margin-top: 5%; box-sizing: border-box;">

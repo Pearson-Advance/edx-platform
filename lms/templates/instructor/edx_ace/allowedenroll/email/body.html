@@ -40,7 +40,7 @@
               </p>
 
               <p style="padding: 0; width: 100%; margin-top: 5%;">
-                {% blocktrans with date=class_start_date %}Your class begins on: <strong>{{ date }}</strong>.{% endblocktrans %}
+                {% blocktrans with date=class_start_date|date:"F j, Y" %}Your class begins on: <strong>{{ date }}</strong>.{% endblocktrans %}
               </p>
 
               {% if is_shib_course %}
