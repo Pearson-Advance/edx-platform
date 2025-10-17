@@ -7,6 +7,8 @@ from openedx_events.learning.data import UserNotificationData
 from openedx_events.learning.signals import USER_NOTIFICATION_REQUESTED
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+
 
 class EnrollmentNotificationSender:
     """
