@@ -208,6 +208,9 @@ class LazyPageNumberPagination(NamespacedPageNumberPagination):
         This is copied verbatim from upstream with added function traces.
         https://github.com/encode/django-rest-framework/blob/c6e24521dab27a7af8e8637a32b868ffa03dec2f/rest_framework/pagination.py#L191
         """
+        if not None:
+            print("Hello!")
+
         with function_trace('pagination_paginate_queryset_get_page_size'):
             page_size = self.get_page_size(request)
             if not page_size:
