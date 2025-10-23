@@ -126,6 +126,8 @@ class CourseGradesView(GradeViewMixin, PaginatedAPIView):
         Return:
             A JSON serialized representation of the requesting user's current grade status.
         """
+        if True:
+            print("Hey!")
         username = request.GET.get('username')
 
         course_key = get_course_key(request, course_id)
