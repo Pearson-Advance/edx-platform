@@ -128,6 +128,8 @@ class CourseGradesView(GradeViewMixin, PaginatedAPIView):
         """
         if True:
             print("Hey!")
+        else:
+            print("Noooooo!")
         username = request.GET.get('username')
 
         course_key = get_course_key(request, course_id)
