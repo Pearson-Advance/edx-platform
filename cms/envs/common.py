@@ -404,10 +404,10 @@ FRONTEND_LOGIN_URL = LOGIN_URL
 # Warning: Must have trailing slash to activate correct logout view
 # (auth_backends, not LMS user_authn)
 FRONTEND_LOGOUT_URL = '/logout/'
-FRONTEND_REGISTER_URL = Derived(lambda settings: settings.LMS_ROOT_URL + '/register')
+FRONTEND_REGISTER_URL = Derived(lambda settings: (settings.LMS_ROOT_URL or '') + '/register')
 
-ENTERPRISE_API_URL = Derived(lambda settings: settings.LMS_INTERNAL_ROOT_URL + '/enterprise/api/v1/')
-ENTERPRISE_CONSENT_API_URL = Derived(lambda settings: settings.LMS_INTERNAL_ROOT_URL + '/consent/api/v1/')
+ENTERPRISE_API_URL = Derived(lambda settings: (settings.LMS_INTERNAL_ROOT_URL or '') + '/enterprise/api/v1/')
+ENTERPRISE_CONSENT_API_URL = Derived(lambda settings: (settings.LMS_INTERNAL_ROOT_URL or '') + '/consent/api/v1/')
 
 # Public domain name of Studio (should be resolvable from the end-user's browser)
 CMS_BASE = None
