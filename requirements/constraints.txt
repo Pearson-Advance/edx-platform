@@ -146,3 +146,6 @@ pact-python<3.0.0
 # building requirements with Python 3.12
 # https://github.com/openedx/edx-platform/issues/37880
 sphinx-autoapi<3.6.1
+# openedx-events>0.13.0 causes test failures due to breaking changes
+# These broken tests will be fixed in a separate PR
+openedx-events @ git+https://github.com/Pearson-Advance/openedx-events.git@pearson/ulmo#egg=openedx-events
