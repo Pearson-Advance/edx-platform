@@ -53,6 +53,7 @@ from lms.djangoapps.ccx.utils import (
     get_ccx_for_coach,
     get_date,
     get_enrollment_action_and_identifiers,
+    multiple_ccx_per_coach,
     parse_date
 )
 from lms.djangoapps.courseware.field_overrides import disable_overrides
@@ -153,7 +154,7 @@ def dashboard(request, course, ccx=None):
     """
     # right now, we can only have one ccx per user and course
     # so, if no ccx is passed in, we can sefely redirect to that
-    if ccx is None:
+    if ccx is None and not multiple_ccx_per_coach(course):
         ccx = get_ccx_for_coach(course, request.user)
         if ccx:
             url = reverse(
