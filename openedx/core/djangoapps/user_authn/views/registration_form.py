@@ -34,6 +34,7 @@ from openedx.core.djangoapps.user_authn.utils import is_registration_api_v1 as i
 from openedx.core.djangoapps.user_authn.views.utils import remove_disabled_country_from_list
 from openedx.core.djangolib.markup import HTML, Text
 from openedx.features.enterprise_support.api import enterprise_customer_for_request
+from openedx_filters.authentication.filters import StudentRegistrationFormTermsOfServiceLabelRequested
 
 
 class TrueCheckbox(widgets.CheckboxInput):
@@ -1092,6 +1093,11 @@ class RegistrationFormFactory:
             ),
             tos_link_end=HTML("</a>"),
         )
+        label_with_terms_of_service_and_privacy_policy = StudentRegistrationFormTermsOfServiceLabelRequested.run_filter(
+            label=label,
+            platform_name=configuration_helpers.get_value("PLATFORM_NAME", settings.PLATFORM_NAME),
+        )
+        label = label_with_terms_of_service_and_privacy_policy or label
 
         # Translators: "Terms of service" is a legal document users must agree to
         # in order to register a new account.

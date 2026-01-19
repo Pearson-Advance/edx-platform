@@ -16,6 +16,7 @@ from openedx.core.djangoapps.safe_sessions.middleware import mark_user_change_as
 from openedx.core.djangoapps.user_authn.cookies import delete_logged_in_cookies
 from openedx.core.djangoapps.user_authn.utils import is_safe_login_or_logout_redirect
 from common.djangoapps.third_party_auth import pipeline as tpa_pipeline
+from openedx_filters.authentication.filters import StudentLogoutRequested
 
 
 class LogoutView(TemplateView):
@@ -87,6 +88,9 @@ class LogoutView(TemplateView):
 
         # Clear the cookie used by the edx.org marketing site
         delete_logged_in_cookies(response)
+
+        # Trigger the logout filter pipeline (best-effort; logout must still complete).
+        StudentLogoutRequested.run_filter(request=request)
 
         mark_user_change_as_expected(None)
 
