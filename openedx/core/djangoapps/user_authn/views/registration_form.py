@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_countries import countries
 from eventtracking import tracker
+from openedx_filters.learning.filters import StudentTermsOfServiceRequested
 
 from common.djangoapps import third_party_auth
 from common.djangoapps.edxmako.shortcuts import marketing_link
@@ -1092,6 +1093,12 @@ class RegistrationFormFactory:
             ),
             tos_link_end=HTML("</a>"),
         )
+
+        # .. filter_implemented_name: StudentTermsOfServiceRequested
+        # .. filter_type: org.openedx.learning.student.terms_of_service.requested.v1
+        custom_label = StudentTermsOfServiceRequested.run_filter(label=label)
+
+        label = custom_label or label
 
         # Translators: "Terms of service" is a legal document users must agree to
         # in order to register a new account.
