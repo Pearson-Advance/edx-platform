@@ -43,6 +43,7 @@ from xblock.runtime import KvsFieldData
 
 from lms.djangoapps.teams.services import TeamsService
 from openedx.core.djangoapps.video_config.services import VideoConfigService
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.lib.xblock_services.call_to_action import CallToActionService
 from xmodule.contentstore.django import contentstore
 from xmodule.exceptions import NotFoundError as XModuleNotFoundError
@@ -1034,6 +1035,11 @@ def _check_files_limits(files):
 
     Returns None if files are correct or an error messages otherwise.
     """
+    student_fileupload_max_size = configuration_helpers.get_value(
+        'STUDENT_FILEUPLOAD_MAX_SIZE',
+        settings.STUDENT_FILEUPLOAD_MAX_SIZE,
+    )
+
     for fileinput_id in files.keys():
         inputfiles = files.getlist(fileinput_id)
 
@@ -1045,9 +1051,9 @@ def _check_files_limits(files):
 
         # Check file sizes
         for inputfile in inputfiles:
-            if inputfile.size > settings.STUDENT_FILEUPLOAD_MAX_SIZE:  # Bytes
+            if inputfile.size > student_fileupload_max_size:  # Bytes
                 msg = 'Submission aborted! Your file "%s" is too large (max size: %d MB)' % \
-                      (inputfile.name, settings.STUDENT_FILEUPLOAD_MAX_SIZE / (1000 ** 2))
+                      (inputfile.name, student_fileupload_max_size / (1000 ** 2))
                 return msg
 
     return None
