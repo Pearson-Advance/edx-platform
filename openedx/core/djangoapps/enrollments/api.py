@@ -456,8 +456,15 @@ def _default_course_mode(course_id):
     Returns:
         str
     """
-    course_modes = CourseMode.modes_for_course(CourseKey.from_string(course_id))
+    course_key = CourseKey.from_string(course_id)
+    course_modes = CourseMode.modes_for_course(course_key)
     available_modes = [m.slug for m in course_modes]
+
+    # CCX courses have no CourseMode records, so they default to 'audit'
+    # which is not certificate-eligible. When ENABLE_CCX_CERTIFICATES is
+    # enabled, use the operator-configured mode instead.
+    if hasattr(course_key, 'ccx') and settings.FEATURES.get('ENABLE_CCX_CERTIFICATES', False):
+        return getattr(settings, 'CCX_DEFAULT_ENROLLMENT_MODE', 'audit')
 
     if CourseMode.DEFAULT_MODE_SLUG in available_modes:
         return CourseMode.DEFAULT_MODE_SLUG
