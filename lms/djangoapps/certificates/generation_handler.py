@@ -168,8 +168,7 @@ def _can_generate_regular_certificate(user, course_key, enrollment_mode, course_
     Check if a regular (non-allowlist) course certificate can be generated (created if it doesn't already exist, or
     updated if it does exist) for this user, in this course run.
     """
-    if _is_ccx_course(course_key):
-        log.info(f'{course_key} is a CCX course. Certificate cannot be generated for {user.id}.')
+    if _is_ccx_cert_generation_blocked(user, course_key):
         return False
 
     if is_beta_tester(user, course_key):
@@ -316,7 +315,7 @@ def _can_set_regular_cert_status(user, course_key, enrollment_mode):
     """
     Determine whether we can set a custom (non-downloadable) cert status for a regular (non-allowlist) certificate
     """
-    if _is_ccx_course(course_key):
+    if _is_ccx_cert_generation_blocked(user, course_key):
         return False
 
     if is_beta_tester(user, course_key):
@@ -380,6 +379,23 @@ def _is_ccx_course(course_key):
     Check if the course is a CCX (custom edX course)
     """
     return hasattr(course_key, 'ccx')
+
+
+def _is_ccx_cert_generation_blocked(user, course_key):
+    """
+    Check if certificate generation is blocked for a CCX course.
+
+    Returns True if the course is a CCX and the ENABLE_CCX_CERTIFICATES feature flag is not enabled.
+    """
+    if _is_ccx_course(course_key) and not getattr(settings, 'ENABLE_CCX_CERTIFICATES', False):
+        log.info(
+            '%s is a CCX course and ENABLE_CCX_CERTIFICATES is not enabled. '
+            'Certificate cannot be generated for %s.',
+            course_key,
+            user.id,
+        )
+        return True
+    return False
 
 
 def _has_passing_grade_or_is_allowlisted(user, course_key, course_grade):

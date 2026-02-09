@@ -5,6 +5,7 @@ import logging
 from unittest import mock
 
 import ddt
+from ccx_keys.locator import CCXLocator
 from django.conf import settings
 from django.test import override_settings
 
@@ -15,7 +16,9 @@ from lms.djangoapps.certificates.generation_handler import (
     _can_generate_allowlist_certificate,
     _can_generate_certificate_for_status,
     _can_generate_regular_certificate,
+    _can_set_regular_cert_status,
     _generate_regular_certificate_task,
+    _is_ccx_cert_generation_blocked,
     _set_allowlist_cert_status,
     _set_regular_cert_status,
     generate_allowlist_certificate_task,
@@ -23,6 +26,7 @@ from lms.djangoapps.certificates.generation_handler import (
     is_on_certificate_allowlist
 )
 from lms.djangoapps.certificates.models import GeneratedCertificate
+from lms.djangoapps.ccx.tests.factories import CcxFactory
 from lms.djangoapps.certificates.tests.factories import (
     CertificateAllowlistFactory,
     CertificateInvalidationFactory,
@@ -800,3 +804,125 @@ class CertificateTests(ModuleStoreTestCase):
                 mock.patch(PASSING_GRADE_METHOD, return_value=True), \
                 override_settings(FEATURES={**settings.FEATURES, 'DISABLE_HONOR_CERTIFICATES': True}):
             assert not _can_generate_regular_certificate(self.user, course_run_key, enrollment_mode, grade)
+
+
+class CCXCertGenerationBlockedTests(ModuleStoreTestCase):
+    """
+    Tests for _is_ccx_cert_generation_blocked().
+
+    Verifies that the function correctly blocks or allows certificate generation
+    for CCX courses based on the ENABLE_CCX_CERTIFICATES feature flag.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+        self.coach = UserFactory()
+        self.course_run = CourseFactory()
+        self.ccx = CcxFactory(course_id=self.course_run.id, coach=self.coach)
+        self.ccx_key = CCXLocator.from_course_locator(self.course_run.id, str(self.ccx.id))
+        self.regular_key = self.course_run.id
+
+    def test_blocked_for_ccx_by_default(self):
+        """CCX certificate generation is blocked when the flag is not set."""
+        self.assertTrue(_is_ccx_cert_generation_blocked(self.user, self.ccx_key))
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=False)
+    def test_blocked_for_ccx_when_flag_false(self):
+        """CCX certificate generation is blocked when the flag is explicitly False."""
+        self.assertTrue(_is_ccx_cert_generation_blocked(self.user, self.ccx_key))
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=True)
+    def test_not_blocked_for_ccx_when_flag_true(self):
+        """CCX certificate generation is allowed when the flag is True."""
+        self.assertFalse(_is_ccx_cert_generation_blocked(self.user, self.ccx_key))
+
+    def test_not_blocked_for_regular_course(self):
+        """Regular courses are never blocked by this check."""
+        self.assertFalse(_is_ccx_cert_generation_blocked(self.user, self.regular_key))
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=True)
+    def test_not_blocked_for_regular_course_with_flag_enabled(self):
+        """Regular courses are not affected even when the CCX flag is enabled."""
+        self.assertFalse(_is_ccx_cert_generation_blocked(self.user, self.regular_key))
+
+
+@mock.patch.dict(settings.FEATURES, ENABLE_CERTIFICATES_IDV_REQUIREMENT=False)
+@mock.patch(ID_VERIFIED_METHOD, mock.Mock(return_value=True))
+@mock.patch(PASSING_GRADE_METHOD, mock.Mock(return_value=True))
+@mock.patch(WEB_CERTS_METHOD, mock.Mock(return_value=True))
+class CCXCertificateFeatureFlagTests(ModuleStoreTestCase):
+    """
+    Tests for the ENABLE_CCX_CERTIFICATES feature flag.
+
+    This class verifies that:
+    - CCX certificates are blocked by default (flag not set or False)
+    - CCX certificates can be generated when the flag is True
+    - Enabling the flag does not bypass other certificate requirements (grade, enrollment, mode)
+    - The flag does not affect non-CCX courses
+
+    Uses a real CCX course (CcxFactory + CCXLocator) so that _is_ccx_course()
+    detects the CCX via hasattr(course_key, 'ccx') without mocking.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+        self.coach = UserFactory()
+        self.course_run = CourseFactory()
+        self.ccx = CcxFactory(course_id=self.course_run.id, coach=self.coach)
+        self.ccx_key = CCXLocator.from_course_locator(self.course_run.id, str(self.ccx.id))
+        self.enrollment_mode = CourseMode.VERIFIED
+        self.grade = CourseGradeFactory().read(self.user, self.course_run)
+        CourseEnrollmentFactory(
+            user=self.user,
+            course_id=self.ccx_key,
+            is_active=True,
+            mode=self.enrollment_mode,
+        )
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=False)
+    def test_blocked_when_flag_explicitly_false(self):
+        """
+        Test that CCX certificates are blocked when ENABLE_CCX_CERTIFICATES is explicitly False.
+        """
+        self.assertFalse(_can_generate_regular_certificate(
+            self.user, self.ccx_key, self.enrollment_mode, self.grade,
+        ))
+        self.assertFalse(_can_set_regular_cert_status(
+            self.user, self.ccx_key, self.enrollment_mode,
+        ))
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=True)
+    def test_can_generate_when_flag_enabled(self):
+        """
+        Test that CCX certificates can be generated when ENABLE_CCX_CERTIFICATES is True.
+        """
+        self.assertTrue(_can_generate_regular_certificate(
+            self.user, self.ccx_key, self.enrollment_mode, self.grade,
+        ))
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=True)
+    def test_generate_task_succeeds_when_flag_enabled(self):
+        """
+        Test that the full certificate generation task succeeds for CCX when flag is enabled.
+        """
+        self.assertTrue(_generate_regular_certificate_task(self.user, self.ccx_key))
+
+
+    @override_settings(ENABLE_CCX_CERTIFICATES=True)
+    def test_flag_does_not_affect_non_ccx_courses(self):
+        """
+        Test that the ENABLE_CCX_CERTIFICATES flag does not alter behavior for regular (non-CCX) courses.
+        A regular course key (without .ccx attribute) should still generate certificates normally.
+        """
+        regular_key = self.course_run.id
+        CourseEnrollmentFactory(
+            user=self.user,
+            course_id=regular_key,
+            is_active=True,
+            mode=self.enrollment_mode,
+        )
+        self.assertTrue(_can_generate_regular_certificate(
+            self.user, regular_key, self.enrollment_mode, self.grade,
+        ))
