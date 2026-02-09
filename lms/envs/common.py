@@ -211,6 +211,19 @@ ENABLE_INSTRUCTOR_BACKGROUND_TASKS = True
 # True.
 INDIVIDUAL_DUE_DATES = False
 
+# .. toggle_name: FEATURES['ENABLE_CCX_CERTIFICATES']
+# .. toggle_implementation: SettingDictToggle
+# .. toggle_default: False
+# .. toggle_description: Set to True to enable certificate generation for CCX (Custom Courses for edX).
+#   By default, certificate generation is blocked for all CCX courses. When enabled, CCX students
+#   who pass the course will receive certificates through the regular certificate generation flow.
+#   The enrollment mode for new CCX enrollments is controlled by the CCX_DEFAULT_ENROLLMENT_MODE
+#   setting, which defaults to 'honor' (certificate-eligible).
+# .. toggle_warning: Requires FEATURES['CUSTOM_COURSES_EDX'] to also be True.
+# .. toggle_use_cases: opt_in
+# .. toggle_creation_date: 2026-02-08
+ENABLE_CCX_CERTIFICATES = False
+
 # Toggle to enable certificates of courses on dashboard
 ENABLE_VERIFIED_CERTIFICATES = False
 
@@ -2538,6 +2551,19 @@ RSS_PROXY_CACHE_TIMEOUT = 3600  # The length of time we cache RSS retrieved from
 # .. setting_description: Maximum number of students allowed in a CCX (Custom Courses for edX), This is an arbitrary
 #   hard limit, chosen so that a CCX does not compete with public MOOCs.
 CCX_MAX_STUDENTS_ALLOWED = 200
+
+# .. toggle_name: CCX_DEFAULT_ENROLLMENT_MODE
+# .. toggle_implementation: DjangoSetting
+# .. toggle_default: honor
+# .. toggle_description: Default enrollment mode for new CCX (Custom Courses for edX) enrollments.
+#   CCX courses have no CourseMode records, so enrollments default to 'audit' which is not
+#   certificate-eligible. This setting overrides that default to a certificate-eligible mode.
+#   Common choices: 'honor', 'no-id-professional', 'professional', 'verified'.
+# .. toggle_warning: Only takes effect when FEATURES['ENABLE_CCX_CERTIFICATES'] is True.
+#   The value must be a certificate-eligible mode (any mode except 'audit').
+# .. toggle_use_cases: opt_in
+# .. toggle_creation_date: 2026-02-23
+CCX_DEFAULT_ENROLLMENT_MODE = 'honor'
 
 # Financial assistance settings
 
