@@ -238,63 +238,71 @@ def create_ccx(request, course, ccx=None):
         url = reverse('ccx_coach_dashboard', kwargs={'course_id': course.id})
         return redirect(url)
 
-    ccx = CustomCourseForEdX(
-        course_id=course.id,
-        coach=request.user,
-        display_name=name)
-    ccx.save()
+    with transaction.atomic():
+        ccx = CustomCourseForEdX(
+            course_id=course.id,
+            coach=request.user,
+            display_name=name)
+        ccx.save()
 
-    # Make sure start/due are overridden for entire course
-    start = TODAY().replace(tzinfo=pytz.UTC)
-    override_field_for_ccx(ccx, course, 'start', start)
-    override_field_for_ccx(ccx, course, 'due', None)
+        # Make sure start/due are overridden for entire course
+        start = TODAY().replace(tzinfo=pytz.UTC)
+        override_field_for_ccx(ccx, course, 'start', start)
+        override_field_for_ccx(ccx, course, 'due', None)
 
-    # Enforce a static limit for the maximum amount of students that can be enrolled
-    override_field_for_ccx(ccx, course, 'max_student_enrollments_allowed', settings.CCX_MAX_STUDENTS_ALLOWED)
-    # Save display name explicitly
-    override_field_for_ccx(ccx, course, 'display_name', name)
+        # Enforce a static limit for the maximum amount of students that can be enrolled
+        override_field_for_ccx(ccx, course, 'max_student_enrollments_allowed', settings.CCX_MAX_STUDENTS_ALLOWED)
+        # Save display name explicitly
+        override_field_for_ccx(ccx, course, 'display_name', name)
 
-    is_course_licensing_enabled = CourseLicensingEnabledRequested.run_filter(enabled=False)
+        is_course_licensing_enabled = CourseLicensingEnabledRequested.run_filter(enabled=False)
 
-    if not is_course_licensing_enabled:
-        # Hide anything that can show up in the schedule
-        hidden = 'visible_to_staff_only'
-        for chapter in course.get_children():
-            override_field_for_ccx(ccx, chapter, hidden, True)
-            for sequential in chapter.get_children():
-                override_field_for_ccx(ccx, sequential, hidden, True)
-                for vertical in sequential.get_children():
-                    override_field_for_ccx(ccx, vertical, hidden, True)
+        if not is_course_licensing_enabled:
+            # Hide anything that can show up in the schedule
+            hidden = 'visible_to_staff_only'
+            for chapter in course.get_children():
+                override_field_for_ccx(ccx, chapter, hidden, True)
+                for sequential in chapter.get_children():
+                    override_field_for_ccx(ccx, sequential, hidden, True)
+                    for vertical in sequential.get_children():
+                        override_field_for_ccx(ccx, vertical, hidden, True)
 
-    ccx_id = CCXLocator.from_course_locator(course.id, str(ccx.id))
+        ccx_id = CCXLocator.from_course_locator(course.id, str(ccx.id))
 
-    # Create forum roles
-    seed_permissions_roles(ccx_id)
-    # Assign administrator forum role to CCX coach
-    assign_role(ccx_id, request.user, FORUM_ROLE_ADMINISTRATOR)
+        # Create forum roles
+        seed_permissions_roles(ccx_id)
+        # Assign administrator forum role to CCX coach
+        assign_role(ccx_id, request.user, FORUM_ROLE_ADMINISTRATOR)
 
-    url = reverse('ccx_coach_dashboard', kwargs={'course_id': ccx_id})
+        url = reverse('ccx_coach_dashboard', kwargs={'course_id': ccx_id})
 
-    # Enroll the coach in the course
-    email_params = get_email_params(course, auto_enroll=True, course_key=ccx_id, display_name=ccx.display_name)
-    enroll_email(
-        course_id=ccx_id,
-        student_email=request.user.email,
-        auto_enroll=True,
-        message_students=True,
-        message_params=email_params,
-    )
+        # Enroll the coach in the course
+        email_params = get_email_params(course, auto_enroll=True, course_key=ccx_id, display_name=ccx.display_name)
+        enroll_email(
+            course_id=ccx_id,
+            student_email=request.user.email,
+            auto_enroll=True,
+            message_students=True,
+            message_params=email_params,
+        )
 
-    assign_staff_role_to_ccx(ccx_id, request.user, course.id)
-    add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
+        assign_staff_role_to_ccx(ccx_id, request.user, course.id)
+        add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
-    # using CCX object as sender here.
-    responses = SignalHandler.course_published.send(
-        sender=ccx,
-        course_key=CCXLocator.from_course_locator(course.id, str(ccx.id))
-    )
-    for rec, response in responses:
-        log.info('Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
+        def publish_ccx():
+            """Send course_published signal for the CCX after the transaction commits and log receiver responses."""
+            responses = SignalHandler.course_published.send(
+                sender=ccx,
+                course_key=ccx_id,
+            )
+            for rec, response in responses:
+                log.info(
+                    'Signal fired when course is published. Receiver: %s. Response: %s',
+                    rec,
+                    response,
+                )
+
+        transaction.on_commit(publish_ccx)
 
     # .. event_implemented_name: COURSE_CREATED
     COURSE_CREATED.send_event(
