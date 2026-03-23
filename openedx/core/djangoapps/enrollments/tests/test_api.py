@@ -303,3 +303,113 @@ class EnrollmentTest(CacheIsolationTestCase):
             assert result['is_active']
         else:
             assert not result['is_active']
+
+
+class DefaultCourseModeTests(CacheIsolationTestCase):
+    """
+    Tests for _default_course_mode().
+
+    Covers all code paths:
+    1. CCX + ENABLE_CCX_CERTIFICATES flag → returns CCX_DEFAULT_ENROLLMENT_MODE setting
+    2. DEFAULT_MODE_SLUG in available modes → returns DEFAULT_MODE_SLUG
+    3. 'audit' in available modes → returns 'audit'
+    4. 'honor' in available modes → returns 'honor'
+    5. No matching modes → returns DEFAULT_MODE_SLUG as final fallback
+    """
+
+    REGULAR_COURSE_ID = 'course-v1:TestOrg+Course1+Run1'
+    CCX_COURSE_ID = 'ccx-v1:TestOrg+Course1+Run1+ccx@5'
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    @patch.dict(settings.FEATURES, ENABLE_CCX_CERTIFICATES=True)
+    def test_ccx_returns_configured_mode_when_flag_enabled(self, mock_modes):
+        """When ENABLE_CCX_CERTIFICATES is True, CCX should use CCX_DEFAULT_ENROLLMENT_MODE."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        with override_settings(CCX_DEFAULT_ENROLLMENT_MODE='honor'):
+            result = api._default_course_mode(self.CCX_COURSE_ID)
+        self.assertEqual(result, 'honor')
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    @patch.dict(settings.FEATURES, ENABLE_CCX_CERTIFICATES=True)
+    def test_ccx_uses_custom_mode_from_setting(self, mock_modes):
+        """Operators can configure any certificate-eligible mode via the setting."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        with override_settings(CCX_DEFAULT_ENROLLMENT_MODE='no-id-professional'):
+            result = api._default_course_mode(self.CCX_COURSE_ID)
+        self.assertEqual(result, 'no-id-professional')
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    @patch.dict(settings.FEATURES, ENABLE_CCX_CERTIFICATES=True)
+    def test_ccx_with_explicit_modes_still_uses_setting(self, mock_modes):
+        """Even if a CCX has real CourseMode records, the setting takes precedence when the flag is enabled."""
+        mock_modes.return_value = [Mock(slug='audit'), Mock(slug='verified')]
+        with override_settings(CCX_DEFAULT_ENROLLMENT_MODE='no-id-professional'):
+            result = api._default_course_mode(self.CCX_COURSE_ID)
+        self.assertEqual(result, 'no-id-professional')
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_ccx_defaults_to_audit_when_flag_disabled(self, mock_modes):
+        """Without the feature flag, CCX enrollment mode should be audit (default)."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        result = api._default_course_mode(self.CCX_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    @patch.dict(settings.FEATURES, ENABLE_CCX_CERTIFICATES=False)
+    def test_ccx_defaults_to_audit_when_flag_explicitly_false(self, mock_modes):
+        """When ENABLE_CCX_CERTIFICATES is explicitly False, CCX stays on audit."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        result = api._default_course_mode(self.CCX_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    @patch.dict(settings.FEATURES, ENABLE_CCX_CERTIFICATES=True)
+    def test_regular_course_unaffected_by_flag(self, mock_modes):
+        """Non-CCX courses should not be affected by the CCX feature flag."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        with override_settings(CCX_DEFAULT_ENROLLMENT_MODE='no-id-professional'):
+            result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_default_mode_slug_when_available(self, mock_modes):
+        """When DEFAULT_MODE_SLUG is in available modes, return it."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG), Mock(slug='verified')]
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_default_mode_slug_when_only_mode(self, mock_modes):
+        """When DEFAULT_MODE_SLUG is the only mode, return it."""
+        mock_modes.return_value = [Mock(slug=CourseMode.DEFAULT_MODE_SLUG)]
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_audit_when_available(self, mock_modes):
+        """When 'audit' is available but DEFAULT_MODE_SLUG is not, return 'audit'."""
+        mock_modes.return_value = [Mock(slug='audit'), Mock(slug='verified')]
+        # This path only differs from path 2 if DEFAULT_MODE_SLUG != 'audit'
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertIn(result, [CourseMode.DEFAULT_MODE_SLUG, 'audit'])
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_honor_when_only_honor_available(self, mock_modes):
+        """When only 'honor' is available, return 'honor'."""
+        mock_modes.return_value = [Mock(slug='honor')]
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, 'honor')
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_honor_when_honor_and_verified_available(self, mock_modes):
+        """When 'honor' and 'verified' are available (but not audit/default), return 'honor'."""
+        mock_modes.return_value = [Mock(slug='honor'), Mock(slug='verified')]
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, 'honor')
+
+    @patch('openedx.core.djangoapps.enrollments.api.CourseMode.modes_for_course')
+    def test_returns_default_mode_slug_as_final_fallback(self, mock_modes):
+        """When no known mode is available, return DEFAULT_MODE_SLUG as fallback."""
+        mock_modes.return_value = [Mock(slug='verified'), Mock(slug='professional')]
+        result = api._default_course_mode(self.REGULAR_COURSE_ID)
+        self.assertEqual(result, CourseMode.DEFAULT_MODE_SLUG)
