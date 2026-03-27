@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import ddt
 import pytz
+from ccx_keys.locator import CCXLocator
 from config_models.models import cache
 from django.conf import settings
 from django.test import RequestFactory, TestCase
@@ -17,8 +18,10 @@ from django.urls import reverse
 from django.utils import timezone
 from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
+from opaque_keys.edx.django.models import CourseKeyField
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locator import CourseLocator
+from organizations.models import Organization
 from testfixtures import LogCapture
 from xmodule.data import CertificatesDisplayBehaviors
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase, SharedModuleStoreTestCase
@@ -51,6 +54,7 @@ from lms.djangoapps.certificates.api import (
     get_certificate_for_user_id,
     get_certificate_header_context,
     get_certificate_invalidation_entry,
+    get_certificate_template,
     get_certificate_url,
     get_certificates_for_user,
     get_certificates_for_user_by_course_keys,
@@ -60,10 +64,12 @@ from lms.djangoapps.certificates.api import (
     remove_allowlist_entry,
     set_cert_generation_enabled,
 )
+from lms.djangoapps.ccx.tests.factories import CcxFactory
 from lms.djangoapps.certificates.config import AUTO_CERTIFICATE_GENERATION
 from lms.djangoapps.certificates.models import (
     CertificateGenerationConfiguration,
     CertificateStatuses,
+    CertificateTemplate,
     GeneratedCertificate,
 )
 from lms.djangoapps.certificates.tests.factories import (
@@ -1268,3 +1274,67 @@ class CertificatesMessagingTestCase(ModuleStoreTestCase):
 
                 with patch(BETA_TESTER_METHOD, return_value=True):
                     assert not can_show_certificate_message(self.course, self.user, grade, certs_enabled)
+
+
+class CCXCertificateTemplateTests(ModuleStoreTestCase):
+    """Tests for CCX certificate template fallback to master course."""
+
+    def setUp(self):
+        super().setUp()
+        self.coach = UserFactory()
+        self.course_run = CourseFactory.create()
+        self.ccx = CcxFactory(course_id=self.course_run.id, coach=self.coach)
+        self.ccx_key = CCXLocator.from_course_locator(self.course_run.id, str(self.ccx.id))
+        self.master_key = self.course_run.id
+        self.org = self.course_run.org
+        self.org_obj, _ = Organization.objects.get_or_create(short_name=self.org)
+        mock_org_id = patch(
+            'lms.djangoapps.certificates.api.get_course_organization_id',
+            side_effect=lambda key: None if hasattr(key, 'ccx') else self.org_obj.id
+        )
+        mock_org_id.start()
+        self.addCleanup(mock_org_id.stop)
+
+    def _create_template(self, course_key=CourseKeyField.Empty, org_id=None, mode='honor', language=None):
+        template = CertificateTemplate(
+            name=f'template-{course_key}-{mode}',
+            template='<html>test</html>',
+            organization_id=org_id,
+            course_key=course_key,
+            mode=mode,
+            is_active=True,
+            language=language,
+        )
+        template.save()
+        return template
+
+    def test_ccx_inherits_master_course_template(self):
+        """CCX without own template inherits template by master course_key."""
+        template = self._create_template(course_key=self.master_key, org_id=self.org_obj.id)
+        result = get_certificate_template(self.ccx_key, 'honor', None)
+        assert result == template
+
+    def test_ccx_inherits_master_org_mode_template(self):
+        """CCX inherits org+mode template from master when no course_key match."""
+        template = self._create_template(course_key=CourseKeyField.Empty, org_id=self.org_obj.id)
+        result = get_certificate_template(self.ccx_key, 'honor', None)
+        assert result == template
+
+    def test_ccx_own_template_takes_priority(self):
+        """CCX own template takes priority over master course template."""
+        ccx_template = self._create_template(course_key=self.ccx_key, org_id=self.org_obj.id)
+        self._create_template(course_key=self.master_key, org_id=self.org_obj.id)
+        result = get_certificate_template(self.ccx_key, 'honor', None)
+        assert result == ccx_template
+
+    def test_regular_course_unaffected(self):
+        """Regular courses are not affected by CCX fallback logic."""
+        template = self._create_template(course_key=self.master_key, org_id=self.org_obj.id)
+        result = get_certificate_template(self.master_key, 'honor', None)
+        assert result == template
+
+    def test_ccx_falls_back_to_mode_only(self):
+        """CCX without master org falls back to mode-only template."""
+        mode_template = self._create_template(course_key=CourseKeyField.Empty, org_id=None, mode='honor')
+        result = get_certificate_template(self.ccx_key, 'honor', None)
+        assert result == mode_template
