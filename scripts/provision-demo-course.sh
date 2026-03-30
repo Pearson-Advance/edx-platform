@@ -22,10 +22,10 @@ DEMO_COURSE_KEY='course-v1:edX+DemoX+Demo_Course'
 mkdir -p /edx/app/demo
 (
 	cd /edx/app/demo &&
-	rm -rf edx-demo-course &&
-	git clone https://github.com/openedx/openedx-demo-course.git --depth 1
+	rm -rf openedx-demo-course &&
+	git clone -b open-release/olive.master https://github.com/openedx/openedx-demo-course.git --depth 1
 )
 
 # Import the course.
-./manage.py cms import /edx/var/edxapp/data /edx/app/demo/edx-demo-course
+./manage.py cms import /edx/var/edxapp/data /edx/app/demo/openedx-demo-course
 
