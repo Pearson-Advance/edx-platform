@@ -476,6 +476,32 @@ def get_certificate_template(course_key, mode, language):
         org_mode_and_key_templates = active_templates.filter(organization_id=org_id, mode=mode, course_key=course_key)
         template = _get_language_specific_template_or_default(language, org_mode_and_key_templates)
 
+    # CCX courses: if no template matched the CCX key, try with the master course key.
+    # CCX courses inherit their certificate template from the master course.
+    # CCX keys are never in OrganizationCourse, so org_id is None for them and the lookup
+    # above is always skipped. We use the master course org to find CCX-specific templates first,
+    # then fall back to the master course template.
+    if not template and hasattr(course_key, 'ccx'):
+        master_course_key = course_key.to_course_locator()
+        master_org_id = get_course_organization_id(master_course_key)
+        if master_org_id and mode:
+            ccx_specific_templates = active_templates.filter(
+                organization_id=master_org_id,
+                mode=mode,
+                course_key=course_key
+            )
+            template = _get_language_specific_template_or_default(language, ccx_specific_templates)
+        if not template and master_org_id and mode:
+            master_templates = active_templates.filter(
+                organization_id=master_org_id,
+                mode=mode,
+                course_key=master_course_key
+            )
+            template = _get_language_specific_template_or_default(language, master_templates)
+        # Also try master org for org+mode fallback (without course_key)
+        if not template and master_org_id:
+            org_id = master_org_id
+
     # since no template matched that course_key, only consider templates with empty course_key
     empty_course_key_templates = active_templates.filter(course_key=CourseKeyField.Empty)
     if not template and org_id and mode:  # get template by org and mode
