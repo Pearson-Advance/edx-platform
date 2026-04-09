@@ -687,7 +687,7 @@ def redirect_to_lms_login(request):
     This view redirect the admin/login url to the site's login page if
     waffle switch is on otherwise returns the admin site's login view.
     """
-    return redirect('/login?next=/admin')
+    return redirect('/login?next=/ops_admin')
 
 
 class LoginSessionView(APIView):
