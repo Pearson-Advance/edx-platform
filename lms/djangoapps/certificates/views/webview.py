@@ -52,6 +52,7 @@ from lms.djangoapps.certificates.utils import (
 )
 from openedx.core.djangoapps.catalog.api import get_course_run_details
 from openedx.core.djangoapps.content.course_overviews.api import get_course_overview_or_none
+from xmodule.modulestore.django import modulestore
 from openedx.core.djangoapps.lang_pref.api import get_closest_released_language
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.lib.courses import course_image_url
@@ -249,7 +250,14 @@ def _update_course_context(request, context, course, platform_name):
     """
     context['full_course_image_url'] = request.build_absolute_uri(course_image_url(course))
     course_title_from_cert = context['certificate_data'].get('course_title', '')
-    accomplishment_copy_course_name = course_title_from_cert if course_title_from_cert else course.display_name
+    if course_title_from_cert:
+        accomplishment_copy_course_name = course_title_from_cert
+    elif hasattr(course.id, 'ccx'):
+        master_course_key = course.id.to_course_locator()
+        master_course = modulestore().get_course(master_course_key)
+        accomplishment_copy_course_name = master_course.display_name
+    else:
+        accomplishment_copy_course_name = course.display_name
     context['accomplishment_copy_course_name'] = accomplishment_copy_course_name
     course_number = course.display_coursenumber if course.display_coursenumber else course.number
     context['course_number'] = course_number

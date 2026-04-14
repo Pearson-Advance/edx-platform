@@ -51,9 +51,12 @@ from openedx.core.djangolib.js_utils import js_escaped_string
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase
 from openedx.core.lib.tests.assertions.events import assert_event_matches
 from openedx.features.name_affirmation_api.utils import get_name_affirmation_service
+from ccx_keys.locator import CCXLocator
 from xmodule.data import CertificatesDisplayBehaviors  # lint-amnesty, pylint: disable=wrong-import-order
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase  # lint-amnesty, pylint: disable=wrong-import-order
 from xmodule.modulestore.tests.factories import CourseFactory  # lint-amnesty, pylint: disable=wrong-import-order
+
+from lms.djangoapps.ccx.tests.factories import CcxFactory
 
 FEATURES_WITH_CERTS_ENABLED = settings.FEATURES.copy()
 FEATURES_WITH_CERTS_ENABLED['CERTIFICATES_HTML_VIEW'] = True
@@ -1769,3 +1772,76 @@ class CertificateEventTests(CommonCertificatesTestCase, EventTrackingTestCase):
             },
             actual_event
         )
+
+
+@override_settings(FEATURES=FEATURES_WITH_CERTS_ENABLED)
+class CCXCertificateDisplayNameTests(CommonCertificatesTestCase):
+    """Tests that CCX certificates display the master course name instead of the CCX class name."""
+
+    ENABLED_SIGNALS = ['course_published']
+
+    def setUp(self):
+        super().setUp()
+        self.ccx = CcxFactory(course_id=self.course.id, coach=self.user, display_name='My CCX Class Name')
+        self.ccx_key = CCXLocator.from_course_locator(self.course.id, str(self.ccx.id))
+
+    def test_ccx_certificate_shows_master_course_name(self):
+        """CCX certificate should display the master course display_name, not the CCX class name."""
+        test_certificates = [
+            {
+                'id': 0,
+                'name': 'Name 0',
+                'description': 'Description 0',
+                'signatories': [],
+                'version': 1,
+                'is_active': True
+            }
+        ]
+        self.course.certificates = {'certificates': test_certificates}
+        self.course.cert_html_view_enabled = True
+        self.course.save()
+        self.update_course(self.course, self.user.id)
+
+        ccx_verify_uuid = uuid4().hex
+        GeneratedCertificateFactory.create(
+            user=self.user,
+            course_id=self.ccx_key,
+            verify_uuid=ccx_verify_uuid,
+            download_uuid=uuid4().hex,
+            download_url="https://www.example.com/certificates/download",
+            grade="0.95",
+            key='the_key',
+            distinction=True,
+            status=CertificateStatuses.downloadable,
+            mode='honor',
+            name=self.user.profile.name,
+        )
+
+        test_url = reverse('certificates:render_cert_by_uuid', kwargs={'certificate_uuid': ccx_verify_uuid})
+        response = self.client.get(test_url)
+        self.assertContains(response, 'refundable course')
+        self.assertNotContains(response, 'My CCX Class Name')
+
+    def test_ccx_certificate_with_course_title_shows_course_title(self):
+        """When certificate has a course_title configured, it should take priority over master course name."""
+        self._add_course_certificates(count=1, signatory_count=0)
+
+        ccx_verify_uuid = uuid4().hex
+        GeneratedCertificateFactory.create(
+            user=self.user,
+            course_id=self.ccx_key,
+            verify_uuid=ccx_verify_uuid,
+            download_uuid=uuid4().hex,
+            download_url="https://www.example.com/certificates/download",
+            grade="0.95",
+            key='the_key',
+            distinction=True,
+            status=CertificateStatuses.downloadable,
+            mode='honor',
+            name=self.user.profile.name,
+        )
+
+        test_url = reverse('certificates:render_cert_by_uuid', kwargs={'certificate_uuid': ccx_verify_uuid})
+        response = self.client.get(test_url)
+        self.assertContains(response, 'course_title_0')
+        self.assertNotContains(response, 'My CCX Class Name')
