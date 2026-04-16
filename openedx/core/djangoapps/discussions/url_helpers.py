@@ -27,12 +27,11 @@ def _get_url_with_view_query_params(path: str, view: Optional[str] = None) -> st
         settings.DISCUSSIONS_MICROFRONTEND_URL,
     ) is None:
         return ''
-    url = (
-        f"{configuration_helpers.get_value(
-            'DISCUSSIONS_MICROFRONTEND_URL',
-            settings.DISCUSSIONS_MICROFRONTEND_URL,
-        )}/{path}"
+    discussions_mfe_url = configuration_helpers.get_value(
+        "DISCUSSIONS_MICROFRONTEND_URL",
+        settings.DISCUSSIONS_MICROFRONTEND_URL,
     )
+    url = f"{discussions_mfe_url}/{path}"
 
     query_params = {}
     if view == "in_context":

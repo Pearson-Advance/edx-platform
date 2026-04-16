@@ -61,6 +61,11 @@ class DiscussionNotificationSender:
         if extra_context is None:
             extra_context = {}
 
+        discussions_url = configuration_helpers.get_value(
+            "DISCUSSIONS_MICROFRONTEND_URL",
+            settings.DISCUSSIONS_MICROFRONTEND_URL,
+        )
+
         notification_data = UserNotificationData(
             user_ids=[int(user_id) for user_id in user_ids],
             context={
@@ -71,12 +76,7 @@ class DiscussionNotificationSender:
                 **extra_context,
             },
             notification_type=notification_type,
-            content_url=(
-                f"{configuration_helpers.get_value(
-                    'DISCUSSIONS_MICROFRONTEND_URL',
-                    settings.DISCUSSIONS_MICROFRONTEND_URL,
-                )}/{self.course.id}/posts/{self.thread.id}"
-            ),
+            content_url=f"{discussions_url}/{self.course.id}/posts/{self.thread.id}",
             app_name="discussion",
             course_key=self.course.id,
         )
@@ -91,6 +91,11 @@ class DiscussionNotificationSender:
         if not extra_context:
             extra_context = {}
 
+        discussions_mfe_url = configuration_helpers.get_value(
+            "DISCUSSIONS_MICROFRONTEND_URL",
+            settings.DISCUSSIONS_MICROFRONTEND_URL,
+        )
+
         notification_data = CourseNotificationData(
             course_key=self.course.id,
             content_context={
@@ -102,12 +107,7 @@ class DiscussionNotificationSender:
                 **extra_context,
             },
             notification_type=notification_type,
-            content_url=(
-                f"{configuration_helpers.get_value(
-                    'DISCUSSIONS_MICROFRONTEND_URL',
-                    settings.DISCUSSIONS_MICROFRONTEND_URL,
-                )}/{self.course.id}/posts/{self.thread.id}"
-            ),
+            content_url=f"{discussions_mfe_url}/{self.course.id}/posts/{self.thread.id}",
             app_name="discussion",
             audience_filters=audience_filters,
         )
