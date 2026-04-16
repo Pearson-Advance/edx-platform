@@ -14,6 +14,7 @@ from openedx_events.learning.signals import USER_NOTIFICATION_REQUESTED, COURSE_
 
 from openedx.core.djangoapps.course_groups.models import CourseCohortsSettings
 from openedx.core.djangoapps.discussions.utils import get_divided_discussions
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from django.utils.translation import gettext_lazy as _
 
 from openedx.core.djangoapps.django_comment_common.comment_client.comment import Comment
@@ -70,7 +71,12 @@ class DiscussionNotificationSender:
                 **extra_context,
             },
             notification_type=notification_type,
-            content_url=f"{settings.DISCUSSIONS_MICROFRONTEND_URL}/{str(self.course.id)}/posts/{self.thread.id}",
+            content_url=(
+                f"{configuration_helpers.get_value(
+                    'DISCUSSIONS_MICROFRONTEND_URL',
+                    settings.DISCUSSIONS_MICROFRONTEND_URL,
+                )}/{self.course.id}/posts/{self.thread.id}"
+            ),
             app_name="discussion",
             course_key=self.course.id,
         )
@@ -96,7 +102,12 @@ class DiscussionNotificationSender:
                 **extra_context,
             },
             notification_type=notification_type,
-            content_url=f"{settings.DISCUSSIONS_MICROFRONTEND_URL}/{str(self.course.id)}/posts/{self.thread.id}",
+            content_url=(
+                f"{configuration_helpers.get_value(
+                    'DISCUSSIONS_MICROFRONTEND_URL',
+                    settings.DISCUSSIONS_MICROFRONTEND_URL,
+                )}/{self.course.id}/posts/{self.thread.id}"
+            ),
             app_name="discussion",
             audience_filters=audience_filters,
         )
