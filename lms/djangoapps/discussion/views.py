@@ -276,7 +276,10 @@ def redirect_forum_url_to_new_mfe(request, course_id):
 
     redirect_url = None
     if discussions_mfe_enabled:
-        mfe_base_url = settings.DISCUSSIONS_MICROFRONTEND_URL
+        mfe_base_url = configuration_helpers.get_value(
+            'DISCUSSIONS_MICROFRONTEND_URL',
+            settings.DISCUSSIONS_MICROFRONTEND_URL,
+        )
         redirect_url = f"{mfe_base_url}/{str(course_key)}"
     return redirect_url
 
@@ -336,7 +339,10 @@ def redirect_thread_url_to_new_mfe(request, course_id, thread_id):
     discussions_mfe_enabled = ENABLE_DISCUSSIONS_MFE.is_enabled(course_key)
     redirect_url = None
     if discussions_mfe_enabled:
-        mfe_base_url = settings.DISCUSSIONS_MICROFRONTEND_URL
+        mfe_base_url = configuration_helpers.get_value(
+            'DISCUSSIONS_MICROFRONTEND_URL',
+            settings.DISCUSSIONS_MICROFRONTEND_URL,
+        )
         if thread_id:
             redirect_url = f"{mfe_base_url}/{str(course_key)}/posts/{thread_id}"
     return redirect_url
@@ -633,7 +639,7 @@ def create_user_profile_context(request, course_key, user_id):
             'num_pages': query_params['num_pages'],
             'sort_preference': user.default_sort_key,
             'learner_profile_page_url': urljoin(
-                 configuration_helpers.get_value(
+                configuration_helpers.get_value(
                     'PROFILE_MICROFRONTEND_URL',
                     settings.PROFILE_MICROFRONTEND_URL,
                 ),
@@ -663,7 +669,10 @@ def user_profile(request, course_key, user_id):
         else:
             discussions_mfe_enabled = ENABLE_DISCUSSIONS_MFE.is_enabled(course_key)
             if discussions_mfe_enabled:
-                mfe_base_url = settings.DISCUSSIONS_MICROFRONTEND_URL
+                mfe_base_url = configuration_helpers.get_value(
+                    'DISCUSSIONS_MICROFRONTEND_URL',
+                    settings.DISCUSSIONS_MICROFRONTEND_URL,
+                )
                 return redirect(f"{mfe_base_url}/{str(course_key)}/learners")
 
             tab_view = CourseTabView()
