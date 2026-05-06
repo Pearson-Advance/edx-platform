@@ -287,7 +287,8 @@ def create_ccx(request, course, ccx=None):
         )
 
         assign_staff_role_to_ccx(ccx_id, request.user, course.id)
-        add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
+        if not is_course_licensing_enabled:
+            add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
         def publish_ccx():
             """Send course_published signal for the CCX after the transaction commits and log receiver responses."""
