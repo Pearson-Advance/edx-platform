@@ -127,8 +127,8 @@ def update_library_collection_items(
     assert content_library.learning_package_id
     assert content_library.library_key == library_key
 
-    # Fetch the Component.key values for the provided UsageKeys.
-    item_keys = []
+    # Fetch the Component.entity_ref values for the provided UsageKeys.
+    entity_ids: list[PublishableEntity.ID] = []
     for opaque_key in opaque_keys:
         if isinstance(opaque_key, LibraryContainerLocator):
             try:
@@ -139,7 +139,7 @@ def update_library_collection_items(
             except Collection.DoesNotExist as exc:
                 raise ContentLibraryContainerNotFound(opaque_key) from exc
 
-            item_keys.append(container.key)
+            entity_ids.append(container.id)
         elif isinstance(opaque_key, UsageKeyV2):
             # Parse the block_family from the key to use as namespace.
             block_type = BlockTypeKey.from_string(str(opaque_key))
@@ -153,14 +153,12 @@ def update_library_collection_items(
             except Component.DoesNotExist as exc:
                 raise ContentLibraryBlockNotFound(opaque_key) from exc
 
-            item_keys.append(component.key)
+            entity_ids.append(component.id)
         else:
             # This should never happen, but just in case.
             raise ValueError(f"Invalid opaque_key: {opaque_key}")
 
-    entities_qset = PublishableEntity.objects.filter(
-        key__in=item_keys,
-    )
+    entities_qset = content_api.get_publishable_entities(content_library.learning_package_id).filter(id__in=entity_ids)
 
     if remove:
         collection = content_api.remove_from_collection(
