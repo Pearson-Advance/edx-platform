@@ -8,6 +8,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Case, Exists, F, OuterRef, Q, When
@@ -57,6 +58,7 @@ from lms.djangoapps.grades.tasks import recalculate_subsection_grade_v3
 from lms.djangoapps.program_enrollments.api import get_external_key_by_user_and_course
 from openedx.core.djangoapps.course_groups import cohorts
 from openedx.core.djangoapps.enrollments.api import get_course_enrollment_details
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.util.forms import to_bool
 from openedx.core.lib.api.view_utils import (
     DeveloperErrorViewMixin,
@@ -526,9 +528,11 @@ class GradebookView(GradeViewMixin, PaginatedAPIView):
                 mode, _ = CourseEnrollment.enrollment_mode_for_user(user, str(course.id))
                 return mode == CourseMode.MASTERS
 
-        if is_masters_student():
+        if configuration_helpers.get_value(
+            'ENABLE_FULL_NAME_IN_GRADEBOOK',
+            settings.ENABLE_FULL_NAME_IN_GRADEBOOK,
+        ) or is_masters_student():
             user_entry['full_name'] = user.profile.name
-
         external_user_key = get_external_key_by_user_and_course(user, course.id)
         if external_user_key:
             user_entry['external_user_key'] = external_user_key
