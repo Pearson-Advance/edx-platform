@@ -3209,3 +3209,13 @@ SSL_AUTH_DN_FORMAT_STRING = (
 #    Entity ID docs:
 #    https://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/configuration/tpa/tpa_integrate_open/tpa_SAML_IdP.html#add-and-enable-a-saml-identity-provider
 SAML_IES_ENTITIES_IDS = []
+
+# .. setting_name: ENABLE_FULL_NAME_IN_GRADEBOOK
+# .. setting_implementation: DjangoSetting
+# .. setting_default: False
+# .. setting_description: When True, the full_name field is included in the gradebook API response for all
+#    enrollment modes. When False (default), full_name is only included for students enrolled in the masters
+#    track, preserving the original upstream behavior.
+# .. setting_use_cases: open_edx
+# .. setting_creation_date: 2026-05-28
+ENABLE_FULL_NAME_IN_GRADEBOOK = False
