@@ -384,9 +384,10 @@ def save_ccx(request, course, ccx=None):  # lint-amnesty, pylint: disable=too-ma
         return earliest, ccx_ids_to_delete
 
     graded = {}
+    course_start_override_id = get_override_for_ccx(ccx, course, 'start_id')
     earliest, ccx_ids_to_delete = override_fields(course, json.loads(request.body.decode('utf8')), graded, [])
     bulk_delete_ccx_override_fields(ccx, ccx_ids_to_delete)
-    if earliest:
+    if earliest and not course_start_override_id:
         override_field_for_ccx(ccx, course, 'start', earliest)
 
     # Attempt to automatically adjust grading policy
