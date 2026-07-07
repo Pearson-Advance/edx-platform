@@ -54,7 +54,8 @@ from lms.djangoapps.ccx.utils import (
     get_date,
     get_enrollment_action_and_identifiers,
     multiple_ccx_per_coach,
-    parse_date
+    parse_date,
+    publish_signals_after_commit,
 )
 from lms.djangoapps.courseware.field_overrides import disable_overrides
 from lms.djangoapps.grades.api import CourseGradeFactory, is_writable_gradebook_enabled
@@ -64,7 +65,6 @@ from openedx.core.djangoapps.django_comment_common.models import FORUM_ROLE_ADMI
 from openedx.core.djangoapps.django_comment_common.utils import seed_permissions_roles
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.lib.courses import get_course_by_id
-from xmodule.modulestore.django import SignalHandler  # lint-amnesty, pylint: disable=wrong-import-order
 
 log = logging.getLogger(__name__)
 TODAY = datetime.datetime.today  # for patching in tests
@@ -290,28 +290,7 @@ def create_ccx(request, course, ccx=None):
         if not is_course_licensing_enabled:
             add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
-        def publish_ccx():
-            """Send course_published signal for the CCX after the transaction commits and log receiver responses."""
-            responses = SignalHandler.course_published.send(
-                sender=ccx,
-                course_key=ccx_id,
-            )
-            for rec, response in responses:
-                log.info(
-                    'Signal fired when course is published. Receiver: %s. Response: %s',
-                    rec,
-                    response,
-                )
-
-        transaction.on_commit(publish_ccx)
-
-    # .. event_implemented_name: COURSE_CREATED
-    COURSE_CREATED.send_event(
-        time=datetime.datetime.now(tz=timezone.utc),
-        course=CourseData(
-            course_key=ccx_id,
-        )
-    )
+    publish_signals_after_commit(ccx, ccx_id, is_new_ccx=True)
 
     return redirect(url)
 
@@ -384,34 +363,43 @@ def save_ccx(request, course, ccx=None):  # lint-amnesty, pylint: disable=too-ma
         return earliest, ccx_ids_to_delete
 
     graded = {}
-    course_start_override_id = get_override_for_ccx(ccx, course, 'start_id')
-    earliest, ccx_ids_to_delete = override_fields(course, json.loads(request.body.decode('utf8')), graded, [])
-    bulk_delete_ccx_override_fields(ccx, ccx_ids_to_delete)
-    if earliest and not course_start_override_id:
-        override_field_for_ccx(ccx, course, 'start', earliest)
+    schedule_data = json.loads(request.body.decode('utf8'))
+    ccx_key = CCXLocator.from_course_locator(course.id, str(ccx.id))
 
-    # Attempt to automatically adjust grading policy
-    changed = False
-    policy = get_override_for_ccx(
-        ccx, course, 'grading_policy', course.grading_policy
-    )
-    policy = deepcopy(policy)
-    grader = policy['GRADER']
-    for section in grader:
-        count = graded.get(section.get('type'), 0)
-        if count < section.get('min_count', 0):
-            changed = True
-            section['min_count'] = count
-    if changed:
-        override_field_for_ccx(ccx, course, 'grading_policy', policy)
+    with transaction.atomic():
+        course_start_override_id = get_override_for_ccx(ccx, course, 'start_id')
+        earliest, ccx_ids_to_delete = override_fields(
+            course,
+            schedule_data,
+            graded,
+        )
 
-    # using CCX object as sender here.
-    responses = SignalHandler.course_published.send(
-        sender=ccx,
-        course_key=CCXLocator.from_course_locator(course.id, str(ccx.id))
-    )
-    for rec, response in responses:
-        log.info('Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
+        bulk_delete_ccx_override_fields(ccx, ccx_ids_to_delete)
+
+        if earliest and not course_start_override_id:
+            override_field_for_ccx(ccx, course, 'start', earliest)
+
+        # Attempt to automatically adjust grading policy.
+        changed = False
+        policy = get_override_for_ccx(
+            ccx,
+            course,
+            'grading_policy',
+            course.grading_policy,
+        )
+        policy = deepcopy(policy)
+
+        grader = policy['GRADER']
+        for section in grader:
+            count = graded.get(section.get('type'), 0)
+            if count < section.get('min_count', 0):
+                changed = True
+                section['min_count'] = count
+
+        if changed:
+            override_field_for_ccx(ccx, course, 'grading_policy', policy)
+
+    publish_signals_after_commit(ccx, ccx_key, is_new_ccx=False)
 
     return HttpResponse(  # lint-amnesty, pylint: disable=http-response-with-content-type-json, http-response-with-json-dumps
         json.dumps({
@@ -431,20 +419,21 @@ def set_grading_policy(request, course, ccx=None):
     if not ccx:
         raise Http404
 
-    override_field_for_ccx(
-        ccx, course, 'grading_policy', json.loads(request.POST['policy']))
+    ccx_key = CCXLocator.from_course_locator(course.id, str(ccx.id))
 
-    # using CCX object as sender here.
-    responses = SignalHandler.course_published.send(
-        sender=ccx,
-        course_key=CCXLocator.from_course_locator(course.id, str(ccx.id))
-    )
-    for rec, response in responses:
-        log.info('Signal fired when course is published. Receiver: %s. Response: %s', rec, response)
+    with transaction.atomic():
+        override_field_for_ccx(
+            ccx,
+            course,
+            'grading_policy',
+            json.loads(request.POST['policy']),
+        )
+
+    publish_signals_after_commit(ccx, ccx_key, is_new_ccx=False)
 
     url = reverse(
         'ccx_coach_dashboard',
-        kwargs={'course_id': CCXLocator.from_course_locator(course.id, str(ccx.id))}
+        kwargs={'course_id': ccx_key}
     )
     return redirect(url)
 

@@ -16,6 +16,7 @@ from crum import get_current_request
 from django.contrib.auth.models import User  # lint-amnesty, pylint: disable=imported-auth-user
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -31,6 +32,7 @@ from lms.djangoapps.instructor.views.tools import get_student_from_identifier
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.lib.courses import get_course_by_id
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+from xmodule.modulestore.django import SignalHandler  # lint-amnesty, pylint: disable=wrong-import-order
 
 from openedx_filters.license_enforcement.filters import (
     CourseLicensingEnabledRequested,
@@ -539,5 +541,64 @@ def multiple_ccx_per_coach(course):
         and configuration_helpers.get_value(
             'ALLOW_MULTIPLE_CCX_PER_COACH',
             False,
+        )
+    )
+
+
+def send_ccx_published_signals(ccx, course_key, is_new_ccx=False):
+    """
+    Emit the CCX publication-related signals and log receiver responses.
+
+    If the CCX has just been created, emit the `COURSE_CREATED` event before
+    sending the legacy `course_published` Django signal. This function performs
+    the actual signal dispatch, so callers that are still inside a database
+    transaction should prefer `publish_signals_after_commit()` to ensure signal
+    receivers only run after the CCX changes have been committed.
+
+    Arguments:
+        ccx: The CCX course object used as the sender of the publish signal.
+        course_key: The course key associated with the CCX.
+        is_new_ccx: Whether the CCX was newly created in the current flow.
+    """
+    if is_new_ccx:
+        # .. event_implemented_name: COURSE_CREATED
+        COURSE_CREATED.send_event(
+            time=datetime.datetime.now(tz=timezone.utc),
+            course=CourseData(
+                course_key=ccx_id,
+            )
+        )
+
+    responses = SignalHandler.course_published.send(
+        sender=ccx,
+        course_key=course_key,
+    )
+    for receiver, response in responses:
+        log.info(
+            'Signal fired when course is published. Receiver: %s. Response: %s',
+            receiver,
+            response,
+        )
+
+
+def publish_signals_after_commit(ccx, course_key, is_new_ccx=False):
+    """
+    Schedule CCX publication-related signals to run after the current transaction commits.
+
+    Defers signal dispatch with `transaction.on_commit()` so downstream receivers
+    observe the committed CCX state, including schedule and grading-policy
+    overrides. If this function is called outside an active transaction, Django
+    executes the callback immediately.
+
+    Arguments:
+        ccx: The CCX course object used as the sender of the publish signal.
+        course_key: The course key associated with the CCX.
+        is_new_ccx: Whether the CCX was newly created in the current flow.
+    """
+    transaction.on_commit(
+        lambda: send_ccx_published_signals(
+            ccx=ccx,
+            course_key=course_key,
+            is_new_ccx=is_new_ccx,
         )
     )
