@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Dict, FrozenSet, List, Optional, Union
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models.query import QuerySet
 from edx_django_utils.cache import TieredCache
@@ -18,6 +19,7 @@ from opaque_keys.edx.locator import LibraryLocator
 from openedx.core import types
 from openedx.core.djangoapps.content.learning_sequences.api.processors.team_partition_groups \
     import TeamPartitionGroupsOutlineProcessor
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
 from ..data import (
     ContentErrorData,
@@ -192,7 +194,15 @@ def get_course_outline(course_key: CourseKey) -> CourseOutlineData:
         self_paced=course_context.self_paced,
         course_visibility=CourseVisibility(course_context.course_visibility),
     )
-    TieredCache.set_all_tiers(cache_key, outline_data, 300)
+
+    TieredCache.set_all_tiers(
+        cache_key,
+        outline_data,
+        configuration_helpers.get_value(
+            'LEARNING_SEQUENCES_OUTLINE_CACHE_TIMEOUT_SECONDS',
+            settings.LEARNING_SEQUENCES_OUTLINE_CACHE_TIMEOUT_SECONDS,
+        ),
+    )
 
     return outline_data
 
