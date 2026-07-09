@@ -290,7 +290,15 @@ def create_ccx(request, course, ccx=None):
         if not is_course_licensing_enabled:
             add_master_course_staff_to_ccx(course, ccx_id, ccx.display_name)
 
-    publish_signals_after_commit(ccx, ccx_id, is_new_ccx=True)
+        publish_signals_after_commit(ccx=ccx, course_key=ccx_id)
+
+    # .. event_implemented_name: COURSE_CREATED
+    COURSE_CREATED.send_event(
+        time=datetime.datetime.now(tz=timezone.utc),
+        course=CourseData(
+            course_key=ccx_id,
+        )
+    )
 
     return redirect(url)
 
@@ -399,7 +407,7 @@ def save_ccx(request, course, ccx=None):  # lint-amnesty, pylint: disable=too-ma
         if changed:
             override_field_for_ccx(ccx, course, 'grading_policy', policy)
 
-    publish_signals_after_commit(ccx, ccx_key, is_new_ccx=False)
+        publish_signals_after_commit(ccx=ccx, course_key=ccx_key)
 
     return HttpResponse(  # lint-amnesty, pylint: disable=http-response-with-content-type-json, http-response-with-json-dumps
         json.dumps({
@@ -429,7 +437,7 @@ def set_grading_policy(request, course, ccx=None):
             json.loads(request.POST['policy']),
         )
 
-    publish_signals_after_commit(ccx, ccx_key, is_new_ccx=False)
+        publish_signals_after_commit(ccx=ccx, course_key=ccx_key)
 
     url = reverse(
         'ccx_coach_dashboard',
