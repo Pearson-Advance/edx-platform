@@ -35,6 +35,7 @@ from openedx_filters.license_enforcement.filters import (
 from common.djangoapps.edxmako.shortcuts import render_to_response
 from common.djangoapps.student.models import CourseEnrollment
 from common.djangoapps.student.roles import CourseCcxCoachRole
+from common.djangoapps.util.file import course_filename_prefix_generator
 from lms.djangoapps.ccx.models import CustomCourseForEdX
 from lms.djangoapps.ccx.overrides import (
     bulk_delete_ccx_override_fields,
@@ -58,13 +59,18 @@ from lms.djangoapps.ccx.utils import (
     publish_signals_after_commit,
 )
 from lms.djangoapps.courseware.field_overrides import disable_overrides
-from lms.djangoapps.grades.api import CourseGradeFactory, is_writable_gradebook_enabled
+from lms.djangoapps.grades.api import (
+    CourseGradeFactory,
+    is_writable_gradebook_enabled,
+    prefetch_course_and_subsection_grades
+)
 from lms.djangoapps.instructor.enrollment import enroll_email, get_email_params
 from lms.djangoapps.instructor.views.gradebook_api import get_grade_book_page
 from openedx.core.djangoapps.django_comment_common.models import FORUM_ROLE_ADMINISTRATOR, assign_role
 from openedx.core.djangoapps.django_comment_common.utils import seed_permissions_roles
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.lib.courses import get_course_by_id
+from xmodule.modulestore.django import SignalHandler, modulestore  # lint-amnesty, pylint: disable=wrong-import-order
 
 log = logging.getLogger(__name__)
 TODAY = datetime.datetime.today  # for patching in tests
@@ -593,23 +599,29 @@ def ccx_grades_csv(request, course, ccx=None):
     ccx_key = CCXLocator.from_course_locator(course.id, str(ccx.id))
     with ccx_course(ccx_key) as course:  # lint-amnesty, pylint: disable=redefined-argument-from-local
 
-        enrolled_students = User.objects.filter(
+        enrolled_students = list(User.objects.filter(
             courseenrollment__course_id=ccx_key,
             courseenrollment__is_active=1
-        ).order_by('username').select_related("profile")
-        grades = CourseGradeFactory().iter(enrolled_students, course)
+        ).order_by('username').select_related("profile"))
 
         header = None
         rows = []
-        for student, course_grade, __ in grades:
-            if course_grade:
-                # We were able to successfully grade this student for this
-                # course.
+        # Bulk-read the persisted course and subsection grades for the whole
+        # class in a single pass instead of hitting the database once per
+        # student (avoids the N+1 that makes this report slow). Mirrors the
+        # async CourseGradeReport in instructor_task.
+        with modulestore().bulk_operations(ccx_key):
+            prefetch_course_and_subsection_grades(ccx_key, enrolled_students)
+            grades = CourseGradeFactory().iter(enrolled_students, course)
+
+            for student, course_grade, __ in grades:
+                # Skip students we were not able to grade for this course.
+                if not course_grade:
+                    continue
+
                 if not header:
-                    # Encode the header row in utf-8 encoding in case there are
-                    # unicode characters
                     header = [section['label'] for section in course_grade.summary['section_breakdown']]
-                    rows.append(["id", "email", "username", "grade"] + header)
+                    rows.append(["Student ID", "Email", "Username", "Grade"] + header)
 
                 percents = {
                     section['label']: section.get('percent', 0.0)
@@ -628,6 +640,8 @@ def ccx_grades_csv(request, course, ccx=None):
             writer.writerow(row)
 
         response = HttpResponse(buf.getvalue(), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment'
+        timestamp = datetime.datetime.now(pytz.UTC).strftime('%Y-%m-%d-%H%M')
+        report_name = f'{course_filename_prefix_generator(ccx_key)}_grade_report_{timestamp}.csv'
+        response['Content-Disposition'] = f'attachment; filename="{report_name}"'
 
         return response
