@@ -180,6 +180,7 @@ class ProgressTabSerializer(VerifiedModeSerializer):
     section_scores = SectionScoresSerializer(many=True)
     studio_url = serializers.CharField()
     username = serializers.CharField()
+    full_name = serializers.CharField()
     user_has_passing_grade = serializers.BooleanField()
     verification_data = VerificationDataSerializer()
     disable_progress_graph = serializers.BooleanField()

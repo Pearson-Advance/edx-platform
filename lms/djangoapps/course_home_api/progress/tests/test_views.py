@@ -265,6 +265,40 @@ class ProgressTabTestViews(BaseCourseHomeTests):
         response = self.client.get(self.url)
         assert response.data['username'] == other_user.username
 
+    def test_full_name_field_returns_profile_name(self):
+        # The new 'full_name' field carries the student's profile name; 'username' stays the username
+        CourseEnrollment.enroll(self.user, self.course.id)
+        response = self.client.get(self.url)
+        assert response.data['full_name'] == self.user.profile.name
+        assert response.data['username'] == self.user.username
+        assert response.data['full_name'] != response.data['username']
+
+    def test_full_name_field_falls_back_to_username_when_name_empty(self):
+        # When the profile name is empty, full_name falls back to the username
+        CourseEnrollment.enroll(self.user, self.course.id)
+        self.user.profile.name = ''
+        self.user.profile.save()
+        response = self.client.get(self.url)
+        assert response.data['full_name'] == self.user.username
+
+    def test_full_name_field_falls_back_to_username_without_profile(self):
+        # When the student has no UserProfile, full_name falls back to the username without raising
+        CourseEnrollment.enroll(self.user, self.course.id)
+        self.user.profile.delete()
+        response = self.client.get(self.url)
+        assert response.data['full_name'] == self.user.username
+
+    def test_full_name_field_prefers_enterprise_generic_name(self):
+        # Enterprise sensitive-SSO masking takes precedence over the profile name for both fields
+        CourseEnrollment.enroll(self.user, self.course.id)
+        with patch(
+            'lms.djangoapps.course_home_api.progress.views.get_enterprise_learner_generic_name',
+            return_value='AcmeLearner',
+        ):
+            response = self.client.get(self.url)
+        assert response.data['full_name'] == 'AcmeLearner'
+        assert response.data['username'] == 'AcmeLearner'
+
     def test_url_hidden_if_subsection_hide_after_due(self):
         chapter = BlockFactory(parent=self.course, category='chapter')
         yesterday = now() - timedelta(days=1)
