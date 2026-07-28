@@ -20,7 +20,7 @@ from openedx.features.enterprise_support.utils import get_enterprise_learner_gen
 %>
 
 <%
-username = get_enterprise_learner_generic_name(request) or student.username
+full_name = get_enterprise_learner_generic_name(request) or getattr(getattr(student, 'profile', None), 'name', '') or student.username
 %>
 
 <%block name="bodyclass">view-in-course view-progress</%block>
@@ -65,7 +65,7 @@ username = get_enterprise_learner_generic_name(request) or student.username
                 </div>
                 % endif
                 <h2 class="hd hd-2 progress-certificates-title">
-                    ${_("Course Progress for '{username}' ({email})").format(username=username, email=student.email)}
+                    ${_("Course Progress for '{full_name}' ({email})").format(full_name=full_name, email=student.email)}
                 </h2>
                 % if course_expiration_fragment:
                     ${HTML(course_expiration_fragment.content)}

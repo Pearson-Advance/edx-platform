@@ -124,6 +124,8 @@ class ProgressTabView(RetrieveAPIView):
         studio_url: (str) a str of the link to the grading in studio for the course
         user_has_passing_grade: (bool) boolean on if the user has a passing grade in the course
         username: (str) username of the student whose progress information is being displayed.
+        full_name: (str) full name of the student (UserProfile.name), falling back to the username
+            when no profile name is available.
         verification_data: an object containing
             link: (str) the link to either start or retry ID verification
             status: (str) the status of the ID verification
@@ -206,7 +208,13 @@ class ProgressTabView(RetrieveAPIView):
         is_staff = bool(has_access(request.user, 'staff', course_key))
 
         student = self._get_student_user(request, course_key, student_id, is_staff)
-        username = get_enterprise_learner_generic_name(request) or student.username
+        enterprise_generic_name = get_enterprise_learner_generic_name(request)
+        username = enterprise_generic_name or student.username
+        full_name = (
+            enterprise_generic_name
+            or getattr(getattr(student, 'profile', None), 'name', '')
+            or student.username
+        )
 
         course = get_course_or_403(student, 'load', course_key, check_if_enrolled=False)
 
@@ -284,6 +292,7 @@ class ProgressTabView(RetrieveAPIView):
             'section_scores': section_scores,
             'studio_url': get_studio_url(course, 'settings/grading'),
             'username': username,
+            'full_name': full_name,
             'user_has_passing_grade': user_has_passing_grade,
             'verification_data': verification_data,
             'disable_progress_graph': disable_progress_graph,
