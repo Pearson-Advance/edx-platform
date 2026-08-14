@@ -3,6 +3,7 @@ Base setup for Notification Apps and Types.
 """
 from typing import Any, Literal, TypedDict, NotRequired
 
+from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
 from .email_notifications import EmailCadence
@@ -14,6 +15,8 @@ from ..django_comment_common.models import FORUM_ROLE_ADMINISTRATOR, FORUM_ROLE_
 from .notification_content import get_notification_type_context_function
 
 FILTER_AUDIT_EXPIRED_USERS_WITH_NO_ROLE = 'filter_audit_expired_users_with_no_role'
+
+_STRUCTURAL_CONTEXT_KEYS = frozenset({'p', 'strong'})
 
 
 class NotificationType(TypedDict):
@@ -506,8 +509,11 @@ def get_notification_content(notification_type: str, context: dict[str, Any]):
         context = context_function(context)
 
         if template:
-            # Handle grouped templates differently by modifying the context using a different function.
-            return template.format(**context)
+            safe_context = {
+                key: value if key in _STRUCTURAL_CONTEXT_KEYS else escape(value)
+                for key, value in context.items()
+            }
+            return template.format(**safe_context)
 
     return ''
 
