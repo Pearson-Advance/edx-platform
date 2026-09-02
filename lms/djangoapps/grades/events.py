@@ -277,7 +277,10 @@ def _emit_course_passing_status_update(user, course_id, is_passing):
     """
     Emit course passing status event according to the course type.
     The status of event is determined by is_passing parameter.
-    """
+    """ 
+    course_overview = CourseOverview.objects.get(id=course_id)
+    course_metadata = course_overview.other_course_settings
+
     if hasattr(course_id, 'ccx'):
         # .. event_implemented_name: CCX_COURSE_PASSING_STATUS_UPDATED
         # .. event_type: org.openedx.learning.ccx.course.passing.status.updated.v1
@@ -296,6 +299,7 @@ def _emit_course_passing_status_update(user, course_id, is_passing):
                 course=CcxCourseData(
                     ccx_course_key=course_id,
                     master_course_key=course_id.to_course_locator(),
+                    context=course_metadata,
                 ),
             )
         )

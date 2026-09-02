@@ -153,6 +153,8 @@ class CourseOverview(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    other_course_settings = models.JSONField(default=dict, blank=True)
+
     @classmethod
     def _create_or_update(cls, course):  # lint-amnesty, pylint: disable=too-many-statements
         """
