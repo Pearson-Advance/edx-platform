@@ -35,6 +35,7 @@ from openedx_filters.license_enforcement.filters import (
 from common.djangoapps.edxmako.shortcuts import render_to_response
 from common.djangoapps.student.models import CourseEnrollment
 from common.djangoapps.student.roles import CourseCcxCoachRole
+from common.djangoapps.util.pearson_roles import is_suppressed_role
 from common.djangoapps.util.file import course_filename_prefix_generator
 from lms.djangoapps.ccx.models import CustomCourseForEdX
 from lms.djangoapps.ccx.overrides import (
@@ -172,6 +173,8 @@ def dashboard(request, course, ccx=None):
     context = {
         'course': course,
         'ccx': ccx,
+        # Hide the native "Student Admin" sub-tab for suppressed Pearson roles.
+        'hide_student_admin': is_suppressed_role(request),
     }
     context.update(get_ccx_creation_dict(course))
 

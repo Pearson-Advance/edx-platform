@@ -157,6 +157,32 @@ class TestAdminAccessCoachDashboard(CcxTestCase, LoginEnrollmentTestCase):
         response = self.client.get(self.url)
         assert response.status_code == 200
 
+    @patch('lms.djangoapps.ccx.views.render_to_response', intercept_renderer)
+    @patch('lms.djangoapps.ccx.views.is_suppressed_role', return_value=True)
+    def test_coach_dashboard_hides_student_admin_for_suppressed_role(self, _mock_suppressed):
+        """
+        Suppressed Pearson roles get hide_student_admin=True in the dashboard context.
+        """
+        staff = self.make_staff()
+        self.client.login(username=staff.username, password=self.TEST_PASSWORD)
+
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        assert response.mako_context['hide_student_admin'] is True
+
+    @patch('lms.djangoapps.ccx.views.render_to_response', intercept_renderer)
+    @patch('lms.djangoapps.ccx.views.is_suppressed_role', return_value=False)
+    def test_coach_dashboard_shows_student_admin_by_default(self, _mock_suppressed):
+        """
+        Non-suppressed users keep hide_student_admin=False (Student Admin visible).
+        """
+        staff = self.make_staff()
+        self.client.login(username=staff.username, password=self.TEST_PASSWORD)
+
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        assert response.mako_context['hide_student_admin'] is False
+
     def test_forbidden_user_access_coach_dashboard(self):
         """
         Assert user with no access must not see dashboard.
