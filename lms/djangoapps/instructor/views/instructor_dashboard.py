@@ -38,6 +38,7 @@ from common.djangoapps.student.roles import (
     CourseStaffRole
 )
 from common.djangoapps.util.json_request import JsonResponse
+from common.djangoapps.util.pearson_roles import is_suppressed_role
 from common.djangoapps.util.proctoring import requires_escalation_email
 from lms.djangoapps.bulk_email.api import is_bulk_email_feature_enabled
 from lms.djangoapps.bulk_email.models_api import is_bulk_email_disabled_for_course
@@ -83,6 +84,10 @@ class InstructorDashboardTab(CourseTab):
         """
         Returns true if the specified user has staff access.
         """
+        # Pearson Institution Admins/Instructors use the Pearson portals instead
+        # of the native Instructor Dashboard, so the tab is hidden for them.
+        if is_suppressed_role():
+            return False
         return bool(user and user.is_authenticated and
                     get_masquerade_role(user, course.id) != 'student' and
                     user.has_perm(permissions.VIEW_DASHBOARD, course.id))
@@ -133,6 +138,11 @@ def instructor_dashboard_2(request, course_id):  # lint-amnesty, pylint: disable
         raise Http404
 
     course = get_course_by_id(course_key, depth=None)
+
+    # Suppressed Pearson roles (Institution Admin/Instructor, not Global Staff)
+    # are redirected to the learner dashboard instead of the native panel.
+    if is_suppressed_role(request):
+        return HttpResponseRedirect(reverse('dashboard'))
 
     access = {
         'admin': request.user.is_staff,

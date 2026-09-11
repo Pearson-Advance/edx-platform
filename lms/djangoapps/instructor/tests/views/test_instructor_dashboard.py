@@ -147,6 +147,42 @@ class TestInstructorDashboard(ModuleStoreTestCase, LoginEnrollmentTestCase, XssT
         )
         assert has_instructor_tab(org_researcher, self.course)
 
+    @patch('lms.djangoapps.instructor.views.instructor_dashboard.is_suppressed_role')
+    def test_instructor_tab_hidden_for_suppressed_role(self, mock_is_suppressed_role):
+        """
+        The "Instructor" tab is hidden for suppressed Pearson roles and kept for
+        Global Staff.
+        """
+        def has_instructor_tab(user, course):
+            """Returns true if the "Instructor" tab is shown."""
+            tabs = get_course_tab_list(user, course)
+            return len([tab for tab in tabs if tab.name == 'Instructor']) == 1
+
+        mock_is_suppressed_role.return_value = True
+        assert not has_instructor_tab(self.instructor, self.course)
+
+        mock_is_suppressed_role.return_value = False
+        assert has_instructor_tab(self.instructor, self.course)
+
+    @patch('lms.djangoapps.instructor.views.instructor_dashboard.is_suppressed_role')
+    def test_instructor_dashboard_redirects_suppressed_role(self, mock_is_suppressed_role):
+        """
+        A suppressed Pearson role hitting the instructor dashboard URL directly is
+        redirected to the learner dashboard instead of seeing the panel.
+        """
+        mock_is_suppressed_role.return_value = True
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('dashboard'), fetch_redirect_response=False)
+
+    @patch('lms.djangoapps.instructor.views.instructor_dashboard.is_suppressed_role')
+    def test_instructor_dashboard_no_redirect_for_global_staff(self, mock_is_suppressed_role):
+        """
+        Global Staff is not redirected and keeps access to the instructor dashboard.
+        """
+        mock_is_suppressed_role.return_value = False
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
     @ddt.data(
         ('staff', False, False, True),
         ('staff', True, False, False),

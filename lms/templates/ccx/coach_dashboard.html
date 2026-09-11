@@ -10,6 +10,14 @@ from openedx.core.djangolib.js_utils import (
 )
 %>
 
+<%
+## The native "Student Admin" sub-tab is hidden for suppressed Pearson roles.
+## The value is computed in the CCX dashboard view (is_suppressed_role), gated by
+## the ENABLE_ROLE_BASED_PANEL_SUPPRESSION site configuration flag. Defaults to
+## False so the template never breaks when the value is not provided.
+hide_student_admin = context.get('hide_student_admin', False)
+%>
+
 <%block name="pagetitle">${_("CCX Coach Dashboard")}</%block>
 
 <%block name="headextra">
@@ -62,9 +70,11 @@ from openedx.core.djangolib.js_utils import (
             <li class="nav-item">
               <button type="button" class="btn-link" data-section="schedule">${_("Schedule")}</button>
             </li>
+            % if not hide_student_admin:
             <li class="nav-item">
               <button type="button" class="btn-link" data-section="student_admin">${_("Student Admin")}</button>
             </li>
+            % endif
             <li class="nav-item">
               <button type="button" class="btn-link" data-section="grading_policy">${_("Grading Policy")}</button>
             </li>
@@ -75,9 +85,11 @@ from openedx.core.djangolib.js_utils import (
           <section id="schedule" class="idash-section" aria-label="${_('Schedule')}">
             <%include file="schedule.html" args="" />
           </section>
+          % if not hide_student_admin:
           <section id="student_admin" class="idash-section" aria-label="${_('Student Grades')}">
             <%include file="student_admin.html" args="" />
           </section>
+          % endif
           <section id="grading_policy" class="idash-section" aria-label="${_('Grading Policy')}">
             <%include file="grading_policy.html" args="" />
           </section>
