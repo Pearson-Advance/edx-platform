@@ -24,7 +24,8 @@ def edxnotes(cls):
         """
         # Import is placed here to avoid model import at project startup.
         from .helpers import (
-            generate_uid, get_edxnotes_id_token, get_public_endpoint, get_token_url, is_feature_enabled
+            generate_uid, get_edxnotes_id_token, get_public_endpoint, get_token_url, is_feature_enabled,
+            notes_stored_at_master_course_enabled, to_notes_api_key
         )
 
         if not settings.FEATURES.get("ENABLE_EDXNOTES"):
@@ -50,6 +51,15 @@ def edxnotes(cls):
         if is_studio or not is_feature_enabled(course, user):
             return original_get_html(self, *args, **kwargs)
         else:
+            # When the feature is on, re-key the CCX course id to its master equivalent (no-op for regular
+            # courses). When it is off, keep the exact legacy behavior: strip the branch for a CCX and use
+            # the course id unchanged otherwise.
+            if notes_stored_at_master_course_enabled():
+                notes_course_id = to_notes_api_key(course.id)
+            elif is_ccx_course(course.id):
+                notes_course_id = course.id.for_branch(branch=None)
+            else:
+                notes_course_id = course.id
             return render_to_string("edxnotes_wrapper.html", {
                 "content": original_get_html(self, *args, **kwargs),
                 "uid": generate_uid(),
@@ -58,9 +68,8 @@ def edxnotes(cls):
                 ),
                 "params": {
                     # Use camelCase to name keys.
-                    "usageId": self.scope_ids.usage_id,
-                    # We need to change the value when the course is a CCX because of the issue commented above.
-                    "courseId": course.id if not is_ccx_course(course.id) else course.id.for_branch(branch=None),
+                    "usageId": to_notes_api_key(self.scope_ids.usage_id),
+                    "courseId": notes_course_id,
                     "token": get_edxnotes_id_token(user),
                     "tokenUrl": get_token_url(course.id),
                     "endpoint": get_public_endpoint(),

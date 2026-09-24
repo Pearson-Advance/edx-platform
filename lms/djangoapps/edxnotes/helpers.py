@@ -22,6 +22,7 @@ from requests.exceptions import RequestException
 
 from common.djangoapps.student.models import anonymous_id_for_user
 from common.djangoapps.util.date_utils import get_default_time_display
+from lms.djangoapps.ccx.modulestore import restore_ccx, strip_ccx
 from lms.djangoapps.courseware.access import has_access
 from lms.djangoapps.courseware.courses import get_current_child
 from lms.djangoapps.edxnotes.exceptions import EdxNotesParseError, EdxNotesServiceUnavailable
@@ -48,6 +49,49 @@ class NoteJSONEncoder(JSONEncoder):
         if isinstance(obj, datetime):
             return get_default_time_display(obj)
         return json.JSONEncoder.default(self, obj)
+
+
+def notes_stored_at_master_course_enabled():
+    """
+    Returns True when notes for a CCX should be stored/retrieved against its master course.
+    """
+    return settings.FEATURES.get("ENABLE_NOTES_STORED_AT_MASTER_COURSE", False)
+
+
+def to_notes_api_key(key):
+    """
+    Translate a CCX course/usage key to its master-course equivalent for the notes API.
+
+    No-op when the feature is disabled or when `key` is not a CCX key, so behavior is unchanged
+    for regular courses and when `ENABLE_NOTES_STORED_AT_MASTER_COURSE` is off.
+    """
+    if not notes_stored_at_master_course_enabled():
+        return key
+    stripped, ccx_id = strip_ccx(key)
+    if ccx_id is None:
+        return key
+    # Canonicalize to a branchless key. A CCX courseware page can carry a branch on both the course key and
+    # the block usage key; without this, notes would be stored under a branched id that would not line up
+    # with the branchless ids produced by the migration or by notes taken directly on the master course.
+    # `for_branch` applies to both course locators and usage locators.
+    return stripped.for_branch(None)
+
+
+def notes_api_usage_id_restorer(course_key):
+    """
+    Return a callable that maps a master-course `usage_id` (string) returned by the notes API back to the
+    CCX usage id for `course_key`, so resolution/access/URLs happen in the CCX context the user is enrolled
+    in. The CCX id is resolved once, here, so a caller can reuse the returned function across a whole page
+    of notes instead of re-resolving it per note.
+
+    The returned function is the identity when the feature is disabled or when `course_key` is not a CCX key.
+    """
+    if not notes_stored_at_master_course_enabled():
+        return lambda usage_id: usage_id
+    _, ccx_id = strip_ccx(course_key)
+    if ccx_id is None:
+        return lambda usage_id: usage_id
+    return lambda usage_id: str(restore_ccx(UsageKey.from_string(usage_id), ccx_id))
 
 
 def get_edxnotes_id_token(user):
@@ -92,7 +136,8 @@ def send_request(user, course_id, page, page_size, path="", text=None):
     url = get_internal_endpoint(path)
     params = {
         "user": anonymous_id_for_user(user, None),
-        "course_id": str(course_id),
+        # Query the master course when notes are stored against it (no-op otherwise).
+        "course_id": str(to_notes_api_key(course_id)),
         "page": page,
         "page_size": page_size,
     }
@@ -166,6 +211,10 @@ def preprocess_collection(user, course, collection):
     filtered_collection = []
     cache = {}
     include_path_info = ('course_structure' not in settings.NOTES_DISABLED_TABS)
+    # Notes may be stored against the master course; re-key back to the current CCX context so modulestore
+    # resolution, access checks and courseware URLs use the CCX the user is enrolled in. Resolved once here
+    # (no-op for regular courses or when the feature is off).
+    restore_usage_id = notes_api_usage_id_restorer(course.id)
     with store.bulk_operations(course.id):
         for model in collection:
             update = {
@@ -173,7 +222,7 @@ def preprocess_collection(user, course, collection):
             }
 
             model.update(update)
-            usage_id = model["usage_id"]
+            usage_id = restore_usage_id(model["usage_id"])
             if usage_id in list(cache.keys()):  # lint-amnesty, pylint: disable=consider-iterating-dictionary
                 model.update(cache[usage_id])
                 filtered_collection.append(model)
