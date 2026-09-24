@@ -1123,6 +1123,21 @@ ENABLE_MOBILE_REST_API = False
 # .. toggle_tickets: https://github.com/openedx/edx-platform/pull/6321
 ENABLE_EDXNOTES = False
 
+# .. toggle_name: settings.ENABLE_NOTES_STORED_AT_MASTER_COURSE
+# .. toggle_implementation: SettingToggle
+# .. toggle_default: False
+# .. toggle_description: When enabled, student/instructor notes created on a CCX are stored against and
+#   retrieved from the CCX's master course instead of the CCX run, so a user's private notes follow them
+#   across every CCX run of the same master course. Default (False) preserves the current per-CCX behavior.
+#   Notes remain visible only to the user that created them.
+# .. toggle_warning: This only changes how new reads/writes are keyed; it does not move annotations that
+#   are already stored in the notes service. Enabling it hides notes previously stored under a CCX until
+#   they are migrated to the master course, and disabling it again does not move master-course notes back
+#   to the CCX. Migrating existing annotations is a separate, one-way operation. Requires ENABLE_EDXNOTES.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2026-09-24
+ENABLE_NOTES_STORED_AT_MASTER_COURSE = False
+
 # Toggle to enable coordination with the Publisher tool (keep in sync between the LMS and CMS)
 ENABLE_PUBLISHER = False
 

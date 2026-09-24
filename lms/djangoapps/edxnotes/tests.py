@@ -12,22 +12,29 @@ from urllib.parse import parse_qs, urlparse
 import ddt
 import jwt
 import pytest
+from ccx_keys.locator import CCXLocator
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from oauth2_provider.models import Application
+from opaque_keys.edx.keys import CourseKey
 
 from common.djangoapps.edxmako.shortcuts import render_to_string
+from common.djangoapps.student.models import CourseEnrollment
 from common.djangoapps.student.tests.factories import CourseEnrollmentFactory, SuperuserFactory, UserFactory
+from lms.djangoapps.ccx.modulestore import restore_ccx
+from lms.djangoapps.ccx.tests.utils import CcxTestCase
 from lms.djangoapps.courseware.model_data import FieldDataCache
 from lms.djangoapps.courseware.block_render import get_block_for_descriptor
 from lms.djangoapps.courseware.tabs import get_course_tab_list
 from openedx.core.djangoapps.oauth_dispatch.jwt import create_jwt_for_user
 from openedx.core.djangoapps.oauth_dispatch.tests.factories import ApplicationFactory
 from openedx.core.djangoapps.user_api.models import RetirementState, UserRetirementStatus
+from openedx.core.lib.courses import get_course_by_id
 from xmodule.modulestore import ModuleStoreEnum  # lint-amnesty, pylint: disable=wrong-import-order
 from xmodule.modulestore.django import modulestore  # lint-amnesty, pylint: disable=wrong-import-order
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase  # lint-amnesty, pylint: disable=wrong-import-order
@@ -1276,3 +1283,113 @@ class EdxNotesPluginTest(ModuleStoreTestCase):
         FEATURES['ENABLE_EDXNOTES'] = enabled
         with override_settings(FEATURES=FEATURES):
             assert EdxNotesTab.is_enabled(self.course, self.user) == enabled
+
+
+ENABLE_MASTER_NOTES = {"ENABLE_NOTES_STORED_AT_MASTER_COURSE": True}
+DISABLE_MASTER_NOTES = {"ENABLE_NOTES_STORED_AT_MASTER_COURSE": False}
+
+
+@ddt.ddt
+class NotesStoredAtMasterCourseKeyTest(TestCase):
+    """
+    Unit tests for the CCX<->master key translation helpers used to store/retrieve notes against the
+    master course (feature flag ``ENABLE_NOTES_STORED_AT_MASTER_COURSE``).
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.master_course_key = CourseKey.from_string("course-v1:edX+DemoX+2020")
+        self.ccx_course_key = CCXLocator.from_course_locator(self.master_course_key, "1")
+        self.master_usage_key = self.master_course_key.make_usage_key("html", "sample_block")
+        # The CCX usage key that corresponds to the master block above.
+        self.ccx_usage_key = restore_ccx(self.master_usage_key, self.ccx_course_key.ccx)
+
+    @patch.dict("django.conf.settings.FEATURES", DISABLE_MASTER_NOTES)
+    @ddt.data("master_course_key", "ccx_course_key", "master_usage_key", "ccx_usage_key")
+    def test_to_notes_api_key_is_noop_when_disabled(self, attr):
+        """With the flag off, keys pass through untouched (current behavior)."""
+        key = getattr(self, attr)
+        assert helpers.to_notes_api_key(key) == key
+
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    def test_to_notes_api_key_translates_ccx_keys_when_enabled(self):
+        """With the flag on, CCX course/usage keys become their master equivalents."""
+        assert helpers.to_notes_api_key(self.ccx_course_key) == self.master_course_key
+        assert helpers.to_notes_api_key(self.ccx_usage_key) == self.master_usage_key
+
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    @ddt.data("master_course_key", "master_usage_key")
+    def test_to_notes_api_key_leaves_non_ccx_keys_untouched(self, attr):
+        """Regular (non-CCX) courses are never re-keyed, even with the flag on."""
+        key = getattr(self, attr)
+        assert helpers.to_notes_api_key(key) == key
+
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    def test_from_notes_api_usage_id_restores_ccx_context(self):
+        """A master usage id coming back from the notes API is re-keyed to the current CCX."""
+        result = helpers.from_notes_api_usage_id(str(self.master_usage_key), self.ccx_course_key)
+        assert result == str(self.ccx_usage_key)
+
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    def test_from_notes_api_usage_id_is_noop_for_regular_course(self):
+        """For a non-CCX course the usage id is returned unchanged."""
+        usage_id = str(self.master_usage_key)
+        assert helpers.from_notes_api_usage_id(usage_id, self.master_course_key) == usage_id
+
+    @patch.dict("django.conf.settings.FEATURES", DISABLE_MASTER_NOTES)
+    def test_from_notes_api_usage_id_is_noop_when_disabled(self):
+        """With the flag off the usage id is returned unchanged even for a CCX course."""
+        usage_id = str(self.master_usage_key)
+        assert helpers.from_notes_api_usage_id(usage_id, self.ccx_course_key) == usage_id
+
+
+@skipUnless(settings.FEATURES["ENABLE_EDXNOTES"], "EdxNotes feature needs to be enabled.")
+class NotesStoredAtMasterCourseCCXTest(CcxTestCase):
+    """
+    Integration tests for storing/retrieving CCX notes against the master course.
+    """
+
+    def setUp(self):
+        super().setUp()
+        ApplicationFactory(name="edx-notes")
+        self.make_coach()
+        self.ccx = self.make_ccx()
+        self.ccx_key = CCXLocator.from_course_locator(self.course.id, str(self.ccx.id))
+        # A leaf component under a vertical in the master course, used as the annotated block.
+        vertical = self.mstore.get_item(self.verticals[0].location)
+        self.master_usage_key = vertical.children[0]
+        # A learner enrolled ONLY in the CCX (not in the master course).
+        self.student = UserFactory()
+        CourseEnrollment.enroll(self.student, self.ccx_key)
+
+    @patch("lms.djangoapps.edxnotes.helpers.requests.get", autospec=True)
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    def test_send_request_queries_master_course_when_enabled(self, mock_get):
+        """The Notes tab query is sent to the notes API using the master course id."""
+        mock_get.return_value.content = json.dumps({"total": 0, "rows": []})
+        helpers.send_request(self.student, self.ccx_key, helpers.DEFAULT_PAGE, helpers.DEFAULT_PAGE_SIZE)
+        params = mock_get.call_args.kwargs["params"]
+        assert params["course_id"] == str(self.course.id)
+
+    @patch("lms.djangoapps.edxnotes.helpers.requests.get", autospec=True)
+    @patch.dict("django.conf.settings.FEATURES", DISABLE_MASTER_NOTES)
+    def test_send_request_queries_ccx_course_when_disabled(self, mock_get):
+        """With the flag off the query keeps using the CCX course id (current behavior)."""
+        mock_get.return_value.content = json.dumps({"total": 0, "rows": []})
+        helpers.send_request(self.student, self.ccx_key, helpers.DEFAULT_PAGE, helpers.DEFAULT_PAGE_SIZE)
+        params = mock_get.call_args.kwargs["params"]
+        assert params["course_id"] == str(self.ccx_key)
+
+    @patch.dict("django.conf.settings.FEATURES", ENABLE_MASTER_NOTES)
+    def test_preprocess_collection_rekeys_master_notes_for_ccx_learner(self):
+        """
+        A note stored against the master course (master usage id) is resolved in the CCX context and is
+        NOT filtered out for a learner enrolled only in the CCX.
+        """
+        course = get_course_by_id(self.ccx_key, depth=None)
+        collection = [{
+            "usage_id": str(self.master_usage_key),
+            "updated": "2020-01-01T00:00:00Z",
+        }]
+        filtered = helpers.preprocess_collection(self.student, course, collection)
+        assert len(filtered) == 1
