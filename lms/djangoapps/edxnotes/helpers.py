@@ -18,10 +18,12 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from oauth2_provider.models import Application
 from opaque_keys.edx.keys import UsageKey
+from opaque_keys.edx.locator import CourseLocator
 from requests.exceptions import RequestException
 
 from common.djangoapps.student.models import anonymous_id_for_user
 from common.djangoapps.util.date_utils import get_default_time_display
+from lms.djangoapps.ccx.modulestore import restore_ccx, strip_ccx
 from lms.djangoapps.courseware.access import has_access
 from lms.djangoapps.courseware.courses import get_current_child
 from lms.djangoapps.edxnotes.exceptions import EdxNotesParseError, EdxNotesServiceUnavailable
@@ -48,6 +50,47 @@ class NoteJSONEncoder(JSONEncoder):
         if isinstance(obj, datetime):
             return get_default_time_display(obj)
         return json.JSONEncoder.default(self, obj)
+
+
+def notes_stored_at_master_course_enabled():
+    """
+    Returns True when notes for a CCX should be stored/retrieved against its master course.
+    """
+    return settings.FEATURES.get("ENABLE_NOTES_STORED_AT_MASTER_COURSE", False)
+
+
+def to_notes_api_key(key):
+    """
+    Translate a CCX course/usage key to its master-course equivalent for the notes API.
+
+    No-op when the feature is disabled or when `key` is not a CCX key, so behavior is unchanged
+    for regular courses and when `ENABLE_NOTES_STORED_AT_MASTER_COURSE` is off.
+    """
+    if not notes_stored_at_master_course_enabled():
+        return key
+    stripped, ccx_id = strip_ccx(key)
+    if ccx_id is None:
+        return key
+    if isinstance(stripped, CourseLocator):
+        # Canonical, branchless master course key so the value stored by the annotator and the
+        # value queried by the Notes tab match exactly.
+        stripped = stripped.for_branch(None)
+    return stripped
+
+
+def from_notes_api_usage_id(usage_id, course_key):
+    """
+    Translate a master-course `usage_id` (string) returned by the notes API back to the CCX usage id
+    for `course_key`, so resolution/access/URLs happen in the CCX context the user is enrolled in.
+
+    No-op when the feature is disabled or when `course_key` is not a CCX key.
+    """
+    if not notes_stored_at_master_course_enabled():
+        return usage_id
+    _, ccx_id = strip_ccx(course_key)
+    if ccx_id is None:
+        return usage_id
+    return str(restore_ccx(UsageKey.from_string(usage_id), ccx_id))
 
 
 def get_edxnotes_id_token(user):
@@ -92,7 +135,8 @@ def send_request(user, course_id, page, page_size, path="", text=None):
     url = get_internal_endpoint(path)
     params = {
         "user": anonymous_id_for_user(user, None),
-        "course_id": str(course_id),
+        # Query the master course when notes are stored against it (no-op otherwise).
+        "course_id": str(to_notes_api_key(course_id)),
         "page": page,
         "page_size": page_size,
     }
@@ -173,7 +217,10 @@ def preprocess_collection(user, course, collection):
             }
 
             model.update(update)
-            usage_id = model["usage_id"]
+            # Notes may be stored against the master course; re-key back to the current CCX context so
+            # modulestore resolution, access checks and courseware URLs use the CCX the user is enrolled in
+            # (no-op for regular courses or when the feature is off).
+            usage_id = from_notes_api_usage_id(model["usage_id"], course.id)
             if usage_id in list(cache.keys()):  # lint-amnesty, pylint: disable=consider-iterating-dictionary
                 model.update(cache[usage_id])
                 filtered_collection.append(model)
