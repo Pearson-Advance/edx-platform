@@ -199,14 +199,22 @@ class EdxNotesDecoratorTest(ModuleStoreTestCase):
         Tests that the course ID passed to edX Notes is normalized without a branch.
         """
         course = CourseFactory(edxnotes=True)
-        course.id = course.id.for_branch(branch="draft")
         enrollment = CourseEnrollmentFactory(course_id=course.id)
+
+        branched_course_id = course.id.for_branch("draft")
+        mock_course = MagicMock(
+            id=branched_course_id,
+            edxnotes=True,
+            edxnotes_visibility=True,
+        )
+
         problem = TestProblem(course, enrollment.user)
+        problem.block.runtime.modulestore.get_course.return_value = mock_course
 
         problem.get_html()
 
         context = mock_render_to_string.call_args.args[1]
-        assert context["params"]["courseId"] == course.id.for_branch(branch=None)
+        assert context["params"]["courseId"] == branched_course_id.for_branch(branch=None)
 
 
 @skipUnless(settings.ENABLE_EDXNOTES, "EdxNotes feature needs to be enabled.")
