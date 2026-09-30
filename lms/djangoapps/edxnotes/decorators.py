@@ -9,7 +9,6 @@ from django.conf import settings
 from xblock.exceptions import NoSuchServiceError
 
 from common.djangoapps.edxmako.shortcuts import render_to_string
-from common.djangoapps.student.auth import is_ccx_course
 
 
 def edxnotes(cls):
