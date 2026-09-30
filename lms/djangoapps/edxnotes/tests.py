@@ -192,6 +192,22 @@ class EdxNotesDecoratorTest(ModuleStoreTestCase):
         enable_edxnotes_for_the_course(self.course, None)
         assert problem.get_html() == "original_get_html"
 
+    @override_settings(ENABLE_EDXNOTES=True)
+    @patch("lms.djangoapps.edxnotes.decorators.render_to_string")
+    def test_course_id_is_always_branchless(self, mock_render_to_string):
+        """
+        Tests that the course ID passed to edX Notes is normalized without a branch.
+        """
+        course = CourseFactory(edxnotes=True)
+        course.id = course.id.for_branch(branch="draft")
+        enrollment = CourseEnrollmentFactory(course_id=course.id)
+        problem = TestProblem(course, enrollment.user)
+
+        problem.get_html()
+
+        context = mock_render_to_string.call_args.args[1]
+        assert context["params"]["courseId"] == course.id.for_branch(branch=None)
+
 
 @skipUnless(settings.ENABLE_EDXNOTES, "EdxNotes feature needs to be enabled.")
 @ddt.ddt
