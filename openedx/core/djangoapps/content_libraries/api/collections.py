@@ -139,7 +139,7 @@ def update_library_collection_items(
             except Collection.DoesNotExist as exc:
                 raise ContentLibraryContainerNotFound(opaque_key) from exc
 
-            entity_ids.append(container.id)
+            entity_ids.append(container.pk)
         elif isinstance(opaque_key, UsageKeyV2):
             # Parse the block_family from the key to use as namespace.
             block_type = BlockTypeKey.from_string(str(opaque_key))
@@ -153,7 +153,7 @@ def update_library_collection_items(
             except Component.DoesNotExist as exc:
                 raise ContentLibraryBlockNotFound(opaque_key) from exc
 
-            entity_ids.append(component.id)
+            entity_ids.append(component.pk)
         else:
             # This should never happen, but just in case.
             raise ValueError(f"Invalid opaque_key: {opaque_key}")
