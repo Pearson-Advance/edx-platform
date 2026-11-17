@@ -10,7 +10,11 @@ from django.urls import reverse
 from django.utils import timezone
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
-from openedx_filters.learning.filters import CourseEnrollmentAPIRenderStarted, CourseRunAPIRenderStarted
+from openedx_filters.learning.filters import (
+    CourseEnrollmentAPIRenderStarted,
+    CourseRunAPIRenderStarted,
+    LearnerDashboardCoursesRendered,
+)
 
 from common.djangoapps.course_modes.models import CourseMode
 from openedx.features.course_experience import course_home_url
@@ -634,4 +638,9 @@ class LearnerDashboardSerializer(serializers.Serializer):
                 UnfulfilledEntitlementSerializer(entitlement, context=self.context).data
             )
 
-        return courses
+        # .. filter_implemented_name: LearnerDashboardCoursesRendered
+        # .. filter_type: org.openedx.learning.home.courses.rendered.v1
+        return LearnerDashboardCoursesRendered.run_filter(
+            serialized_courses=courses,
+            sort_by=self.context.get("course_sort"),
+        )
