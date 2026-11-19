@@ -561,6 +561,7 @@ class InitializeView(APIView):  # pylint: disable=unused-argument
         }
 
         context = {
+            "course_sort": self.request.query_params.get("sort"),
             "audit_access_deadlines": audit_access_deadlines,
             "ecommerce_payment_page": ecommerce_payment_page,
             "cert_statuses": cert_statuses,
