@@ -566,7 +566,7 @@ class TestDashboardView(BaseTestDashboardView):
     @patch("lms.djangoapps.learner_home.serializers.LearnerDashboardCoursesRendered.run_filter", return_value=[])
     def test_requested_course_sort_reaches_filter(self, run_filter):
         """Forward the optional sort mode from the API request to the course-list filter."""
-        for query, expected in (({}, None), ({"sort": "prerequisites"}, "prerequisites")):
+        for query, expected in (({}, None), ({"sort": ""}, None), ({"sort": "prerequisites"}, "prerequisites")):
             with self.subTest(query=query):
                 run_filter.reset_mock()
 
