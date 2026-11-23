@@ -11,7 +11,7 @@ from uuid import uuid4
 import ddt
 from django.conf import settings
 from django.urls import reverse
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
 
 
@@ -1226,6 +1226,64 @@ class TestSocialShareSettingsSerializer(TestCase):
 
         expected_keys = ["twitter", "facebook"]
         self.assertEqual(output_data.keys(), set(expected_keys))
+
+
+class TestLearnerDashboardCoursesFilter(SimpleTestCase):
+    """Verify that the list filter receives and replaces all serialized course cards."""
+
+    @mock.patch("lms.djangoapps.learner_home.serializers.UnfulfilledEntitlementSerializer")
+    @mock.patch("lms.djangoapps.learner_home.serializers.LearnerEnrollmentSerializer")
+    def test_filter_replaces_combined_list(self, enrollment_serializer, entitlement_serializer):
+        """Filter the complete list after both types of card are serialized."""
+        enrollment, entitlement = mock.sentinel.enrollment, mock.sentinel.entitlement
+        enrollment_card = {"courseRun": {"courseId": "course-v1:edX+Demo+Run"}}
+        entitlement_card = {"courseRun": None}
+        enrollment_serializer.return_value.data = enrollment_card
+        entitlement_serializer.return_value.data = entitlement_card
+        reordered = [entitlement_card, enrollment_card]
+        context = {"programs": {}, "course_sort": "prerequisites"}
+        serializer = LearnerDashboardSerializer(context=context)
+
+        with mock.patch(
+            "lms.djangoapps.learner_home.serializers.LearnerDashboardCoursesRendered.run_filter",
+            return_value=reordered,
+        ) as run_filter:
+            result = serializer.get_courses({
+                "enrollments": [enrollment],
+                "unfulfilledEntitlements": [entitlement],
+            })
+
+        run_filter.assert_called_once_with(
+            serialized_courses=[enrollment_card, entitlement_card], sort_by="prerequisites",
+        )
+        enrollment_serializer.assert_called_once_with(enrollment, context=context)
+        entitlement_serializer.assert_called_once_with(entitlement, context=context)
+        self.assertIs(result, reordered)
+
+    @override_settings(OPEN_EDX_FILTERS_CONFIG={})
+    @mock.patch("lms.djangoapps.learner_home.serializers.UnfulfilledEntitlementSerializer")
+    @mock.patch("lms.djangoapps.learner_home.serializers.LearnerEnrollmentSerializer")
+    def test_no_pipeline_preserves_order(self, enrollment_serializer, entitlement_serializer):
+        """Unconfigured installations keep enrollments before entitlements."""
+        enrollment_card = {"courseRun": {"courseId": "course-v1:edX+Demo+Run"}}
+        entitlement_card = {"courseRun": None}
+        enrollment_serializer.return_value.data = enrollment_card
+        entitlement_serializer.return_value.data = entitlement_card
+
+        result = LearnerDashboardSerializer().get_courses({
+            "enrollments": [mock.sentinel.enrollment],
+            "unfulfilledEntitlements": [mock.sentinel.entitlement],
+        })
+
+        self.assertEqual(result, [enrollment_card, entitlement_card])
+
+    @mock.patch("lms.djangoapps.learner_home.serializers.LearnerDashboardCoursesRendered.run_filter")
+    def test_filter_runs_for_empty_list(self, run_filter):
+        """The hook also receives an empty list when no cards are present."""
+        run_filter.return_value = []
+
+        self.assertEqual(LearnerDashboardSerializer().get_courses({}), [])
+        run_filter.assert_called_once_with(serialized_courses=[], sort_by=None)
 
 
 class TestLearnerDashboardSerializer(LearnerDashboardBaseTest):

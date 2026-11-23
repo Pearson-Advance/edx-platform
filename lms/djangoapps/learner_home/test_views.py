@@ -563,6 +563,19 @@ class TestDashboardView(BaseTestDashboardView):
         return (program, enrollment, entitlement)
 
     @patch.dict(settings.FEATURES, ENTERPRISE_ENABLED=False)
+    @patch("lms.djangoapps.learner_home.serializers.LearnerDashboardCoursesRendered.run_filter", return_value=[])
+    def test_requested_course_sort_reaches_filter(self, run_filter):
+        """Forward the optional sort mode from the API request to the course-list filter."""
+        for query, expected in (({}, None), ({"sort": ""}, None), ({"sort": "prerequisites"}, "prerequisites")):
+            with self.subTest(query=query):
+                run_filter.reset_mock()
+
+                response = self.client.get(self.view_url, query)
+
+                self.assertEqual(response.status_code, 200)
+                run_filter.assert_called_once_with(serialized_courses=[], sort_by=expected)
+
+    @patch.dict(settings.FEATURES, ENTERPRISE_ENABLED=False)
     def test_response_structure(self):
         """Basic test for correct response structure"""
 
