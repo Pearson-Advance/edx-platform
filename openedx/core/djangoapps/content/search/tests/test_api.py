@@ -5,14 +5,13 @@ from __future__ import annotations
 
 import copy
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, Mock, call, patch
 from opaque_keys.edx.keys import UsageKey
 from opaque_keys.edx.locator import LibraryCollectionLocator, LibraryContainerLocator
 
 import ddt
 import pytest
-from django.apps import apps
 from django.test import TestCase, override_settings
 from freezegun import freeze_time
 from meilisearch.errors import MeilisearchApiError

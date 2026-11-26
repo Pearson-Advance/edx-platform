@@ -48,7 +48,6 @@ from xmodule.modulestore.django import SignalHandler
 
 from .api import (
     SYNC_INDEX_WAIT_TIMEOUT,
-    is_meilisearch_enabled,
     only_if_meilisearch_enabled,
     upsert_content_object_tags_index_doc,
     upsert_item_collections_index_docs,
