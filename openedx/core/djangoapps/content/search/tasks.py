@@ -64,6 +64,7 @@ def delete_xblock_index_doc(usage_key_str: str) -> None:
 
 
 @shared_task(base=LoggedTask, autoretry_for=(MeilisearchError, ConnectionError))
+@set_code_owner_attribute
 def upsert_library_block_index_doc(usage_key_str: str, wait_timeout: float | None = None) -> None:
     """
     Celery task to update the content index document for a library block
